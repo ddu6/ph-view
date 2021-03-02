@@ -1,4 +1,4 @@
-export const domain='ddu6.ml'
+export const domain='ddu6.xyz'
 export interface HoleData{
     text:string|null|undefined
     tag:string|null|undefined
