@@ -20,7 +20,7 @@ export interface CommentData{
     name:string|null|undefined
 }
 export type Order='id'|'active'|'hot'
-async function getResult(path:string,query:string[],local:boolean,update:boolean,token:string,empty=false,timeout=30000){
+async function getResult(path:string,query:string[],local:boolean,update:boolean,token:string,timeout=30000){
     const result=await new Promise(async(resolve:(val:{data:any}|number)=>void)=>{
         try{
             if(update&&!local)query.push('update')
@@ -29,14 +29,24 @@ async function getResult(path:string,query:string[],local:boolean,update:boolean
                 resolve(503)
             },timeout)
             const res=await fetch(`https://${domain}/services/ph-get/${local?'local/':''}${path}${query.length>0?'?':''}${query.join('&')}`)
-            const status=res.status
-            if(status!==200){resolve(status);return}
-            if(empty){resolve(200);return}
-            const data=await res.json()
-            resolve({data:data})
+            if(res.status!==200){
+                resolve(500)
+                return
+            }
+            const json=await res.json()
+            const {status,data}=json
+            if(status===200){
+                resolve({data:data})
+                return
+            }
+            if(typeof status==='number'){
+                resolve(status)
+                return
+            }
         }catch(err){
-            resolve(500)
+            console.log(err)
         }
+        resolve(500)
     })
     return result
 }
@@ -111,8 +121,8 @@ export async function getStars(token:string){
 }
 export async function star(id:number|string,starred:boolean,token:string){
     if(token.length===0)return 401
-    const result=await getResult(`s${id}`,starred?['starred']:[],false,false,token,true)
-    if(result===200)return 200
+    const result=await getResult(`s${id}`,starred?['starred']:[],false,false,token)
+    if(typeof result!=='number')return 200
     if(result===503)return 503
     if(result===404)return 404
     return 500
