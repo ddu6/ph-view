@@ -111,6 +111,9 @@ export class Main{
         })
         this.starCheckbox.addEventListener('click',async e=>{
             this.pageInput.value='1'
+            if(this.fillterInput.value.startsWith('.d')){
+                this.fillterInput.value=this.fillterInput.value.replace(/^\.d\d*\s*/,'')
+            }
             this.starCheckbox.classList.toggle('checked')
             await this.refresh()
         })
