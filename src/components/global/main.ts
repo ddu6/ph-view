@@ -333,7 +333,7 @@ export class Main{
                 return text
             }).join('\n')
             if(!isRef||this.refMode==='recur'){
-                const result=fullText.match(/\b\d{3,7}\b|%23\d{3,7}\b/g)
+                const result=fullText.match(/\b\d{6,7}\b|%23\d{3,7}\b/g)
                 if(result!==null){
                     const length=Math.min(result.length,this.refLimit)
                     for(let j=0;j<length;j++){
