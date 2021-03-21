@@ -49,7 +49,7 @@ export class Main{
     local=false
     refMode:'direct'|'recur'|'none'='direct'
     refLimit=3
-    scrollSpeed=1000
+    scrollSpeed=500
     appendThreshod=1000
     localCommentsThreshod=500
     congestionSleep=5000
