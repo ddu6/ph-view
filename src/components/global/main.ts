@@ -144,7 +144,7 @@ export class Main{
         const result0=await this.fetchLock.get()
         if(result0===false)return 500
         const data=await get.getComments(id,this.token,Number(reply),Number(hidden),this.localCommentsThreshod)
-        if(data===503||data===500){
+        if(data===503||data===500||data===401){
             await this.fetchLock.release(result0)
             return data
         }
@@ -259,6 +259,7 @@ export class Main{
             if(item.idOnly){
                 const data=await get.getHole(id,this.token)
                 if(data===404)continue
+                if(data===401)return 500
                 if(data===500){
                     this.errCount++
                     if(this.errCount>this.errLimit)return 500
@@ -405,9 +406,16 @@ export class Main{
         else{
             while(true){
                 const data1=await get.getPage(this.key,this.page+1,this.order,this.s,this.e,this.token)
+                if(data1===401){
+                    data0=500
+                    break
+                }
                 if(data1===500){
                     this.errCount++
-                    if(this.errCount>this.errLimit){data0=data1;break}
+                    if(this.errCount>this.errLimit){
+                        data0=data1
+                        break
+                    }
                     await this.fetchLock.sleep(this.errSleep)
                     continue
                 }
@@ -624,6 +632,10 @@ export class Main{
             const data=await get.getHole(id,this.token)
             if(data===404){
                 data1=404
+                break
+            }
+            if(data===401){
+                data1=500
                 break
             }
             if(data===500){

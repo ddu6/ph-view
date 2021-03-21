@@ -101,14 +101,17 @@ async function basicallyGetLocalPage(key:string,page:number|string,order:Order,s
     return data
 }
 export async function getComments(id:number|string,token:string,reply:number,hidden:number,localCommentsThreshod:number){
+    if(token.length===0)return 401
     if(reply===0)return []
     const result0=await basicallyGetLocalComments(id,token)
+    if(result0===401)return 401
     if(result0===503)return 503
     if(typeof result0==='number')return 500
     const data0=result0.data
     if(token.length===0||hidden===1)return data0
     if(data0.length>=reply||data0.length>=localCommentsThreshod)return data0
     const result1=await basicallyGetComments(id,token)
+    if(result1===401)return 401
     if(result1===503)return 503
     if(result1===404)return data0
     if(typeof result1==='number')return 500
@@ -116,11 +119,14 @@ export async function getComments(id:number|string,token:string,reply:number,hid
     return data1
 }
 export async function getHole(id:number|string,token:string){
+    if(token.length===0)return 401
     const result0=await basicallyGetLocalHole(id,token)
+    if(result0===401)return 401
     if(result0===503)return 503
     if(result0===404){
         if(token.length===0)return 404
         const result1=await basicallyGetHole(id,token)
+        if(result1===401)return 401
         if(result1===503)return 503
         if(result1===404)return 404
         if(typeof result1==='number')return 500
@@ -133,6 +139,7 @@ export async function getHole(id:number|string,token:string){
     if(Number(data0.hidden)===1)return data0
     if(token.length===0)return data0
     const result1=await basicallyGetHole(id,token)
+    if(result1===401)return 401
     if(result1===503)return 503
     if(result1===404)return data0
     if(typeof result1==='number')return 500
@@ -142,6 +149,7 @@ export async function getHole(id:number|string,token:string){
 export async function getStars(token:string){
     if(token.length===0)return 401
     const result=await basicallyGetStars(token)
+    if(result===401)return 401
     if(result===503)return 503
     if(result===404)return 401
     if(typeof result==='number')return 500
@@ -152,13 +160,16 @@ export async function star(id:number|string,starred:boolean,token:string){
     if(token.length===0)return 401
     const result=await getResult(`s${id}`,starred?{'starred':'',token:token}:{token:token})
     if(typeof result!=='number')return 200
+    if(result===401)return 401
     if(result===503)return 503
     if(result===404)return 404
     return 500
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string){
+    if(token.length===0)return 401
     if(order==='id'&&token.length>0){
         const result=await basicallyGetPage(key,page,token)
+        if(result===401)return 401
         if(result===503)return 503
         if(result===404)return []
         if(typeof result==='number')return 500
@@ -166,6 +177,7 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
         return data
     }    
     const result=await basicallyGetLocalPage(key,page,order,s,e,token)
+    if(result===401)return 401
     if(result===503)return 503
     if(typeof result==='number')return 500
     const data=result.data
