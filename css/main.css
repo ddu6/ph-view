@@ -178,7 +178,7 @@ textarea {
 }
 
 .hole.updated>.index>.id {
-    color: var(--color-comment);
+    text-decoration: underline;
 }
 
 .hole.hidden>.index>.id {
