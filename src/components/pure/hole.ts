@@ -33,11 +33,13 @@ export class Hole{
         this.isRef=isRef
         if(isRef)this.element.classList.add('ref')
         else this.element.classList.remove('ref')
-        let {text,tag,pid,timestamp,reply,likenum,type,url,etimestamp}=data
+        let {text,tag,pid,timestamp,reply,likenum,type,url,etimestamp,hidden}=data
+        if(Number(hidden)===1)this.element.classList.add('hidden')
+        else this.element.classList.remove('hidden')
         if(typeof text!=='string')text=''
         if(typeof tag!=='string')tag=''
         this.id=Number(pid)
-        this.index.innerHTML=`${Hole.prettyText(tag)}${tag.length>0?'\n':''}${pid}\n${Hole.prettyDate(timestamp)}\n${reply}<a class="reply" href="https://pkuhelper.pku.edu.cn/hole/#%23${pid}" target="_blank"></a> ${likenum}`
+        this.index.innerHTML=`${Hole.prettyText(tag)}${tag.length>0?'\n':''}<span class="id">${pid}</span>\n${Hole.prettyDate(timestamp)}\n${reply}<a class="reply" href="https://pkuhelper.pku.edu.cn/hole/#%23${pid}" target="_blank"></a> ${likenum}`
         this.index.append(this.starElement)
         if(starred)this.starElement.classList.add('checked')
         else this.starElement.classList.remove('checked')
@@ -126,7 +128,9 @@ export class Hole{
             this.renderRestComments()
         })
     }
-    renderComments(data:CommentData[],reverse=false){
+    renderComments(data:CommentData[],updated=false,reverse=false){
+        if(updated)this.element.classList.add('updated')
+        else this.element.classList.remove('updated')
         this.comments.innerHTML=''
         this.restComments=[]
         if(data.length>=2){

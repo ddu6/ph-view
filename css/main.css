@@ -169,12 +169,20 @@ textarea {
     padding: var(--length-padding-cell);
 }
 
-.hole.new-comment {
-    border-left: 1px solid var(--color-variable);
+.hole.new-comment>.index>.id {
+    color: var(--color-variable);
 }
 
-.hole.new-hole {
-    border-left: 1px solid var(--color-string);
+.hole.new-hole>.index>.id {
+    color: var(--color-string);
+}
+
+.hole.updated>.index>.id {
+    color: var(--color-comment);
+}
+
+.hole.hidden>.index>.id {
+    text-decoration: line-through;
 }
 
 .hole.refreshing {

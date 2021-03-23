@@ -20,7 +20,7 @@ export interface CommentData{
     name:string|null|undefined
 }
 export type Order='id'|'active'|'hot'
-async function getResult(path:string,params:Record<string,string>={},timeout=30000){
+async function getResult(path:string,params:Record<string,string>={},timeout=60000){
     const result=await new Promise(async(resolve:(val:{data:any}|number)=>void)=>{
         let paramsStr=new URLSearchParams(params).toString()
         if(paramsStr.length>0)paramsStr='?'+paramsStr
@@ -102,21 +102,37 @@ async function basicallyGetLocalPage(key:string,page:number|string,order:Order,s
 }
 export async function getComments(id:number|string,token:string,reply:number,hidden:number,localCommentsThreshod:number){
     if(token.length===0)return 401
-    if(reply===0)return []
+    if(reply===0)return {
+        data:[],
+        updated:false
+    }
     const result0=await basicallyGetLocalComments(id,token)
     if(result0===401)return 401
     if(result0===503)return 503
     if(typeof result0==='number')return 500
     const data0=result0.data
-    if(token.length===0||hidden===1)return data0
-    if(data0.length>=reply||data0.length>=localCommentsThreshod)return data0
+    if(token.length===0||hidden===1)return {
+        data:data0,
+        updated:false
+    }
+    const length0=data0.length
+    if(length0>=reply||length0>=localCommentsThreshod)return {
+        data:data0,
+        updated:false
+    }
     const result1=await basicallyGetComments(id,token)
     if(result1===401)return 401
     if(result1===503)return 503
-    if(result1===404)return data0
+    if(result1===404)return {
+        data:data0,
+        updated:false
+    }
     if(typeof result1==='number')return 500
     const data1=result1.data
-    return data1
+    return {
+        data:data1,
+        updated:true
+    }
 }
 export async function getHole(id:number|string,token:string){
     if(token.length===0)return 401

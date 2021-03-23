@@ -143,12 +143,13 @@ export class Main{
     async getAndRenderComments(id:number|string,hole:Hole,reply:number|string,hidden:0|1|'0'|'1'|boolean){
         const result0=await this.fetchLock.get()
         if(result0===false)return 500
-        const data=await get.getComments(id,this.token,Number(reply),Number(hidden),this.localCommentsThreshod)
-        if(data===503||data===500||data===401){
+        const result1=await get.getComments(id,this.token,Number(reply),Number(hidden),this.localCommentsThreshod)
+        if(result1===503||result1===500||result1===401){
             await this.fetchLock.release(result0)
-            return data
+            return result1
         }
-        hole.renderComments(data)
+        const {data,updated}=result1
+        hole.renderComments(data,updated)
         for(let i=0;i<data.length;i++){
             const item=data[i]
             const {text}=item
