@@ -159,7 +159,7 @@ export class Main{
             if(text.startsWith('[Helper]')){
                 hole.renderComments([item])
                 await this.fetchLock.release(result0)
-                return 401
+                return 423
             }
         }
         await this.fetchLock.release(result0)
@@ -316,7 +316,8 @@ export class Main{
                     await this.fetchLock.sleep(this.errSleep)
                     continue
                 }
-                if(result1===401){
+                if(result1===401)return 500
+                if(result1===423){
                     await this.fetchLock.sleep(this.unauthorizedSleep)
                     continue
                 }
@@ -674,7 +675,8 @@ export class Main{
                 await this.fetchLock.sleep(this.errSleep)
                 continue
             }
-            if(result1===401){
+            if(result1===401)return 500
+            if(result1===423){
                 await this.fetchLock.sleep(this.unauthorizedSleep)
                 continue
             }
