@@ -248,6 +248,10 @@ textarea {
     height: 1em;
 }
 
+.hr+.hr{
+    height: 0;
+}
+
 .end::before {
     content: "- end -";
     display: flex;

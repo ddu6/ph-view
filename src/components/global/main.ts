@@ -135,10 +135,11 @@ export class Main{
             if(this.auto){
                 window.scrollBy({left:0,top:this.scrollSpeed,behavior:"smooth"})
             }
-            if(this.element.scrollHeight<window.innerHeight){
-                await this.autoAppend()
-            }
         },1000)
+        setInterval(async()=>{
+            if(!this.inited)return
+            await this.autoAppend()
+        },500)
     }
     async getAndRenderComments(id:number|string,hole:Hole,reply:number|string,hidden:0|1|'0'|'1'|boolean){
         const result0=await this.fetchLock.get()
@@ -450,7 +451,7 @@ export class Main{
         await this.appendLock.release(result)
     }
     async autoAppend(){
-        if(Date.now()<this.lastAppend+1000
+        if(Date.now()<this.lastAppend+250
         ||window.pageYOffset+window.innerHeight<document.body.scrollHeight-this.appendThreshod
         ||this.appendLock.busy)return
         this.lastAppend=Date.now()
