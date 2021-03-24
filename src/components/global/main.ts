@@ -31,6 +31,7 @@ export class Main{
     fillter=''
     page=0
     token=''
+    password=''
     stars:number[]=[]
 
     s=0
@@ -144,7 +145,7 @@ export class Main{
     async getAndRenderComments(id:number|string,hole:Hole,reply:number|string,hidden:0|1|'0'|'1'|boolean){
         const result0=await this.fetchLock.get()
         if(result0===false)return 500
-        const result1=await get.getComments(id,this.token,Number(reply),Number(hidden),this.localCommentsThreshod)
+        const result1=await get.getComments(id,Number(reply),Number(hidden),this.localCommentsThreshod,this.token,this.password)
         if(result1===503||result1===500||result1===401){
             await this.fetchLock.release(result0)
             return result1
@@ -259,7 +260,7 @@ export class Main{
             this.appendedIds.push(id)
             let data1:get.HoleData
             if(item.idOnly){
-                const data=await get.getHole(id,this.token)
+                const data=await get.getHole(id,this.token,this.password)
                 if(data===404)continue
                 if(data===401)return 500
                 if(data===500){
@@ -287,7 +288,7 @@ export class Main{
                 if(result0===false)return
                 const {classList}=hole.starElement
                 const starrd=classList.contains('checked')
-                const result1=await get.star(id,starrd,this.token)
+                const result1=await get.star(id,starrd,this.token,this.password)
                 if(result1===503||result1===500){
                     await this.fetchLock.release(result0)
                     return
@@ -382,7 +383,7 @@ export class Main{
             this.end=true
             this.page=0
             while(true){
-                const data1=await get.getStars(this.token)
+                const data1=await get.getStars(this.token,this.password)
                 if(data1===401){data0=[];break}
                 if(data1===500){
                     this.errCount++
@@ -406,7 +407,7 @@ export class Main{
         }
         else{
             while(true){
-                const data1=await get.getPage(this.key,this.page+1,this.order,this.s,this.e,this.token)
+                const data1=await get.getPage(this.key,this.page+1,this.order,this.s,this.e,this.token,this.password)
                 if(data1===401){
                     data0=500
                     break
@@ -499,10 +500,13 @@ export class Main{
         await this.appendLock.revive()
     }
     async refresh(){
-        const result=this.fillterInput.value.trim().match(/^\w{32}$/)
+        const result=this.fillterInput.value.trim().match(/^\w{32,}$/)
         if(result!==null&&result.length>0){
-            this.token=result[0]
+            const tmp=result[0]
+            this.token=tmp.slice(-32)
+            this.password=tmp.slice(0,-32)
             window.localStorage.setItem('ph-token',this.token)
+            window.localStorage.setItem('ph-password',this.password)
             this.fillterInput.value=''
         }
         this.fillter=this.fillterInput.value.trim()
@@ -547,6 +551,10 @@ export class Main{
         const token=window.localStorage.getItem('ph-token')
         if(typeof token==='string'&&token.length===32){
             this.token=token
+        }
+        const password=window.localStorage.getItem('ph-password')
+        if(typeof password==='string'&&password.length>0){
+            this.password=password
         }
         const stars=window.localStorage.getItem('ph-stars')
         if(stars!==null){
@@ -630,7 +638,7 @@ export class Main{
         if(symbol===false)return 500
         let data1:get.HoleData|404|500
         while(true){
-            const data=await get.getHole(id,this.token)
+            const data=await get.getHole(id,this.token,this.password)
             if(data===404){
                 data1=404
                 break

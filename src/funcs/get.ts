@@ -49,10 +49,11 @@ async function getResult(path:string,params:Record<string,string>={},timeout=600
     })
     return result
 }
-async function basicallyGetComments(id:number|string,token:string){
+async function basicallyGetComments(id:number|string,token:string,password:string){
     const data:{data:CommentData[]}|number=await getResult(`c${id}`,{
         update:'',
-        token:token
+        token:token,
+        password:password
     })
     return data
 }
@@ -62,10 +63,11 @@ async function basicallyGetLocalComments(id:number|string,token:string){
     })
     return data
 }
-async function basicallyGetHole(id:number|string,token:string){
+async function basicallyGetHole(id:number|string,token:string,password:string){
     const data:{data:HoleData}|number=await getResult(`h${id}`,{
         update:'',
-        token:token
+        token:token,
+        password:password
     })
     return data
 }
@@ -75,18 +77,20 @@ async function basicallyGetLocalHole(id:number|string,token:string){
     })
     return data
 }
-async function basicallyGetStars(token:string){
+async function basicallyGetStars(token:string,password:string){
     const data:{data:HoleData[]}|number=await getResult('s',{
         update:'',
-        token:token
+        token:token,
+        password:password
     })
     return data
 }
-async function basicallyGetPage(key:string,page:number|string,token:string){
+async function basicallyGetPage(key:string,page:number|string,token:string,password:string){
     const data:{data:HoleData[]}|number=await getResult(`p${page}`,{
         update:'',
         key:key,
-        token:token
+        token:token,
+        password:password
     })
     return data
 }
@@ -100,7 +104,7 @@ async function basicallyGetLocalPage(key:string,page:number|string,order:Order,s
     })
     return data
 }
-export async function getComments(id:number|string,token:string,reply:number,hidden:number,localCommentsThreshod:number){
+export async function getComments(id:number|string,reply:number,hidden:number,localCommentsThreshod:number,token:string,password:string){
     if(token.length===0)return 401
     if(reply===0)return {
         data:[],
@@ -111,7 +115,7 @@ export async function getComments(id:number|string,token:string,reply:number,hid
     if(result0===503)return 503
     if(typeof result0==='number')return 500
     const data0=result0.data
-    if(token.length===0||hidden===1)return {
+    if(password.length===0||hidden===1)return {
         data:data0,
         updated:false
     }
@@ -120,7 +124,7 @@ export async function getComments(id:number|string,token:string,reply:number,hid
         data:data0,
         updated:false
     }
-    const result1=await basicallyGetComments(id,token)
+    const result1=await basicallyGetComments(id,token,password)
     if(result1===401)return 401
     if(result1===503)return 503
     if(result1===404)return {
@@ -134,14 +138,14 @@ export async function getComments(id:number|string,token:string,reply:number,hid
         updated:true
     }
 }
-export async function getHole(id:number|string,token:string){
+export async function getHole(id:number|string,token:string,password:string){
     if(token.length===0)return 401
     const result0=await basicallyGetLocalHole(id,token)
     if(result0===401)return 401
     if(result0===503)return 503
     if(result0===404){
-        if(token.length===0)return 404
-        const result1=await basicallyGetHole(id,token)
+        if(password.length===0)return 404
+        const result1=await basicallyGetHole(id,token,password)
         if(result1===401)return 401
         if(result1===503)return 503
         if(result1===404)return 404
@@ -153,8 +157,8 @@ export async function getHole(id:number|string,token:string){
     const data0=result0.data
     if(Number(data0.timestamp)===0)return 404
     if(Number(data0.hidden)===1)return data0
-    if(token.length===0)return data0
-    const result1=await basicallyGetHole(id,token)
+    if(password.length===0)return data0
+    const result1=await basicallyGetHole(id,token,password)
     if(result1===401)return 401
     if(result1===503)return 503
     if(result1===404)return data0
@@ -162,9 +166,9 @@ export async function getHole(id:number|string,token:string){
     const data1=result1.data
     return data1
 }
-export async function getStars(token:string){
-    if(token.length===0)return 401
-    const result=await basicallyGetStars(token)
+export async function getStars(token:string,password:string){
+    if(token.length===0||password.length===0)return 401
+    const result=await basicallyGetStars(token,password)
     if(result===401)return 401
     if(result===503)return 503
     if(result===404)return 401
@@ -172,19 +176,19 @@ export async function getStars(token:string){
     const data=result.data
     return data
 }
-export async function star(id:number|string,starred:boolean,token:string){
-    if(token.length===0)return 401
-    const result=await getResult(`s${id}`,starred?{'starred':'',token:token}:{token:token})
+export async function star(id:number|string,starred:boolean,token:string,password:string){
+    if(token.length===0||password.length===0)return 401
+    const result=await getResult(`s${id}`,starred?{'starred':'',token:token,password:password}:{token:token,password:password})
     if(typeof result!=='number')return 200
     if(result===401)return 401
     if(result===503)return 503
     if(result===404)return 404
     return 500
 }
-export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string){
+export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
     if(token.length===0)return 401
-    if(order==='id'&&token.length>0){
-        const result=await basicallyGetPage(key,page,token)
+    if(order==='id'&&password.length>0){
+        const result=await basicallyGetPage(key,page,token,password)
         if(result===401)return 401
         if(result===503)return 503
         if(result===404)return []
