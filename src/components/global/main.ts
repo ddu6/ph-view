@@ -400,9 +400,8 @@ export class Main{
             }
         }
         else if(this.ids.length>0){
-            this.end=true
-            this.page=0
-            data0=this.ids.map(id=>{return {data:{pid:id},isRef:false,idOnly:true}})
+            data0=this.ids.slice(this.page,this.page+1).map(id=>{return {data:{pid:id},isRef:false,idOnly:true}})
+            if(this.ids.length===this.page+1)this.end=true
         }
         else{
             while(true){

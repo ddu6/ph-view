@@ -271,7 +271,7 @@ textarea {
 }
 
 .panel>input {
-    width: 3em;
+    width: 5em;
 }
 
 .panel>:not(:first-child) {
