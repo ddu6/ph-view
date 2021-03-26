@@ -85,12 +85,12 @@ export class Main{
         this.fillterInput.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
                 this.pageInput.value='1'
-                await this.refresh()
+                await this.start()
             }
         })
         this.pageInput.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
-                await this.refresh()
+                await this.start()
             }
         })
         this.orderSelect.addEventListener('input',async e=>{
@@ -108,7 +108,7 @@ export class Main{
             if(this.orderSelect.value!=='id'){
                 this.starCheckbox.classList.remove('checked')
             }
-            await this.refresh()
+            await this.start()
         })
         this.starCheckbox.addEventListener('click',async e=>{
             this.pageInput.value='1'
@@ -116,7 +116,7 @@ export class Main{
                 this.fillterInput.value=this.fillterInput.value.replace(/^\.d\d*\s*/,'')
             }
             this.starCheckbox.classList.toggle('checked')
-            await this.refresh()
+            await this.start()
         })
         this.autoCheckbox.addEventListener('click',async e=>{
             this.autoCheckbox.classList.toggle('checked')
@@ -500,7 +500,7 @@ export class Main{
         await this.fetchLock.revive()
         await this.appendLock.revive()
     }
-    async refresh(){
+    async start(){
         const result=this.fillterInput.value.trim().match(/^\w{32,}$/)
         if(result!==null&&result.length>0){
             const tmp=result[0]
@@ -687,5 +687,23 @@ export class Main{
             break
         }
         return 200
+    }
+    softPause(){
+        if(!this.auto)return
+        this.autoCheckbox.classList.remove('checked')
+        this.auto=false
+    }
+    softContinue(){
+        if(this.auto)return
+        this.autoCheckbox.classList.add('checked')
+        this.auto=true
+    }
+    async wake(){
+        if(this.fetchLock.sleepTime===0)return
+        await this.fetchLock.wake()
+    }
+    async hardContinue(){
+        this.softContinue()
+        await this.start()
     }
 }
