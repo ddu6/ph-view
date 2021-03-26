@@ -54,7 +54,7 @@ export class Main{
     appendThreshod=1000
     localCommentsThreshod=500
     congestionSleep=5000
-    unauthorizedSleep=3600000
+    unauthorizedSleep=1800000
     errLimit=10
     errSleep=5000
     dRegExp=/\.d\d{0,8}/g
