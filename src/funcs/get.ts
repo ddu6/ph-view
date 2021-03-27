@@ -57,9 +57,10 @@ async function basicallyGetComments(id:number|string,token:string,password:strin
     })
     return data
 }
-async function basicallyGetLocalComments(id:number|string,token:string){
+async function basicallyGetLocalComments(id:number|string,token:string,password:string){
     const data:{data:CommentData[]}|number=await getResult(`local/c${id}`,{
-        token:token
+        token:token,
+        password:password
     })
     return data
 }
@@ -71,9 +72,10 @@ async function basicallyGetHole(id:number|string,token:string,password:string){
     })
     return data
 }
-async function basicallyGetLocalHole(id:number|string,token:string){
+async function basicallyGetLocalHole(id:number|string,token:string,password:string){
     const data:{data:HoleData}|number=await getResult(`local/h${id}`,{
-        token:token
+        token:token,
+        password:password
     })
     return data
 }
@@ -94,13 +96,14 @@ async function basicallyGetPage(key:string,page:number|string,token:string,passw
     })
     return data
 }
-async function basicallyGetLocalPage(key:string,page:number|string,order:Order,s:number,e:number,token:string){
+async function basicallyGetLocalPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
     const data:{data:HoleData[]}|number=await getResult(`local/p${page}`,{
         key:key,
         order:order,
         s:s.toString(),
         e:e.toString(),
-        token:token
+        token:token,
+        password:password
     })
     return data
 }
@@ -110,7 +113,7 @@ export async function getComments(id:number|string,reply:number,hidden:number,lo
         data:[],
         updated:false
     }
-    const result0=await basicallyGetLocalComments(id,token)
+    const result0=await basicallyGetLocalComments(id,token,password)
     if(result0===401)return 401
     if(result0===503)return 503
     if(typeof result0==='number')return 500
@@ -140,7 +143,7 @@ export async function getComments(id:number|string,reply:number,hidden:number,lo
 }
 export async function getHole(id:number|string,token:string,password:string){
     if(token.length===0)return 401
-    const result0=await basicallyGetLocalHole(id,token)
+    const result0=await basicallyGetLocalHole(id,token,password)
     if(result0===401)return 401
     if(result0===503)return 503
     if(result0===404){
@@ -196,7 +199,7 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
         const data=result.data
         return data
     }    
-    const result=await basicallyGetLocalPage(key,page,order,s,e,token)
+    const result=await basicallyGetLocalPage(key,page,order,s,e,token,password)
     if(result===401)return 401
     if(result===503)return 503
     if(typeof result==='number')return 500
