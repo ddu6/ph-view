@@ -108,7 +108,7 @@ async function basicallyGetLocalPage(key:string,page:number|string,order:Order,s
     return data
 }
 export async function getComments(id:number|string,reply:number,hidden:number,localCommentsThreshod:number,token:string,password:string){
-    if(token.length===0)return 401
+    if(token.length===0||password.length===0)return 401
     if(reply===0)return {
         data:[],
         updated:false
@@ -118,7 +118,7 @@ export async function getComments(id:number|string,reply:number,hidden:number,lo
     if(result0===503)return 503
     if(typeof result0==='number')return 500
     const data0=result0.data
-    if(password.length===0||hidden===1)return {
+    if(hidden===1)return {
         data:data0,
         updated:false
     }
@@ -142,12 +142,11 @@ export async function getComments(id:number|string,reply:number,hidden:number,lo
     }
 }
 export async function getHole(id:number|string,token:string,password:string){
-    if(token.length===0)return 401
+    if(token.length===0||password.length===0)return 401
     const result0=await basicallyGetLocalHole(id,token,password)
     if(result0===401)return 401
     if(result0===503)return 503
     if(result0===404){
-        if(password.length===0)return 404
         const result1=await basicallyGetHole(id,token,password)
         if(result1===401)return 401
         if(result1===503)return 503
@@ -160,7 +159,6 @@ export async function getHole(id:number|string,token:string,password:string){
     const data0=result0.data
     if(Number(data0.timestamp)===0)return 404
     if(Number(data0.hidden)===1)return data0
-    if(password.length===0)return data0
     const result1=await basicallyGetHole(id,token,password)
     if(result1===401)return 401
     if(result1===503)return 503
@@ -189,7 +187,7 @@ export async function star(id:number|string,starred:boolean,token:string,passwor
     return 500
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
-    if(token.length===0)return 401
+    if(token.length===0||password.length===0)return 401
     if(order==='id'&&password.length>0){
         const result=await basicallyGetPage(key,page,token,password)
         if(result===401)return 401
