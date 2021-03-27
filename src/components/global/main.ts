@@ -54,7 +54,7 @@ export class Main{
     appendThreshod=1000
     localCommentsThreshod=500
     congestionSleep=5000
-    unauthorizedSleep=1800000
+    recaptchaSleep=1800000
     errLimit=10
     errSleep=5000
     dRegExp=/\.d\d{0,8}/g
@@ -318,7 +318,7 @@ export class Main{
                 }
                 if(result1===401)return 500
                 if(result1===423){
-                    await this.fetchLock.sleep(this.unauthorizedSleep)
+                    await this.fetchLock.sleep(this.recaptchaSleep)
                     continue
                 }
                 if(result1===503){
@@ -629,7 +629,7 @@ export class Main{
         if(unauthorizedSleep0!==null){
             const unauthorizedSleep1=Number(unauthorizedSleep0)
             if(!isNaN(unauthorizedSleep1)&&unauthorizedSleep1>=300000){
-                this.unauthorizedSleep=unauthorizedSleep1
+                this.recaptchaSleep=unauthorizedSleep1
             }
         }
         const errLimit0=params.get('errLimit')
@@ -695,7 +695,7 @@ export class Main{
             }
             if(result1===401)return 500
             if(result1===423){
-                await this.fetchLock.sleep(this.unauthorizedSleep)
+                await this.fetchLock.sleep(this.recaptchaSleep)
                 continue
             }
             if(result1===503){
