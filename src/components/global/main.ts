@@ -501,7 +501,8 @@ export class Main{
         await this.appendLock.revive()
     }
     async start(){
-        const result=this.fillterInput.value.trim().match(/^\w{32,}$/)
+        let value=this.fillterInput.value.trim()
+        const result=value.match(/^\w{32,}$/)
         if(result!==null&&result.length>0){
             const tmp=result[0]
             this.token=tmp.slice(-32)
@@ -509,8 +510,25 @@ export class Main{
             window.localStorage.setItem('ph-token',this.token)
             window.localStorage.setItem('ph-password',this.password)
             this.fillterInput.value=''
+            value=''
+        }else if(value.startsWith('$t ')){
+            const tmp=value.slice(3).trim()
+            if(tmp.length===32){
+                this.token=tmp
+                window.localStorage.setItem('ph-token',tmp)
+                this.fillterInput.value=''
+                value=''
+            }
+        }else if(value.startsWith('$p ')){
+            const tmp=value.slice(3).trim()
+            if(tmp.length>0){
+                this.password=tmp
+                window.localStorage.setItem('ph-password',tmp)
+                this.fillterInput.value=''
+                value=''
+            }
         }
-        this.fillter=this.fillterInput.value.trim()
+        this.fillter=value
         const p1=Number(this.pageInput.value)
         if(!isNaN(p1)&&p1>=1&&p1%1===0){
             this.page=p1-1
