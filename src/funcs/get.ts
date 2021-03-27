@@ -128,7 +128,10 @@ export async function getComments(id:number|string,reply:number,hidden:number,lo
         updated:false
     }
     const result1=await basicallyGetComments(id,token,password)
-    if(result1===401)return 401
+    if(result1===401)return {
+        data:data0,
+        updated:false
+    }
     if(result1===503)return 503
     if(result1===404)return {
         data:data0,
@@ -148,7 +151,7 @@ export async function getHole(id:number|string,token:string,password:string){
     if(result0===503)return 503
     if(result0===404){
         const result1=await basicallyGetHole(id,token,password)
-        if(result1===401)return 401
+        if(result1===401)return 404
         if(result1===503)return 503
         if(result1===404)return 404
         if(typeof result1==='number')return 500
@@ -160,7 +163,7 @@ export async function getHole(id:number|string,token:string,password:string){
     if(Number(data0.timestamp)===0)return 404
     if(Number(data0.hidden)===1)return data0
     const result1=await basicallyGetHole(id,token,password)
-    if(result1===401)return 401
+    if(result1===401)return data0
     if(result1===503)return 503
     if(result1===404)return data0
     if(typeof result1==='number')return 500
@@ -188,15 +191,16 @@ export async function star(id:number|string,starred:boolean,token:string,passwor
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
     if(token.length===0||password.length===0)return 401
-    if(order==='id'&&password.length>0){
+    if(order==='id'){
         const result=await basicallyGetPage(key,page,token,password)
-        if(result===401)return 401
-        if(result===503)return 503
-        if(result===404)return []
-        if(typeof result==='number')return 500
-        const data=result.data
-        return data
-    }    
+        if(result!==401){
+            if(result===503)return 503
+            if(result===404)return []
+            if(typeof result==='number')return 500
+            const data=result.data
+            return data
+        }        
+    }
     const result=await basicallyGetLocalPage(key,page,order,s,e,token,password)
     if(result===401)return 401
     if(result===503)return 503
