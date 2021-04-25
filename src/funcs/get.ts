@@ -1,4 +1,5 @@
 export const domain='ddu6.xyz'
+const oldCommentsThreshold=32859
 export interface HoleData{
     text:string|null|undefined
     tag:string|null|undefined
@@ -118,12 +119,8 @@ export async function getComments(id:number|string,reply:number,hidden:number,lo
     if(result0===503)return 503
     if(typeof result0==='number')return 500
     const data0=result0.data
-    if(hidden===1)return {
-        data:data0,
-        updated:false
-    }
     const length0=data0.length
-    if(length0>=reply||length0>=localCommentsThreshod)return {
+    if(hidden===1||Number(id)<=oldCommentsThreshold||length0>=reply||length0>=localCommentsThreshod)return {
         data:data0,
         updated:false
     }
@@ -150,6 +147,7 @@ export async function getHole(id:number|string,token:string,password:string){
     if(result0===401)return 401
     if(result0===503)return 503
     if(result0===404){
+        if(Number(id)<=oldCommentsThreshold)return 404
         const result1=await basicallyGetHole(id,token,password)
         if(result1===401)return 404
         if(result1===503)return 503
@@ -161,7 +159,7 @@ export async function getHole(id:number|string,token:string,password:string){
     if(typeof result0==='number')return 500
     const data0=result0.data
     if(Number(data0.timestamp)===0)return 404
-    if(Number(data0.hidden)===1)return data0
+    if(Number(data0.hidden)===1||Number(id)<=oldCommentsThreshold)return data0
     const result1=await basicallyGetHole(id,token,password)
     if(result1===401)return data0
     if(result1===503)return 503
@@ -182,6 +180,7 @@ export async function getStars(token:string,password:string){
 }
 export async function star(id:number|string,starred:boolean,token:string,password:string){
     if(token.length===0||password.length===0)return 401
+    if(Number(id)<=oldCommentsThreshold)return 500
     const result=await getResult(`s${id}`,starred?{'starred':'',token:token,password:password}:{token:token,password:password})
     if(typeof result!=='number')return 200
     if(result===401)return 401

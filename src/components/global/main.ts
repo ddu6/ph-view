@@ -296,7 +296,7 @@ export class Main extends LRStruct{
                 const {classList}=hole.starElement
                 const starrd=classList.contains('checked')
                 const result1=await get.star(id,starrd,this.token,this.password)
-                if(result1===503||result1===500){
+                if(result1===503||result1===500||result1===401){
                     await this.fetchLock.release(result0)
                     return
                 }

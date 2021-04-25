@@ -390,7 +390,7 @@ textarea {
 }
 
 .checkbox.checked {
-    color: var(--color-modifier);
+    color: var(--color-variable);
 }
 
 .checkbox.checking {
