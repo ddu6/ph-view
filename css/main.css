@@ -376,8 +376,11 @@ textarea {
     padding: var(--length-padding-pre);
     display: flex;
     flex-direction: column;
-    gap: var(--length-margin-heading);
     text-align: center;
+}
+
+.panel>* {
+    margin-bottom: var(--length-margin-heading);
 }
 
 .checkbox {

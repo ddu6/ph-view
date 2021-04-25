@@ -165,14 +165,19 @@ export class Hole{
         this.addMoreButton(this.restComments.length)
     }
     private renderRestComments(){
+        if(this.restComments.length<20*this.commentLimit){
+            for(let i=0;i<this.restComments.length;i++){
+                this.appendComment(this.restComments[i])
+            }
+            this.restComments=[]
+            return
+        }
         const data=this.restComments.slice(0,this.commentLimit*10)
         this.restComments=this.restComments.slice(this.commentLimit*10)
         for(let i=0;i<data.length;i++){
             this.appendComment(data[i])
         }
-        if(this.restComments.length>0){
-            this.addMoreButton(this.restComments.length)
-        }
+        this.addMoreButton(this.restComments.length)
     }
     async handleStar(){
 
