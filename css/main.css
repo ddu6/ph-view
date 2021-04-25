@@ -267,22 +267,18 @@ textarea {
 }
 
 .hole {
-    display: table;
     break-inside: avoid;
     box-sizing: border-box;
     width: 100%;
     margin-top: 0;
     background-color: var(--color-pre);
-    padding: var(--length-padding-cell);
+    padding: var(--length-padding-pre);
     margin: var(--length-margin-heading) 0;
     border-radius: var(--length-radius-pre);
 }
 
-.hole.ref::before {
-    content: ">";
-    display: block;
-    color: var(--color-light);
-    padding: var(--length-padding-cell);
+.hole.ref>.index::before {
+    content: "> ";
 }
 
 .hole.new-comment>.index>.id {
@@ -306,17 +302,21 @@ textarea {
 }
 
 .index {
-    text-align: center;
+    font-size: var(--length-font-log);
     white-space: pre;
     color: var(--color-light);
-    padding: var(--length-padding-cell);
-    max-width: 30%;
     overflow-x: auto;
-    flex-shrink: 0;
+}
+
+.hole>.index {
+    margin-bottom: var(--length-padding-cell);
+}
+
+.index>.tag {
+    white-space: pre-wrap;
 }
 
 .content {
-    flex-grow: 1;
     overflow-x: hidden;
 }
 
@@ -328,8 +328,8 @@ textarea {
     overflow-x: auto;
 }
 
-.text:not(:empty) {
-    padding: var(--length-padding-cell);
+.text:not(:empty)+.attachment:not(:empty) {
+    margin-top: var(--length-padding-cell);
 }
 
 .audio {
@@ -343,15 +343,13 @@ textarea {
     background-color: var(--color-pre);
 }
 
-.more {
-    cursor: pointer;
-    padding: var(--length-padding-cell);
-    text-align: center;
+.comments>:not(:last-child) {
+    margin-bottom: var(--length-padding-cell);
 }
 
-.hole,
-.comment {
-    display: flex;
+.more {
+    cursor: pointer;
+    text-align: center;
 }
 
 .hr {
@@ -364,12 +362,12 @@ textarea {
 
 .end::before {
     content: "- end -";
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
+    text-align: center;
     padding: var(--length-padding-cell);
     margin-bottom: 5em;
     color: var(--color-light);
+    font-size: var(--length-font-log);
 }
 
 .panel {

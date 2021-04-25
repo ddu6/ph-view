@@ -47,7 +47,7 @@ export class Hole{
         if(typeof text!=='string')text=''
         if(typeof tag!=='string')tag=''
         this.id=Number(pid)
-        this.index.innerHTML=`${prettyText(tag)}${tag.length>0?'\n':''}<span class="id">${pid}</span>\n${prettyDate(timestamp)}`
+        this.index.innerHTML=`<span class="id">${pid}</span> ${prettyDate(timestamp)}${tag.length>0?` <span class="tag">${prettyText(tag)}</span>`:''}`
         this.replyElement.href=`https://pkuhelper.pku.edu.cn/hole/#%23${pid}`
         this.replyElement.target='_blank'
         this.replyElement.textContent=reply.toString()
@@ -116,6 +116,9 @@ export class Hole{
         let {text,tag,timestamp}=data
         if(typeof text!=='string')text=''
         if(typeof tag!=='string')tag=''
+        const spt=text.indexOf('] ')
+        const name=text.slice(1,spt)
+        text=text.slice(spt+2)
         const element=document.createElement('div')
         const index=document.createElement('div')
         const content=document.createElement('div')
@@ -125,7 +128,7 @@ export class Hole{
         index.classList.add('index')
         content.classList.add('content')
         content.classList.add('text')
-        index.textContent=`${tag}${tag.length>0?'\n':''}${prettyDate(timestamp)}`
+        index.textContent=`${name} ${prettyDate(timestamp)}${tag.length>0?` <span class="tag">${prettyText(tag)}</span>`:''}`
         content.innerHTML=prettyText(text)
         this.comments.append(element)
     }
@@ -199,16 +202,17 @@ function prettyText(text:string){
 }
 function prettyDate(stamp:string|number){
     const date=new Date(Number(stamp+'000'))
-    const ymd=date.getFullYear()+'/'+
-    (date.getMonth()+1)+'/'+
-    date.getDate()
     const now=new Date()
-    const nowYMD=now.getFullYear()+'/'+
-    (now.getMonth()+1)+'/'+
+    const year=date.getFullYear()
+    const nowYear=now.getFullYear()
+    const md=(date.getMonth()+1)+'/'+
+    date.getDate()
+    const nowMD=(now.getMonth()+1)+'/'+
     now.getDate()
     const hms=date.getHours()+':'+
     date.getMinutes()+':'+
     date.getSeconds()
-    if(nowYMD===ymd)return hms
-    return hms+'\n'+ymd
+    if(year!==nowYear)return hms+' '+year+'/'+md
+    if(nowMD!==md)return hms+' '+md
+    return hms
 }
