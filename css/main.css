@@ -343,8 +343,8 @@ textarea {
     background-color: var(--color-pre);
 }
 
-.comments>:not(:last-child) {
-    margin-bottom: var(--length-padding-cell);
+.comments>* {
+    margin-top: var(--length-padding-cell);
 }
 
 .more {
@@ -401,7 +401,7 @@ textarea {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: var(--length-padding-cell);
+    padding-top: var(--length-padding-cell);
 }
 
 .star::after {
