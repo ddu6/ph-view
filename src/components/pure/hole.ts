@@ -6,6 +6,8 @@ export class Hole{
     text=document.createElement('div')
     attachment=document.createElement('div')
     comments=document.createElement('div')
+    menu=document.createElement('div')
+    replyElement=document.createElement('a')
     starElement=document.createElement('div')
     refreshElement=document.createElement('div')
     restComments:CommentData[]=[]
@@ -17,13 +19,19 @@ export class Hole{
         this.element.append(this.content)
         this.content.append(this.text)
         this.content.append(this.attachment)
+        this.content.append(this.menu)
+        this.menu.append(this.replyElement)
+        this.menu.append(this.starElement)
+        this.menu.append(this.refreshElement)
         this.content.append(this.comments)
         this.element.classList.add('hole')
         this.index.classList.add('index')
         this.content.classList.add('content')
         this.text.classList.add('text')
         this.attachment.classList.add('attachment')
+        this.menu.classList.add('menu')
         this.comments.classList.add('comments')
+        this.replyElement.classList.add('reply')
         this.starElement.classList.add('star')
         this.starElement.classList.add('checkbox')
         this.refreshElement.classList.add('refresh')
@@ -39,8 +47,11 @@ export class Hole{
         if(typeof text!=='string')text=''
         if(typeof tag!=='string')tag=''
         this.id=Number(pid)
-        this.index.innerHTML=`${Hole.prettyText(tag)}${tag.length>0?'\n':''}<span class="id">${pid}</span>\n${Hole.prettyDate(timestamp)}\n${reply}<a class="reply" href="https://pkuhelper.pku.edu.cn/hole/#%23${pid}" target="_blank"></a> ${likenum}`
-        this.index.append(this.starElement)
+        this.index.innerHTML=`${prettyText(tag)}${tag.length>0?'\n':''}<span class="id">${pid}</span>\n${prettyDate(timestamp)}`
+        this.replyElement.href=`https://pkuhelper.pku.edu.cn/hole/#%23${pid}`
+        this.replyElement.target='_blank'
+        this.replyElement.textContent=reply.toString()
+        this.starElement.textContent=likenum.toString()
         if(starred)this.starElement.classList.add('checked')
         else this.starElement.classList.remove('checked')
         this.starElement.onclick=async e=>{
@@ -49,7 +60,6 @@ export class Hole{
             await this.handleStar()
             classList.remove('checking')
         }
-        this.index.append(this.refreshElement)
         this.refreshElement.onclick=async e=>{
             const {classList}=this.refreshElement
             const {classList:bigClassList}=this.element
@@ -59,7 +69,7 @@ export class Hole{
             bigClassList.remove('refreshing')
             classList.remove('checking')
         }
-        this.text.innerHTML=Hole.prettyText(text)
+        this.text.innerHTML=prettyText(text)
         this.attachment.innerHTML=''
         if(typeof url==='string'&&url.length>0){
             if(type==='image'){
@@ -115,13 +125,14 @@ export class Hole{
         index.classList.add('index')
         content.classList.add('content')
         content.classList.add('text')
-        index.textContent=`${tag}${tag.length>0?'\n':''}${Hole.prettyDate(timestamp)}`
-        content.innerHTML=Hole.prettyText(text)
+        index.textContent=`${tag}${tag.length>0?'\n':''}${prettyDate(timestamp)}`
+        content.innerHTML=prettyText(text)
         this.comments.append(element)
     }
-    private addMoreButton(){
+    private addMoreButton(restLength:number){
         const element=document.createElement('div')
         this.comments.append(element)
+        element.textContent=`${restLength} more`
         element.classList.add('more')
         element.addEventListener('click',e=>{
             element.remove()
@@ -141,41 +152,27 @@ export class Hole{
                 if(reverse)data.reverse()
             }
         }
-        const length=Math.min(data.length,this.commentLimit)
-        for(let i=0;i<length;i++){
+        if(data.length<2*this.commentLimit){
+            for(let i=0;i<data.length;i++){
+                this.appendComment(data[i])
+            }
+            return
+        }
+        for(let i=0;i<this.commentLimit;i++){
             this.appendComment(data[i])
         }
-        if(length<data.length){
-            this.restComments=data.slice(length)
-            this.addMoreButton()
-        }
+        this.restComments=data.slice(this.commentLimit)
+        this.addMoreButton(this.restComments.length)
     }
     private renderRestComments(){
-        const data=this.restComments
-        this.restComments=[]
+        const data=this.restComments.slice(0,this.commentLimit*10)
+        this.restComments=this.restComments.slice(this.commentLimit*10)
         for(let i=0;i<data.length;i++){
             this.appendComment(data[i])
         }
-    }
-    static prettyText(text:string){
-        text=text.replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/\'/g,"&#39;")
-        .replace(/\"/g,"&quot;")
-        .replace(/(^|[^.@a-z0-9_])((?:https?:\/\/)(?:(?:[\w-]+\.)+[a-z]{2,5}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d{1,5})?(?:\/[\w~!@#$%^&*\-_=+[\]{};:,./?|]*)?)(?![.@a-z0-9_])(?=[^<>]*(<[^\/]|$))/gi,'$1<a href="$2" target="_blank">$2</a>')
-        .replace(/(^|[^.@a-z0-9_\/])((?:(?:[\w-]+\.)+[a-z]{2,5}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d{1,5})?(?:\/[\w~!@#$%^&*\-_=+[\]{};:,./?|]*)?)(?![.@a-z0-9_])(?=[^<>]*(<[^\/]|$))/gi,'$1<a href="https://$2" target="_blank">$2</a>')
-        .replace(/(\b\d{5,7}\b)(?=[^<>]*(<[^\/]|$))/g,`<a href="${document.location.origin+document.location.pathname}?fillter=%23$1" target="_blank">$1</a>`)
-        return text
-    }
-    static prettyDate(stamp:string|number){
-        let date=new Date(Number(stamp+'000'))
-        return (date.getHours()+':'+
-        date.getMinutes()+':'+
-        date.getSeconds()+'\n'+
-        date.getFullYear()+'/'+
-        (date.getMonth()+1)+'/'+
-        date.getDate())
+        if(this.restComments.length>0){
+            this.addMoreButton(this.restComments.length)
+        }
     }
     async handleStar(){
 
@@ -183,4 +180,30 @@ export class Hole{
     async handleRefresh(){
 
     }
+}
+function prettyText(text:string){
+    text=text.replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/\'/g,"&#39;")
+    .replace(/\"/g,"&quot;")
+    .replace(/(^|[^.@a-z0-9_])((?:https?:\/\/)(?:(?:[\w-]+\.)+[a-z]{2,5}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d{1,5})?(?:\/[\w~!@#$%^&*\-_=+[\]{};:,./?|]*)?)(?![.@a-z0-9_])(?=[^<>]*(<[^\/]|$))/gi,'$1<a href="$2" target="_blank">$2</a>')
+    .replace(/(^|[^.@a-z0-9_\/])((?:(?:[\w-]+\.)+[a-z]{2,5}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d{1,5})?(?:\/[\w~!@#$%^&*\-_=+[\]{};:,./?|]*)?)(?![.@a-z0-9_])(?=[^<>]*(<[^\/]|$))/gi,'$1<a href="https://$2" target="_blank">$2</a>')
+    .replace(/(\b\d{5,7}\b)(?=[^<>]*(<[^\/]|$))/g,`<a href="${document.location.origin+document.location.pathname}?fillter=%23$1" target="_blank">$1</a>`)
+    return text
+}
+function prettyDate(stamp:string|number){
+    const date=new Date(Number(stamp+'000'))
+    const ymd=date.getFullYear()+'/'+
+    (date.getMonth()+1)+'/'+
+    date.getDate()
+    const now=new Date()
+    const nowYMD=now.getFullYear()+'/'+
+    (now.getMonth()+1)+'/'+
+    now.getDate()
+    const hms=date.getHours()+':'+
+    date.getMinutes()+':'+
+    date.getSeconds()
+    if(nowYMD===ymd)return hms
+    return hms+'\n'+ymd
 }

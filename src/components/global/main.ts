@@ -1,4 +1,5 @@
 import {Hole} from '../pure/hole'
+import {LRStruct} from '../pure/lrStruct'
 import {KillableLock} from '../../wheels/lock'
 import * as get from '../../funcs/get'
 import * as css from '../../lib/css'
@@ -12,8 +13,8 @@ type AppendData={
     isRef:boolean
     idOnly:true
 }
-export class Main{
-    element=document.createElement('div')
+export class Main extends LRStruct{
+    shadow:ShadowRoot
     panel=document.createElement('div')
     orderSelect=document.createElement('select')
     fillterInput=document.createElement('input')
@@ -22,6 +23,7 @@ export class Main{
     autoCheckbox=document.createElement('div')
     flow=document.createElement('div')
     style=document.createElement('style')
+    fontStyle=document.createElement('style')
     fetchLock=new KillableLock()
     appendLock=new KillableLock()
 
@@ -59,16 +61,20 @@ export class Main{
     errSleep=5000
     dRegExp=/\.d\d{0,8}/g
     idsRegExp=/#\d{1,7}-\d{1,7}|#\d{1,4}\*\*\*|#\d{1,5}\*\*|#\d{1,6}\*|#\d{1,7}/g
-    constructor(){
+    constructor(public parent:HTMLElement){
+        super()
+        this.shadow=parent.attachShadow({mode:'closed'})
+        this.shadow.append(this.element)
         this.element.append(this.style)
-        this.element.append(this.panel)
-        this.element.append(this.flow)
+        parent.append(this.fontStyle)
+        this.sideContent.append(this.panel)
+        this.main.append(this.flow)
         this.panel.append(this.starCheckbox)
         this.panel.append(this.orderSelect)
         this.panel.append(this.fillterInput)
         this.panel.append(this.pageInput)
         this.panel.append(this.autoCheckbox)
-        this.element.classList.add('main')
+        this.element.classList.add('root')
         this.panel.classList.add('panel')
         this.flow.classList.add('flow')
         this.orderSelect.classList.add('order')
@@ -81,7 +87,8 @@ export class Main{
         this.orderSelect.innerHTML='<option>id</option><option>active</option><option>hot</option>'
         this.pageInput.type='number'
         this.pageInput.min='1'
-        this.style.textContent=fonts.icomoon+css.main
+        this.style.textContent=css.main
+        this.fontStyle.textContent=fonts.icomoon
         this.fillterInput.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
                 this.pageInput.value='1'
@@ -134,7 +141,7 @@ export class Main{
         setInterval(async()=>{
             if(!this.inited)return
             if(this.auto){
-                window.scrollBy({left:0,top:this.scrollSpeed,behavior:"smooth"})
+                this.main.scrollBy({left:0,top:this.scrollSpeed,behavior:"smooth"})
             }
         },1000)
         setInterval(async()=>{
@@ -454,7 +461,7 @@ export class Main{
     }
     async autoAppend(){
         if(Date.now()<this.lastAppend+250
-        ||window.pageYOffset+window.innerHeight<document.body.scrollHeight-this.appendThreshod
+        ||this.main.scrollTop+window.innerHeight<this.main.scrollHeight-this.appendThreshod
         ||this.appendLock.busy)return
         this.lastAppend=Date.now()
         await this.append()
