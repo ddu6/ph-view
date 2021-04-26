@@ -1,5 +1,11 @@
 export const domain='ddu6.xyz'
 const oldCommentsThreshold=32859
+const timeout=60
+interface Res{
+    body:string
+    headers:Headers
+    status:number
+}
 export interface HoleData{
     text:string|null|undefined
     tag:string|null|undefined
@@ -21,13 +27,92 @@ export interface CommentData{
     name:string|null|undefined
 }
 export type Order='id'|'active'|'hot'
-async function getResult(path:string,params:Record<string,string>={},timeout=60000){
+async function basicallyGet(url:string,params:Record<string,string>={},form:Record<string,string>={},cookie='',referer=''){
+    let paramsStr=new URL(url).searchParams.toString()
+    if(paramsStr.length>0){
+        paramsStr+='&'
+    }
+    paramsStr+=new URLSearchParams(params).toString()
+    if(paramsStr.length>0){
+        paramsStr='?'+paramsStr
+    }
+    url=new URL(paramsStr,url).href
+    const formStr=new URLSearchParams(form).toString()
+    const headers:HeadersInit={
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'
+    }
+    if(cookie.length>0){
+        headers.Cookie=cookie
+    }
+    if(referer.length>0){
+        headers.Referer=referer
+    }
+    const options:RequestInit={
+        method:formStr.length>0?'POST':'GET',
+        headers:headers,
+        referrer:'no-referrer'
+    }
+    if(formStr.length>0){
+        Object.assign(headers,{
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        })
+        Object.assign(options,{
+            body:formStr
+        })
+    }
+    const result=await new Promise(async(resolve:(val:number|Res)=>void)=>{
+        setTimeout(()=>{
+            resolve(500)
+        },timeout*1000)
+        const res=await fetch(url,options)
+        const {headers,status}=res
+        if(status!==200){
+            resolve(status)
+            return
+        }
+        try{
+            const body=await res.text()
+            resolve({
+                status:status,
+                body:body,
+                headers:headers
+            })
+        }catch(err){
+            console.log(err)
+        }
+        resolve(500)
+    })
+    return result
+}
+async function getResult(params:Record<string,string>={},form:Record<string,string>={}){
+    Object.assign(params,{
+        PKUHelperAPI:'3.0',
+        jsapiver:'201027113050-449842'
+    })
+    const result=await basicallyGet('https://pkuhelper.pku.edu.cn/services/pkuhole/api.php',params,form)
+    if(typeof result==='number')return result
+    const {status,body}=result
+    if(status!==200)return status
+    try{
+        const {code,data,msg}=JSON.parse(body)
+        if(code===0)return {data:data}
+        if(msg==='没有这条树洞')return 404
+        if(typeof msg==='string'&&msg.length>0){
+            console.log(msg)
+        }
+    }catch(err){
+        console.log(err)
+    }
+    return 500
+}
+async function remotelyGetResult(path:string,params:Record<string,string>={}){
     const result=await new Promise(async(resolve:(val:{data:any}|number)=>void)=>{
         let paramsStr=new URLSearchParams(params).toString()
         if(paramsStr.length>0)paramsStr='?'+paramsStr
         setTimeout(()=>{
             resolve(503)
-        },timeout)
+        },timeout*1000)
         try{
             const res=await fetch(`https://${domain}/services/ph-get/${path}${paramsStr}`)
             if(res.status!==200){
@@ -50,46 +135,38 @@ async function getResult(path:string,params:Record<string,string>={},timeout=600
     })
     return result
 }
-async function basicallyGetComments(id:number|string,token:string,password:string){
-    const data:{data:CommentData[]}|number=await getResult(`c${id}`,{
+async function remotelyGetComments(id:number|string,token:string,password:string){
+    const data:{data:CommentData[]}|number=await remotelyGetResult(`c${id}`,{
         update:'',
         token:token,
         password:password
     })
     return data
 }
-async function basicallyGetLocalComments(id:number|string,token:string,password:string){
-    const data:{data:CommentData[]}|number=await getResult(`local/c${id}`,{
+async function remotelyGetLocalComments(id:number|string,token:string,password:string){
+    const data:{data:CommentData[]}|number=await remotelyGetResult(`local/c${id}`,{
         token:token,
         password:password
     })
     return data
 }
-async function basicallyGetHole(id:number|string,token:string,password:string){
-    const data:{data:HoleData}|number=await getResult(`h${id}`,{
+async function remotelyGetHole(id:number|string,token:string,password:string){
+    const data:{data:HoleData}|number=await remotelyGetResult(`h${id}`,{
         update:'',
         token:token,
         password:password
     })
     return data
 }
-async function basicallyGetLocalHole(id:number|string,token:string,password:string){
-    const data:{data:HoleData}|number=await getResult(`local/h${id}`,{
+async function remotelyGetLocalHole(id:number|string,token:string,password:string){
+    const data:{data:HoleData}|number=await remotelyGetResult(`local/h${id}`,{
         token:token,
         password:password
     })
     return data
 }
-async function basicallyGetStars(token:string,password:string){
-    const data:{data:HoleData[]}|number=await getResult('s',{
-        update:'',
-        token:token,
-        password:password
-    })
-    return data
-}
-async function basicallyGetPage(key:string,page:number|string,token:string,password:string){
-    const data:{data:HoleData[]}|number=await getResult(`p${page}`,{
+async function remotelyGetPage(key:string,page:number|string,token:string,password:string){
+    const data:{data:HoleData[]}|number=await remotelyGetResult(`p${page}`,{
         update:'',
         key:key,
         token:token,
@@ -97,8 +174,8 @@ async function basicallyGetPage(key:string,page:number|string,token:string,passw
     })
     return data
 }
-async function basicallyGetLocalPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
-    const data:{data:HoleData[]}|number=await getResult(`local/p${page}`,{
+async function remotelyGetLocalPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
+    const data:{data:HoleData[]}|number=await remotelyGetResult(`local/p${page}`,{
         key:key,
         order:order,
         s:s.toString(),
@@ -108,116 +185,173 @@ async function basicallyGetLocalPage(key:string,page:number|string,order:Order,s
     })
     return data
 }
-export async function getComments(id:number|string,reply:number,hidden:number,localCommentsThreshod:number,token:string,password:string){
-    if(token.length===0||password.length===0)return 401
-    if(reply===0)return {
-        data:[],
-        updated:false
+async function locallyGetComments(id:number|string,token:string){
+    const result:{data:CommentData[]}|number=await getResult({
+        action:'getcomment',
+        pid:id.toString(),
+        user_token:token
+    })
+    return result
+}
+async function getList(page:number|string,token:string){
+    const result:{data:HoleData[]}|number=await getResult({
+        action:'getlist',
+        p:page.toString(),
+        user_token:token
+    })
+    return result
+}
+async function locallyGetHole(id:number|string,token:string){
+    const result:{data:HoleData}|number=await getResult({
+        action:'getone',
+        pid:id.toString(),
+        user_token:token
+    })
+    return result
+}
+async function getSearch(key:string,page:number|string,token:string){
+    const result:{data:HoleData[]}|number=await getResult({
+        action:'search',
+        pagesize:'50',
+        page:page.toString(),
+        keywords:key,
+        user_token:token
+    })
+    return result
+}
+async function locallyGetPage(key:string,page:number|string,token:string){
+    if(key.length===0)return await getList(page,token)
+    return await getSearch(key,page,token)
+}
+export async function getComments(id:number|string,token:string,password:string){
+    let result:number|{
+        data: CommentData[]
+    }=404
+    if(Number(id)>oldCommentsThreshold){
+        result=await locallyGetComments(id,token)
     }
-    const result0=await basicallyGetLocalComments(id,token,password)
-    if(result0===401)return 401
-    if(result0===503)return 503
-    if(typeof result0==='number')return 500
-    const data0=result0.data
-    const length0=data0.length
-    if(hidden===1||Number(id)<=oldCommentsThreshold||length0>=reply||length0>=localCommentsThreshod)return {
-        data:data0,
-        updated:false
+    if(result===404){
+        if(password.length===0)return []
+        result==await remotelyGetLocalComments(id,token,password)
     }
-    const result1=await basicallyGetComments(id,token,password)
-    if(result1===401)return {
-        data:data0,
-        updated:false
+    if(result===404)return []
+    if(result===503)return 503
+    if(typeof result==='number')return 500
+    if(password.length>0){
+        await remotelyGetComments(id,token,password)
     }
-    if(result1===503)return 503
-    if(result1===404)return {
-        data:data0,
-        updated:false
-    }
-    if(typeof result1==='number')return 500
-    const data1=result1.data
-    return {
-        data:data1,
-        updated:true
-    }
+    return result.data
 }
 export async function getHole(id:number|string,token:string,password:string){
-    if(token.length===0||password.length===0)return 401
-    const result0=await basicallyGetLocalHole(id,token,password)
-    if(result0===401)return 401
-    if(result0===503)return 503
-    if(result0===404){
-        if(Number(id)<=oldCommentsThreshold)return 404
-        const result1=await basicallyGetHole(id,token,password)
-        if(result1===401)return 404
-        if(result1===503)return 503
-        if(result1===404)return 404
-        if(typeof result1==='number')return 500
-        const data1=result1.data
-        return data1
+    let result:number|{
+        data: HoleData
+    }=404
+    if(Number(id)>oldCommentsThreshold){
+        result=await locallyGetHole(id,token)
     }
-    if(typeof result0==='number')return 500
-    const data0=result0.data
-    if(Number(data0.timestamp)===0)return 404
-    if(Number(data0.hidden)===1||Number(id)<=oldCommentsThreshold)return data0
-    const result1=await basicallyGetHole(id,token,password)
-    if(result1===401)return data0
-    if(result1===503)return 503
-    if(result1===404)return data0
-    if(typeof result1==='number')return 500
-    const data1=result1.data
-    return data1
-}
-export async function getStars(token:string,password:string){
-    if(token.length===0||password.length===0)return 401
-    const result=await basicallyGetStars(token,password)
-    if(result===401)return 401
+    if(result===404){
+        if(password.length===0)return 404
+        result=await remotelyGetLocalHole(id,token,password)
+    }
+    if(result===404)return 404
     if(result===503)return 503
-    if(result===404)return 401
+    if(typeof result==='number')return 500
+    if(Number(result.data.timestamp)===0)return 404
+    if(password.length>0){
+        await remotelyGetHole(id,token,password)
+    }
+    return result.data
+}
+export async function getStars(token:string){
+    const result:{data:HoleData[]}|number=await getResult({
+        action:'getattention',
+        user_token:token
+    })
+    if(result===503)return 503
+    if(result===404)return []
     if(typeof result==='number')return 500
     const data=result.data
     return data
 }
-export async function star(id:number|string,starred:boolean,token:string,password:string){
-    if(token.length===0||password.length===0)return 401
+export async function star(id:number|string,starred:boolean,token:string){
     if(Number(id)<=oldCommentsThreshold)return 500
-    const result=await getResult(`s${id}`,starred?{'starred':'',token:token,password:password}:{token:token,password:password})
+    const result=await getResult({
+        action:'attention',
+        pid:id.toString(),
+        switch:starred?'0':'1',
+        user_token:token
+    })
     if(typeof result!=='number')return 200
-    if(result===401)return 401
     if(result===503)return 503
     if(result===404)return 404
     return 500
 }
-export async function comment(id:number|string,text:string,token:string,password:string){
-    if(token.length===0||password.length===0)return 401
+export async function comment(id:number|string,text:string,token:string){
     if(Number(id)<=oldCommentsThreshold||text.length===0)return 500
-    const result=await getResult(`c${id}`,{
+    const result=await getResult({
+        action:'docomment',
+        user_token:token
+    },{
+        pid:id.toString(),
         text:text,
-        token:token,
-        password:password
+        user_token:token
     })
     if(typeof result!=='number')return 200
-    if(result===401)return 401
     if(result===503)return 503
     if(result===404)return 404
     return 500
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
-    if(token.length===0||password.length===0)return 401
-    if(order==='id'){
-        const result=await basicallyGetPage(key,page,token,password)
-        if(result!==401){
-            if(result===503)return 503
-            if(result===404)return []
-            if(typeof result==='number')return 500
-            const data=result.data
-            return data
-        }        
+    if(order!=='id'){
+        if(password.length===0)return 401
+        const result=await remotelyGetLocalPage(key,page,order,s,e,token,password)
+        if(result===401)return 401
+        if(result===503)return 503
+        if(typeof result==='number')return 500
+        const data=result.data
+        if(order==='active'&&data.length>0){
+            let {etimestamp}=data[0]
+            if(typeof etimestamp==='string'){
+                etimestamp=Number(etimestamp)
+            }
+            if(typeof etimestamp==='number'){
+                const storage=window.localStorage
+                const oldEStr=storage.getItem('ph-max-etimestamp')
+                if(oldEStr!==null){
+                    const oldE=Number(oldEStr)
+                    if(etimestamp>oldE){
+                        storage.setItem('ph-max-etimestamp',etimestamp.toString())
+                    }
+                }else{
+                    storage.setItem('ph-max-etimestamp',etimestamp.toString())
+                }
+            }
+
+        }
+        return data
     }
-    const result=await basicallyGetLocalPage(key,page,order,s,e,token,password)
+    const result=await locallyGetPage(key,page,token)
     if(result===401)return 401
+    if(result===404)return []
     if(result===503)return 503
     if(typeof result==='number')return 500
+    if(password.length>0){
+        await remotelyGetPage(key,page,token,password)
+    }
     const data=result.data
+    if(data.length>0){
+        let {pid}=data[0]
+        if(typeof pid==='string')pid=Number(pid)
+        const storage=window.localStorage
+        const oldIdStr=storage.getItem('ph-max-id')
+        if(oldIdStr!==null){
+            const oldId=Number(oldIdStr)
+            if(pid>oldId){
+                storage.setItem('ph-max-id',pid.toString())
+            }
+        }else{
+            storage.setItem('ph-max-id',pid.toString())
+        }
+    }
     return data
 }

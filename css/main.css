@@ -157,6 +157,7 @@ textarea,
     border: 1px solid var(--color-border);
     outline: none;
     border-radius: var(--length-radius-span);
+    box-sizing: content-box;
 }
 
 input:focus,
@@ -171,10 +172,12 @@ textarea:focus,
 select,
 .select {
     padding: 0;
+    height: 1.5em;
 }
 
 textarea {
     resize: none;
+    height: 7.5em;
 }
 
 .lr-struct {
@@ -410,6 +413,9 @@ textarea {
     display: flex;
     justify-content: space-around;
     align-items: center;
+}
+
+.hole .menu {
     margin-top: var(--length-padding-cell);
     font-size: var(--length-font-log);
 }
@@ -418,12 +424,12 @@ textarea {
     content: "\e9d7";
 }
 
-.refresh::before {
+.refresh::after {
     content: "\e984";
     font-size: .8em;
 }
 
-.auto::before {
+.auto::after {
     content: "\ea1c";
 }
 
@@ -431,16 +437,16 @@ textarea {
     content: "\e900";
 }
 
-.send::before {
+.send::after {
     content: "\e901";
 }
 
-.menu>a {
-    color: var(--color-light);
+.logout::after {
+    content: "\e902";
 }
 
-.menu>a:hover {
-    text-decoration: none;
+.login::after {
+    content: "\e903";
 }
 
 .reply-area {
@@ -455,5 +461,28 @@ textarea {
 
 .send {
     margin-top: var(--length-padding-cell);
+    font-size: var(--length-font-log);
+}
+
+.token-line,.password-line {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form>:not(:first-child) {
+    margin-top: var(--length-padding-cell);
+}
+
+.token-line::before {
+    display: block;
+    content: "Token";
+    color: var(--color-light);
+    font-size: var(--length-font-log);
+}
+
+.password-line::before {
+    display: block;
+    content: "Password";
+    color: var(--color-light);
     font-size: var(--length-font-log);
 }

@@ -19,8 +19,16 @@ export class Main extends LRStruct{
     orderSelect=document.createElement('select')
     fillterInput=document.createElement('input')
     pageInput=document.createElement('input')
+    menu=document.createElement('div')
     starCheckbox=document.createElement('div')
     autoCheckbox=document.createElement('div')
+    logoutCheckbox=document.createElement('div')
+    loginForm=document.createElement('div')
+    tokenInput=document.createElement('input')
+    passwordInput=document.createElement('input')
+    tokenLine=document.createElement('div')
+    passwordLine=document.createElement('div')
+    loginCheckbox=document.createElement('div')
     flow=document.createElement('div')
     style=document.createElement('style')
     fontStyle=document.createElement('style')
@@ -54,7 +62,6 @@ export class Main extends LRStruct{
     refLimit=3
     scrollSpeed=500
     appendThreshod=1000
-    localCommentsThreshod=500
     congestionSleep=5000
     recaptchaSleep=1800000
     errLimit=10
@@ -69,21 +76,41 @@ export class Main extends LRStruct{
         parent.append(this.fontStyle)
         this.sideContent.append(this.panel)
         this.main.append(this.flow)
-        this.panel.append(this.starCheckbox)
+        this.panel.append(this.menu)
+        this.menu.append(this.autoCheckbox)
+        this.menu.append(this.starCheckbox)
+        this.menu.append(this.logoutCheckbox)
         this.panel.append(this.orderSelect)
         this.panel.append(this.fillterInput)
-        this.panel.append(this.pageInput)
-        this.panel.append(this.autoCheckbox)
+        this.panel.append(this.pageInput)        
+        this.loginForm.append(this.tokenLine)
+        this.tokenLine.append(this.tokenInput)
+        this.loginForm.append(this.passwordLine)
+        this.passwordLine.append(this.passwordInput)
+        this.loginForm.append(this.loginCheckbox)
+        this.tokenInput.type='password'
+        this.passwordInput.type='password'
         this.element.classList.add('root')
         this.panel.classList.add('panel')
         this.flow.classList.add('flow')
         this.orderSelect.classList.add('order')
         this.fillterInput.classList.add('fillter')
         this.pageInput.classList.add('page')
+        this.menu.classList.add('menu')
         this.starCheckbox.classList.add('star')
         this.autoCheckbox.classList.add('auto')
         this.starCheckbox.classList.add('checkbox')
         this.autoCheckbox.classList.add('checkbox')
+        this.logoutCheckbox.classList.add('logout')
+        this.logoutCheckbox.classList.add('checkbox')
+        this.loginForm.classList.add('login-form')
+        this.loginForm.classList.add('hole')
+        this.tokenInput.classList.add('token')
+        this.passwordInput.classList.add('password')
+        this.tokenLine.classList.add('token-line')
+        this.passwordLine.classList.add('password-line')
+        this.loginCheckbox.classList.add('login')
+        this.loginCheckbox.classList.add('checkbox')
         this.orderSelect.innerHTML='<option>id</option><option>active</option><option>hot</option>'
         this.pageInput.type='number'
         this.pageInput.min='1'
@@ -129,6 +156,26 @@ export class Main extends LRStruct{
             this.autoCheckbox.classList.toggle('checked')
             this.auto=this.autoCheckbox.classList.contains('checked')
         })
+        this.loginCheckbox.addEventListener('click',async e=>{
+            if(this.tokenInput.value.length!==32){
+                alert('Invalid token.')
+                return
+            }
+            this.token=this.tokenInput.value
+            this.password=this.passwordInput.value
+            window.localStorage.setItem('ph-token',this.token)
+            window.localStorage.setItem('ph-password',this.password)
+            await this.start()
+        })
+        this.logoutCheckbox.addEventListener('click',async e=>{
+            this.tokenInput.value=this.token
+            this.passwordInput.value=this.password
+            this.token=''
+            this.password=''
+            window.localStorage.setItem('ph-token',this.token)
+            window.localStorage.setItem('ph-password',this.password)
+            await this.start()
+        })
         document.addEventListener('scroll',async e=>{
             await this.autoAppend()
         })
@@ -149,18 +196,17 @@ export class Main extends LRStruct{
             await this.autoAppend()
         },500)
     }
-    async getAndRenderComments(id:number|string,hole:Hole,reply:number|string,hidden:0|1|'0'|'1'|boolean){
+    async getAndRenderComments(id:number|string,hole:Hole){
         const result0=await this.fetchLock.get()
         if(result0===false)return 500
-        const result1=await get.getComments(id,Number(reply),Number(hidden),this.localCommentsThreshod,this.token,this.password)
-        if(result1===503||result1===500||result1===401){
+        const result1=await get.getComments(id,this.token,this.password)
+        if(result1===503||result1===500){
             await this.fetchLock.release(result0)
             return result1
         }
-        const {data,updated}=result1
-        hole.renderComments(data,updated)
-        for(let i=0;i<data.length;i++){
-            const item=data[i]
+        hole.renderComments(result1)
+        for(let i=0;i<result1.length;i++){
+            const item=result1[i]
             const {text}=item
             if(typeof text!=='string')continue
             if(text.startsWith('[Helper]')){
@@ -170,7 +216,7 @@ export class Main extends LRStruct{
             }
         }
         await this.fetchLock.release(result0)
-        return data
+        return result1
     }
     parseFillter(){
         this.s=0
@@ -269,7 +315,6 @@ export class Main extends LRStruct{
             if(item.idOnly){
                 const data=await get.getHole(id,this.token,this.password)
                 if(data===404)continue
-                if(data===401)return 500
                 if(data===500){
                     this.errCount++
                     if(this.errCount>this.errLimit)return 500
@@ -296,8 +341,8 @@ export class Main extends LRStruct{
                 if(result0===false)return
                 const {classList}=hole.starCheckbox
                 const starrd=classList.contains('checked')
-                const result1=await get.star(id,starrd,this.token,this.password)
-                if(result1===503||result1===500||result1===401){
+                const result1=await get.star(id,starrd,this.token)
+                if(result1===503||result1===500){
                     await this.fetchLock.release(result0)
                     return
                 }
@@ -328,7 +373,7 @@ export class Main extends LRStruct{
                 if(text.length===0)return
                 const result0=await this.fetchLock.get()
                 if(result0===false)return
-                const result1=await get.comment(id,text,this.token,this.password)
+                const result1=await get.comment(id,text,this.token)
                 if(result1!==200){
                     await this.fetchLock.release(result0)
                     return
@@ -345,14 +390,13 @@ export class Main extends LRStruct{
             this.flow.append(hole.element)
             let result0:get.CommentData[]
             while(true){
-                const result1=await this.getAndRenderComments(id,hole,data1.reply,data1.hidden)
+                const result1=await this.getAndRenderComments(id,hole)
                 if(result1===500){
                     this.errCount++
                     if(this.errCount>this.errLimit)return 500
                     await this.fetchLock.sleep(this.errSleep)
                     continue
                 }
-                if(result1===401)return 500
                 if(result1===423){
                     await this.fetchLock.sleep(this.recaptchaSleep)
                     continue
@@ -411,17 +455,20 @@ export class Main extends LRStruct{
         if(this.end||!this.inited)return
         const result=await this.appendLock.get()
         if(result===false)return
+        if(this.token.length===0){
+            this.flow.append(this.loginForm)
+            this.end=true
+        }
         if(this.end){
             await this.appendLock.release(result)
             return
         }
-        let data0:AppendData[]|500
+        let data0:AppendData[]|500|401
         if(this.star){
             this.end=true
             this.page=0
             while(true){
-                const data1=await get.getStars(this.token,this.password)
-                if(data1===401){data0=[];break}
+                const data1=await get.getStars(this.token)
                 if(data1===500){
                     this.errCount++
                     if(this.errCount>this.errLimit){data0=data1;break}
@@ -446,7 +493,7 @@ export class Main extends LRStruct{
             while(true){
                 const data1=await get.getPage(this.key,this.page+1,this.order,this.s,this.e,this.token,this.password)
                 if(data1===401){
-                    data0=500
+                    data0=data1
                     break
                 }
                 if(data1===500){
@@ -466,10 +513,22 @@ export class Main extends LRStruct{
                 break
             }
         }
-        if(data0===500)this.end=true
-        else{
-            if(data0.length===0)this.end=true
-            else{
+        if(data0===401){
+            if(this.order==='id'){
+                alert('Wrong token.')
+                this.flow.append(this.loginForm)
+                this.end=true
+                await this.appendLock.release(result)
+                return
+            }
+            alert('Permission denied.')
+            this.end=true
+        }else if(data0===500){
+            this.end=true
+        }else{
+            if(data0.length===0){
+                this.end=true
+            }else{
                 this.page++
                 this.pageInput.value=this.page.toString()
                 const result=await this.basicallyAppend(data0)
@@ -480,8 +539,7 @@ export class Main extends LRStruct{
             const end=document.createElement('div')
             end.classList.add('end')
             this.flow.append(end)
-        }
-        else{
+        }else{
             const hr=document.createElement('div')
             hr.classList.add('hr')
             this.flow.append(hr)
@@ -615,7 +673,6 @@ export class Main extends LRStruct{
         if(stars!==null){
             this.stars=stars.split(',').map(val=>Number(val))
         }
-
         if(params.has('local')){
             this.local=true
         }
@@ -645,13 +702,6 @@ export class Main extends LRStruct{
             const appendThreshod1=Number(appendThreshod0)
             if(!isNaN(appendThreshod1)&&appendThreshod1>=0){
                 this.appendThreshod=appendThreshod1
-            }
-        }
-        const localCommentsThreshod0=params.get('localCommentsThreshod')
-        if(localCommentsThreshod0!==null){
-            const localCommentsThreshod1=Number(localCommentsThreshod0)
-            if(!isNaN(localCommentsThreshod1)&&localCommentsThreshod1>=0){
-                this.localCommentsThreshod=localCommentsThreshod1
             }
         }
         const congestionSleep0=params.get('congestionSleep')
@@ -698,10 +748,6 @@ export class Main extends LRStruct{
                 data1=404
                 break
             }
-            if(data===401){
-                data1=500
-                break
-            }
             if(data===500){
                 this.errCount++
                 if(this.errCount>this.errLimit){
@@ -722,14 +768,13 @@ export class Main extends LRStruct{
         if(typeof data1==='number')return data1
         hole.render(data1,this.local,hole.isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
         while(true){
-            const result1=await this.getAndRenderComments(id,hole,data1.reply,data1.hidden)
+            const result1=await this.getAndRenderComments(id,hole)
             if(result1===500){
                 this.errCount++
                 if(this.errCount>this.errLimit)return 500
                 await this.fetchLock.sleep(this.errSleep)
                 continue
             }
-            if(result1===401)return 500
             if(result1===423){
                 await this.fetchLock.sleep(this.recaptchaSleep)
                 continue

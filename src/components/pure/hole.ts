@@ -137,33 +137,14 @@ export class Hole{
                 this.text.append(a)
             }
         }
-        const storage=window.localStorage
         if(typeof pid==='string')pid=Number(pid)
         if(pid>maxId)this.element.classList.add('new-hole')
-        const oldIdStr=storage.getItem('ph-max-id')
-        if(oldIdStr!==null){
-            const oldId=Number(oldIdStr)
-            if(pid>oldId){
-                storage.setItem('ph-max-id',pid.toString())
-            }
-        }else{
-            storage.setItem('ph-max-id',pid.toString())
-        }
         if(typeof etimestamp==='string'){
             etimestamp=Number(etimestamp)
         }
         if(typeof etimestamp==='number'){
             if(etimestamp>maxETimestamp){
                 this.element.classList.add('new-comment')
-            }
-            const oldEStr=storage.getItem('ph-max-etimestamp')
-            if(oldEStr!==null){
-                const oldE=Number(oldEStr)
-                if(etimestamp>oldE){
-                    storage.setItem('ph-max-etimestamp',etimestamp.toString())
-                }
-            }else{
-                storage.setItem('ph-max-etimestamp',etimestamp.toString())
             }
         }
     }
@@ -205,9 +186,7 @@ export class Hole{
             this.renderRestComments()
         })
     }
-    renderComments(data:CommentData[],updated=false){
-        if(updated)this.element.classList.add('updated')
-        else this.element.classList.remove('updated')
+    renderComments(data:CommentData[]){
         this.comments.innerHTML=''
         this.restComments=[]
         if(data.length>=2){
