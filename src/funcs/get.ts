@@ -188,6 +188,20 @@ export async function star(id:number|string,starred:boolean,token:string,passwor
     if(result===404)return 404
     return 500
 }
+export async function comment(id:number|string,text:string,token:string,password:string){
+    if(token.length===0||password.length===0)return 401
+    if(Number(id)<=oldCommentsThreshold||text.length===0)return 500
+    const result=await getResult(`c${id}`,{
+        text:text,
+        token:token,
+        password:password
+    })
+    if(typeof result!=='number')return 200
+    if(result===401)return 401
+    if(result===503)return 503
+    if(result===404)return 404
+    return 500
+}
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
     if(token.length===0||password.length===0)return 401
     if(order==='id'){

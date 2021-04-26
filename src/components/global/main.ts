@@ -289,11 +289,12 @@ export class Main extends LRStruct{
             else data1=item.data
             const hole=new Hole()
             hole.render(data1,this.local,isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
+            let likenum=Number(data1.likenum)
             hole.handleStar=async ()=>{
                 if(this.token.length===0)return
                 const result0=await this.fetchLock.get()
                 if(result0===false)return
-                const {classList}=hole.starElement
+                const {classList}=hole.starCheckbox
                 const starrd=classList.contains('checked')
                 const result1=await get.star(id,starrd,this.token,this.password)
                 if(result1===503||result1===500||result1===401){
@@ -304,13 +305,41 @@ export class Main extends LRStruct{
                     for(let i=0;i<this.stars.length;i++){
                         if(this.stars[i]===id)this.stars[i]=-1
                     }
+                    likenum--
+                }else{
+                    this.stars.push(id)
+                    likenum++
                 }
-                else this.stars.push(id)
+                if(likenum===0){
+                    hole.starCheckbox.textContent=''
+                }else{
+                    hole.starCheckbox.textContent=likenum.toString()+' '
+                }
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
                 classList.toggle('checked')
                 await this.fetchLock.release(result0)
             }
             hole.handleRefresh=async ()=>{
+                await this.refreshHole(hole)
+            }
+            hole.handleSend=async ()=>{
+                if(this.token.length===0)return
+                const text=hole.textarea.value
+                if(text.length===0)return
+                const result0=await this.fetchLock.get()
+                if(result0===false)return
+                const result1=await get.comment(id,text,this.token,this.password)
+                if(result1!==200){
+                    await this.fetchLock.release(result0)
+                    return
+                }
+                hole.textarea.value=''
+                hole.replyArea.classList.add('hide')
+                hole.replyCheckbox.classList.remove('checked')
+                hole.reverse=true
+                this.stars.push(id)
+                window.localStorage.setItem('ph-stars',this.stars.join(','))
+                await this.fetchLock.release(result0)
                 await this.refreshHole(hole)
             }
             this.flow.append(hole.element)

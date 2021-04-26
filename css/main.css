@@ -120,13 +120,19 @@ input[type="submit"],
     background-color: var(--color-slice);
     border: none;
     outline: none;
+    text-align: center;
 }
 
 button:hover,
 input[type="button"]:hover,
 input[type="reset"]:hover,
 input[type="submit"]:hover,
-.button:hover {
+.button:hover,
+button.pushing,
+input[type="button"].pushing,
+input[type="reset"].pushing,
+input[type="submit"].pushing,
+.button.pushing {
     background-color: var(--color-selection);
 }
 
@@ -256,6 +262,23 @@ textarea {
     display: none;
 }
 
+.checkbox {
+    color: var(--color-light);
+    cursor: pointer;
+    padding: var(--length-padding-span);
+    border-radius: var(--length-radius-span);
+    line-height: 1;
+    text-align: center;
+}
+
+.checkbox.checked {
+    color: var(--color-variable);
+}
+
+.checkbox.checking {
+    background-color: var(--color-slice);
+}
+
 .flow {
     padding: 0 var(--length-padding);
     max-width: var(--length-width);
@@ -267,10 +290,6 @@ textarea {
 }
 
 .hole {
-    break-inside: avoid;
-    box-sizing: border-box;
-    width: 100%;
-    margin-top: 0;
     background-color: var(--color-pre);
     padding: var(--length-padding-pre);
     margin: var(--length-margin-heading) 0;
@@ -387,32 +406,16 @@ textarea {
     margin-bottom: var(--length-margin-heading);
 }
 
-.checkbox {
-    color: var(--color-light);
-    cursor: pointer;
-    padding: var(--length-padding-span);
-    border-radius: var(--length-radius-span);
-    line-height: 1;
-}
-
-.checkbox.checked {
-    color: var(--color-variable);
-}
-
-.checkbox.checking {
-    background-color: var(--color-slice);
-}
-
 .menu {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding-top: var(--length-padding-cell);
+    margin-top: var(--length-padding-cell);
     font-size: var(--length-font-log);
 }
 
 .star::after {
-    content: " \e9d7";
+    content: "\e9d7";
 }
 
 .refresh::before {
@@ -425,7 +428,11 @@ textarea {
 }
 
 .reply::after {
-    content: " \e900";
+    content: "\e900";
+}
+
+.send::before {
+    content: "\e901";
 }
 
 .menu>a {
@@ -434,4 +441,19 @@ textarea {
 
 .menu>a:hover {
     text-decoration: none;
+}
+
+.reply-area {
+    margin-top: var(--length-padding-cell);
+    display: flex;
+    flex-direction: column;
+}
+
+.reply-area.hide {
+    display: none;
+}
+
+.send {
+    margin-top: var(--length-padding-cell);
+    font-size: var(--length-font-log);
 }

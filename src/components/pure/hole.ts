@@ -7,23 +7,30 @@ export class Hole{
     attachment=document.createElement('div')
     comments=document.createElement('div')
     menu=document.createElement('div')
-    replyElement=document.createElement('a')
-    starElement=document.createElement('div')
-    refreshElement=document.createElement('div')
+    replyArea=document.createElement('div')
+    replyCheckbox=document.createElement('div')
+    starCheckbox=document.createElement('div')
+    refreshCheckbox=document.createElement('div')
+    textarea=document.createElement('textarea')
+    sendCheckbox=document.createElement('div')
     restComments:CommentData[]=[]
     commentLimit=50
     isRef=false
     id=-1
     reverse=false
+    maxETimestamp=0
     constructor(){
         this.element.append(this.index)
         this.element.append(this.content)
         this.content.append(this.text)
         this.content.append(this.attachment)
         this.content.append(this.menu)
-        this.menu.append(this.replyElement)
-        this.menu.append(this.starElement)
-        this.menu.append(this.refreshElement)
+        this.menu.append(this.replyCheckbox)
+        this.menu.append(this.starCheckbox)
+        this.menu.append(this.refreshCheckbox)
+        this.content.append(this.replyArea)
+        this.replyArea.append(this.textarea)
+        this.replyArea.append(this.sendCheckbox)
         this.content.append(this.comments)
         this.element.classList.add('hole')
         this.index.classList.add('index')
@@ -31,43 +38,85 @@ export class Hole{
         this.text.classList.add('text')
         this.attachment.classList.add('attachment')
         this.menu.classList.add('menu')
+        this.replyArea.classList.add('reply-area')
+        this.replyArea.classList.add('hide')
         this.comments.classList.add('comments')
-        this.replyElement.classList.add('reply')
-        this.starElement.classList.add('star')
-        this.starElement.classList.add('checkbox')
-        this.refreshElement.classList.add('refresh')
-        this.refreshElement.classList.add('checkbox')
+        this.replyCheckbox.classList.add('reply')
+        this.replyCheckbox.classList.add('checkbox')
+        this.starCheckbox.classList.add('star')
+        this.starCheckbox.classList.add('checkbox')
+        this.refreshCheckbox.classList.add('refresh')
+        this.refreshCheckbox.classList.add('checkbox')
+        this.sendCheckbox.classList.add('send')
+        this.sendCheckbox.classList.add('checkbox')
     }
     render(data:HoleData,local:boolean,isRef:boolean,starred:boolean,maxId:number,maxETimestamp:number){
         this.isRef=isRef
-        if(isRef)this.element.classList.add('ref')
-        else this.element.classList.remove('ref')
+        this.maxETimestamp=maxETimestamp
+        if(isRef){
+            this.element.classList.add('ref')
+        }else{
+            this.element.classList.remove('ref')
+        }
         let {text,tag,pid,timestamp,reply,likenum,type,url,etimestamp,hidden}=data
-        if(Number(hidden)===1)this.element.classList.add('hidden')
-        else this.element.classList.remove('hidden')
-        if(typeof text!=='string')text=''
-        if(typeof tag!=='string')tag=''
+        if(Number(hidden)===1){
+            this.element.classList.add('hidden')
+        }else{
+            this.element.classList.remove('hidden')
+        }
+        if(typeof text!=='string'){
+            text=''
+        }
+        if(typeof tag!=='string'){
+            tag=''
+        }
         this.id=Number(pid)
         this.index.innerHTML=`<span class="id">${pid}</span> ${prettyDate(timestamp)}${tag.length>0?` <span class="tag">${prettyText(tag)}</span>`:''}`
-        this.replyElement.href=`https://pkuhelper.pku.edu.cn/hole/#%23${pid}`
-        this.replyElement.target='_blank'
-        this.replyElement.textContent=reply.toString()
-        this.starElement.textContent=likenum.toString()
-        if(starred)this.starElement.classList.add('checked')
-        else this.starElement.classList.remove('checked')
-        this.starElement.onclick=async e=>{
-            const {classList}=this.starElement
+        if(Number(reply)!==0){
+            this.replyCheckbox.textContent=reply.toString()+' '
+        }
+        if(Number(likenum)!==0){
+            this.starCheckbox.textContent=likenum.toString()+' '
+        }
+        if(starred){
+            this.starCheckbox.classList.add('checked')
+        }else{
+            this.starCheckbox.classList.remove('checked')
+        }
+        this.replyCheckbox.onclick=async e=>{
+            const {classList}=this.replyCheckbox
+            classList.add('checking')
+            if(classList.contains('checked')){
+                this.replyArea.classList.add('hide')
+                classList.remove('checked')
+            }else{
+                this.replyArea.classList.remove('hide')
+                classList.add('checked')
+            }
+            classList.remove('checking')
+        }
+        this.starCheckbox.onclick=async e=>{
+            const {classList}=this.starCheckbox
             classList.add('checking')
             await this.handleStar()
             classList.remove('checking')
         }
-        this.refreshElement.onclick=async e=>{
-            const {classList}=this.refreshElement
+        this.refreshCheckbox.onclick=async e=>{
+            const {classList}=this.refreshCheckbox
             const {classList:bigClassList}=this.element
             this.reverse=!this.reverse
             classList.add('checking')
             bigClassList.add('refreshing')
             await this.handleRefresh()
+            bigClassList.remove('refreshing')
+            classList.remove('checking')
+        }
+        this.sendCheckbox.onclick=async e=>{
+            const {classList}=this.sendCheckbox
+            const {classList:bigClassList}=this.element
+            classList.add('checking')
+            bigClassList.add('refreshing')
+            await this.handleSend()
             bigClassList.remove('refreshing')
             classList.remove('checking')
         }
@@ -100,9 +149,13 @@ export class Hole{
         }else{
             storage.setItem('ph-max-id',pid.toString())
         }
-        if(typeof etimestamp==='string')etimestamp=Number(etimestamp)
+        if(typeof etimestamp==='string'){
+            etimestamp=Number(etimestamp)
+        }
         if(typeof etimestamp==='number'){
-            if(etimestamp>maxETimestamp)this.element.classList.add('new-comment')
+            if(etimestamp>maxETimestamp){
+                this.element.classList.add('new-comment')
+            }
             const oldEStr=storage.getItem('ph-max-etimestamp')
             if(oldEStr!==null){
                 const oldE=Number(oldEStr)
@@ -133,6 +186,14 @@ export class Hole{
         index.textContent=`${name} ${prettyDate(timestamp)}${tag.length>0?` <span class="tag">${prettyText(tag)}</span>`:''}`
         content.innerHTML=prettyText(text)
         this.comments.append(element)
+        if(typeof timestamp==='string'){
+            timestamp=Number(timestamp)
+        }
+        if(typeof timestamp==='number'){
+            if(timestamp>this.maxETimestamp){
+                this.element.classList.add('new-comment')
+            }
+        }
     }
     private addMoreButton(restLength:number){
         const element=document.createElement('div')
@@ -188,6 +249,9 @@ export class Hole{
 
     }
     async handleRefresh(){
+
+    }
+    async handleSend(){
 
     }
 }
