@@ -14,6 +14,7 @@ export class Hole{
     commentLimit=50
     isRef=false
     id=-1
+    reverse=false
     constructor(){
         this.element.append(this.index)
         this.element.append(this.content)
@@ -63,6 +64,7 @@ export class Hole{
         this.refreshElement.onclick=async e=>{
             const {classList}=this.refreshElement
             const {classList:bigClassList}=this.element
+            this.reverse=!this.reverse
             classList.add('checking')
             bigClassList.add('refreshing')
             await this.handleRefresh()
@@ -142,17 +144,17 @@ export class Hole{
             this.renderRestComments()
         })
     }
-    renderComments(data:CommentData[],updated=false,reverse=false){
+    renderComments(data:CommentData[],updated=false){
         if(updated)this.element.classList.add('updated')
         else this.element.classList.remove('updated')
         this.comments.innerHTML=''
         this.restComments=[]
         if(data.length>=2){
             if(Number(data[0].cid)>Number(data[1].cid)){
-                if(!reverse)data.reverse()
+                if(!this.reverse)data.reverse()
             }
             else{
-                if(reverse)data.reverse()
+                if(this.reverse)data.reverse()
             }
         }
         if(data.length<2*this.commentLimit){

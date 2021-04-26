@@ -343,13 +343,19 @@ textarea {
     background-color: var(--color-pre);
 }
 
-.comments>* {
+.comments:not(:empty) {
+    margin-top: var(--length-padding-cell);
+}
+
+.comments>:not(:first-child) {
     margin-top: var(--length-padding-cell);
 }
 
 .more {
     cursor: pointer;
     text-align: center;
+    font-size: var(--length-font-log);
+    color: var(--color-light);
 }
 
 .hr {
@@ -402,6 +408,7 @@ textarea {
     justify-content: space-around;
     align-items: center;
     padding-top: var(--length-padding-cell);
+    font-size: var(--length-font-log);
 }
 
 .star::after {
