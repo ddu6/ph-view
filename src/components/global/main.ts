@@ -337,7 +337,6 @@ export class Main extends LRStruct{
             else data1=item.data
             const hole=new Hole()
             hole.render(data1,this.local,isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
-            let likenum=Number(data1.likenum)
             hole.handleStar=async ()=>{
                 if(this.token.length===0)return
                 const result0=await this.fetchLock.get()
@@ -349,6 +348,7 @@ export class Main extends LRStruct{
                     await this.fetchLock.release(result0)
                     return
                 }
+                let likenum=Number(hole.starCheckbox.textContent)
                 if(starrd){
                     for(let i=0;i<this.stars.length;i++){
                         if(this.stars[i]===id)this.stars[i]=-1
