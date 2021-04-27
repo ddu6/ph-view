@@ -232,34 +232,31 @@ export async function getComments(id:number|string,token:string,password:string)
     }
     if(result===404){
         if(password.length===0)return []
-        result==await remotelyGetLocalComments(id,token,password)
+        result=await remotelyGetLocalComments(id,token,password)
     }else if(typeof result!=='number'&&password.length>0){
+        const data=result.data
+        if(!weakPasswords.includes(password)&&data.length>0){
+            const result=await remotelyGetComments(id,token,password)
+            if(result===401){
+                weakPasswords.push(password)
+            }
+        }
         const localResult=await remotelyGetLocalComments(id,token,password)
         if(typeof localResult!=='number'){
-            const data=result.data
             const ids=data.map(val=>Number(val.cid))
             const localData=localResult.data
             for(let i=0;i<localData.length;i++){
                 const item=localData[i]
                 const id=Number(item.cid)
                 if(ids.includes(id))continue
-                ids.push(id)
                 data.push(item)
             }
-            data.sort((a,b)=>{
-                return Number(a.cid)-Number(b.cid)
-            })
+            data.sort((a,b)=>Number(a.cid)-Number(b.cid))
         }
     }
     if(result===404)return []
     if(result===503)return 503
     if(typeof result==='number')return 500
-    if(!weakPasswords.includes(password)){
-        const result=await remotelyGetComments(id,token,password)
-        if(result===401){
-            weakPasswords.push(password)
-        }
-    }
     return result.data
 }
 export async function getHole(id:number|string,token:string,password:string){
@@ -277,14 +274,15 @@ export async function getHole(id:number|string,token:string,password:string){
     if(result===503)return 503
     if(result===404)return 404
     if(typeof result==='number')return 500
-    if(Number(result.data.timestamp)===0)return 404
-    if(!weakPasswords.includes(password)){
+    const data=result.data
+    if(Number(data.timestamp)===0)return 404
+    if(!weakPasswords.includes(password)&&Number(data.hidden)===0){
         const result=await remotelyGetHole(id,token,password)
         if(result===401){
             weakPasswords.push(password)
         }
     }
-    return result.data
+    return data
 }
 export async function getStars(token:string){
     const result:{data:HoleData[]}|number=await getResult({
@@ -360,14 +358,14 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
     if(result===404)return []
     if(result===503)return 503
     if(typeof result==='number')return 500
-    if(!weakPasswords.includes(password)){
-        const result=await remotelyGetPage(key,page,token,password)
-        if(result===401){
-            weakPasswords.push(password)
-        }
-    }
     const data=result.data
     if(data.length>0){
+        if(!weakPasswords.includes(password)){
+            const result=await remotelyGetPage(key,page,token,password)
+            if(result===401){
+                weakPasswords.push(password)
+            }
+        }
         let {pid,timestamp}=data[0]
         if(typeof pid==='string'){
             pid=Number(pid)
