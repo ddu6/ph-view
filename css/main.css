@@ -21,24 +21,17 @@
     --length-width: calc(210mm - .8in);
     --length-width-side: 280px;
     --length-width-bar: 15px;
-    --length-padding: 2em;
-    --length-padding-pre: 1em;
-    --length-padding-cell: .5em;
+    --length-tab: 2em;
+    --length-padding: 1em;
+    --length-gap: .5em;
     --length-padding-span: .3em;
+    --length-space: .25em;
     --length-padding-circle: .2em;
-    --length-margin-title: 1em;
-    --length-margin-heading: .5em;
-    --length-margin-display: .25em;
-    --length-radius-pre: .5em;
-    --length-radius-span: .3em;
     --length-font-title: 1.8em;
     --length-font-heading: 1.3em;
     --length-font-span: .85em;
     --length-font-log: .8em;
     --length-font-circle: .7em;
-    --length-space: .25em;
-    --length-space-gap: .5em;
-    --length-space-tab: 2em;
     --number-ratio-line: 1.5;
     line-height: var(--number-ratio-line);
     font-family: var(--font);
@@ -115,8 +108,8 @@ input[type="submit"],
 .button {
     font: inherit;
     color: var(--color-text);
-    border-radius: var(--length-radius-span);
-    padding: var(--length-padding-circle) var(--length-padding-pre);
+    border-radius: var(--length-padding-span);
+    padding: var(--length-padding-circle) var(--length-padding);
     background-color: var(--color-slice);
     border: none;
     outline: none;
@@ -156,7 +149,7 @@ textarea,
     background-color: transparent;
     border: 1px solid var(--color-border);
     outline: none;
-    border-radius: var(--length-radius-span);
+    border-radius: var(--length-padding-span);
     box-sizing: content-box;
 }
 
@@ -269,7 +262,7 @@ textarea {
     color: var(--color-light);
     cursor: pointer;
     padding: var(--length-padding-span);
-    border-radius: var(--length-radius-span);
+    border-radius: var(--length-padding-span);
     line-height: 1;
     text-align: center;
 }
@@ -283,7 +276,7 @@ textarea {
 }
 
 .flow {
-    padding: 0 var(--length-padding);
+    padding: 0 var(--length-tab);
     max-width: var(--length-width);
     margin: 0 auto;
 }
@@ -294,9 +287,9 @@ textarea {
 
 .hole {
     background-color: var(--color-pre);
-    padding: var(--length-padding-pre);
-    margin: var(--length-margin-heading) 0;
-    border-radius: var(--length-radius-pre);
+    padding: var(--length-padding);
+    margin: var(--length-gap) 0;
+    border-radius: var(--length-padding);
 }
 
 .hole.ref>.index::before {
@@ -331,7 +324,7 @@ textarea {
 }
 
 .hole>.index {
-    margin-bottom: var(--length-padding-cell);
+    margin-bottom: var(--length-gap);
 }
 
 .index>.tag {
@@ -351,12 +344,12 @@ textarea {
 }
 
 .text:not(:empty)+.attachment:not(:empty) {
-    margin-top: var(--length-padding-cell);
+    margin-top: var(--length-gap);
 }
 
 .audio {
     display: inline-block;
-    margin: 0 var(--length-space-gap);
+    margin: 0 var(--length-gap);
 }
 
 .comments {
@@ -366,11 +359,11 @@ textarea {
 }
 
 .comments:not(:empty) {
-    margin-top: var(--length-padding-cell);
+    margin-top: var(--length-gap);
 }
 
 .comments>:not(:first-child) {
-    margin-top: var(--length-padding-cell);
+    margin-top: var(--length-gap);
 }
 
 .more {
@@ -392,21 +385,21 @@ textarea {
     content: "- end -";
     display: block;
     text-align: center;
-    padding: var(--length-padding-cell);
+    padding: var(--length-gap);
     margin-bottom: 5em;
     color: var(--color-light);
     font-size: var(--length-font-log);
 }
 
 .panel {
-    padding: var(--length-padding-pre);
+    padding: var(--length-padding);
     display: flex;
     flex-direction: column;
     text-align: center;
 }
 
 .panel>* {
-    margin-bottom: var(--length-margin-heading);
+    margin-bottom: var(--length-gap);
 }
 
 .menu {
@@ -416,7 +409,7 @@ textarea {
 }
 
 .hole .menu {
-    margin-top: var(--length-padding-cell);
+    margin-top: var(--length-gap);
     font-size: var(--length-font-log);
 }
 
@@ -450,13 +443,13 @@ textarea {
 }
 
 .reply-area {
-    margin-top: var(--length-padding-cell);
+    margin-top: var(--length-gap);
     display: flex;
     flex-direction: column;
 }
 
 .send {
-    margin-top: var(--length-padding-cell);
+    margin-top: var(--length-gap);
     font-size: var(--length-font-log);
 }
 
@@ -466,7 +459,7 @@ textarea {
 }
 
 .login-form>:not(:first-child) {
-    margin-top: var(--length-padding-cell);
+    margin-top: var(--length-gap);
 }
 
 .token-line::before {
