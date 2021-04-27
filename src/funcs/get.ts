@@ -2,6 +2,7 @@ export const domain='ddu6.xyz'
 const oldCommentsThreshold=32859
 const timeout=60
 const weakPasswords=['']
+const hiddenIds:number[]=[]
 interface Res{
     body:string
     headers:Headers
@@ -227,7 +228,8 @@ export async function getComments(id:number|string,token:string,password:string)
     let result:number|{
         data: CommentData[]
     }=404
-    if(Number(id)>oldCommentsThreshold){
+    id=Number(id)
+    if(id>oldCommentsThreshold&&!hiddenIds.includes(id)){
         result=await locallyGetComments(id,token)
     }
     if(result===404){
@@ -263,8 +265,12 @@ export async function getHole(id:number|string,token:string,password:string){
     let result:number|{
         data: HoleData
     }=404
-    if(Number(id)>oldCommentsThreshold){
+    id=Number(id)
+    if(id>oldCommentsThreshold&&!hiddenIds.includes(id)){
         result=await locallyGetHole(id,token)
+        if(result===404){
+            hiddenIds.push(id)
+        }
     }
     if(result===404){
         if(password.length===0)return 404
