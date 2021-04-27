@@ -40,9 +40,7 @@ async function basicallyGet(url:string,params:Record<string,string>={},form:Reco
     }
     url=new URL(paramsStr,url).href
     const formStr=new URLSearchParams(form).toString()
-    const headers:HeadersInit={
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'
-    }
+    const headers:HeadersInit={}
     if(cookie.length>0){
         headers.Cookie=cookie
     }
