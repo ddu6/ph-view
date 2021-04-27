@@ -233,6 +233,23 @@ export async function getComments(id:number|string,token:string,password:string)
     if(result===404){
         if(password.length===0)return []
         result==await remotelyGetLocalComments(id,token,password)
+    }else if(typeof result!=='number'&&password.length>0){
+        const localResult=await remotelyGetLocalComments(id,token,password)
+        if(typeof localResult!=='number'){
+            const data=result.data
+            const ids=data.map(val=>Number(val.cid))
+            const localData=localResult.data
+            for(let i=0;i<localData.length;i++){
+                const item=localData[i]
+                const id=Number(item.cid)
+                if(ids.includes(id))continue
+                ids.push(id)
+                data.push(item)
+            }
+            data.sort((a,b)=>{
+                return Number(a.cid)-Number(b.cid)
+            })
+        }
     }
     if(result===404)return []
     if(result===503)return 503
