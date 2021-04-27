@@ -351,8 +351,10 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
     }
     const data=result.data
     if(data.length>0){
-        let {pid}=data[0]
-        if(typeof pid==='string')pid=Number(pid)
+        let {pid,timestamp}=data[0]
+        if(typeof pid==='string'){
+            pid=Number(pid)
+        }
         const storage=window.localStorage
         const oldIdStr=storage.getItem('ph-max-id')
         if(oldIdStr!==null){
@@ -362,6 +364,18 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
             }
         }else{
             storage.setItem('ph-max-id',pid.toString())
+        }
+        if(typeof timestamp==='string'){
+            timestamp=Number(timestamp)
+        }
+        const oldEStr=storage.getItem('ph-max-etimestamp')
+        if(oldEStr!==null){
+            const oldE=Number(oldEStr)
+            if(timestamp>oldE){
+                storage.setItem('ph-max-etimestamp',timestamp.toString())
+            }
+        }else{
+            storage.setItem('ph-max-etimestamp',timestamp.toString())
         }
     }
     return data
