@@ -40,42 +40,6 @@
     font-size: 16px;
 }
 
-@media screen and (max-width:650px) {
-    .root {
-        font-size: 15.5px
-    }
-}
-
-@media screen and (max-width:600px) {
-    .root {
-        font-size: 15px
-    }
-}
-
-@media screen and (max-width:550px) {
-    .root {
-        font-size: 14.5px
-    }
-}
-
-@media screen and (max-width:500px) {
-    .root {
-        font-size: 14px
-    }
-}
-
-@media screen and (max-width:450px) {
-    .root {
-        font-size: 13.5px
-    }
-}
-
-@media screen and (max-width:400px) {
-    .root {
-        font-size: 13px
-    }
-}
-
 ::-webkit-scrollbar {
     background-color: transparent;
 }

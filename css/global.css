@@ -1,3 +1,81 @@
+.root {
+    --color-text: #cccccc;
+    --color-light: #8f8f8f;
+    --color-string: #df9e61;
+    --color-number: #B5CEA8;
+    --color-keyword: #cc80c6;
+    --color-function: #DCDCAA;
+    --color-variable: #6ec0ec;
+    --color-modifier: #3074ac;
+    --color-class: #4EC9B0;
+    --color-warn: #F44747;
+    --color-comment: #6A9955;
+    --color-border: #2e3133;
+    --color-bg: #131313;
+    --color-area: #161616;
+    --color-pre: #191b1d;
+    --color-slice: rgba(88, 88, 88, 0.5);
+    --color-selection: rgba(95, 144, 163, 0.5);
+    --color-span: rgba(58, 61, 65, 0.5);
+    --font: icomoon, "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", "STHeiti Light", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --length-width: calc(210mm - .8in);
+    --length-width-side: 280px;
+    --length-width-bar: 15px;
+    --length-tab: 2em;
+    --length-padding: 1em;
+    --length-gap: .5em;
+    --length-padding-span: .3em;
+    --length-space: .25em;
+    --length-padding-circle: .2em;
+    --length-font-title: 1.8em;
+    --length-font-heading: 1.3em;
+    --length-font-span: .85em;
+    --length-font-log: .8em;
+    --length-font-circle: .7em;
+    --number-ratio-line: 1.5;
+    line-height: var(--number-ratio-line);
+    font-family: var(--font);
+    color: var(--color-text);
+    background-color: var(--color-bg) !important;
+    font-size: 16px;
+}
+
+@media screen and (max-width:650px) {
+    .root {
+        font-size: 15.5px
+    }
+}
+
+@media screen and (max-width:600px) {
+    .root {
+        font-size: 15px
+    }
+}
+
+@media screen and (max-width:550px) {
+    .root {
+        font-size: 14.5px
+    }
+}
+
+@media screen and (max-width:500px) {
+    .root {
+        font-size: 14px
+    }
+}
+
+@media screen and (max-width:450px) {
+    .root {
+        font-size: 13.5px
+    }
+}
+
+@media screen and (max-width:400px) {
+    .root {
+        font-size: 13px
+    }
+}
+
 ::-webkit-scrollbar {
     background-color: transparent;
 }
@@ -7,5 +85,5 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(88, 88, 88, 0.5);
+    background-color: var(--color-slice);
 }

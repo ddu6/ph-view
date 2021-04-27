@@ -90,7 +90,7 @@ export class Main extends LRStruct{
         this.loginForm.append(this.loginCheckbox)
         this.tokenInput.type='password'
         this.passwordInput.type='password'
-        this.element.classList.add('root')
+        parent.classList.add('root')
         this.panel.classList.add('panel')
         this.flow.classList.add('flow')
         this.orderSelect.classList.add('order')
