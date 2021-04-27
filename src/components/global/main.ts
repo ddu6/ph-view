@@ -174,8 +174,14 @@ export class Main extends LRStruct{
             this.passwordInput.value=this.password
             this.token=''
             this.password=''
+            this.stars=[]
+            this.maxId=-1
+            this.maxETimestamp=0
             window.localStorage.setItem('ph-token',this.token)
             window.localStorage.setItem('ph-password',this.password)
+            window.localStorage.setItem('ph-stars',this.stars.join(','))
+            window.localStorage.setItem('ph-max-id',this.maxId.toString())
+            window.localStorage.setItem('ph-max-etimestamp',this.maxETimestamp.toString())
             await this.start()
             this.logoutCheckbox.classList.remove('checking')
         })
