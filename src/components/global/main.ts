@@ -115,7 +115,7 @@ export class Main extends LRStruct{
         this.pageInput.type='number'
         this.pageInput.min='1'
         this.style.textContent=css.main
-        this.globalStyle.textContent=fonts.icomoon+css.global
+        this.globalStyle.textContent=fonts.icomoon+css.main
         this.fillterInput.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
                 this.pageInput.value='1'
