@@ -1,6 +1,7 @@
 export const domain='ddu6.xyz'
 const oldCommentsThreshold=32859
 const timeout=60
+const weakPasswords=['']
 interface Res{
     body:string
     headers:Headers
@@ -50,11 +51,10 @@ async function basicallyGet(url:string,params:Record<string,string>={},form:Reco
     const options:RequestInit={
         method:formStr.length>0?'POST':'GET',
         headers:headers,
-        referrer:'no-referrer'
+        referrerPolicy:'no-referrer'
     }
     if(formStr.length>0){
         Object.assign(headers,{
-            'X-Requested-With': 'XMLHttpRequest',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         })
         Object.assign(options,{
@@ -237,8 +237,11 @@ export async function getComments(id:number|string,token:string,password:string)
     if(result===404)return []
     if(result===503)return 503
     if(typeof result==='number')return 500
-    if(password.length>0){
-        await remotelyGetComments(id,token,password)
+    if(!weakPasswords.includes(password)){
+        const result=await remotelyGetComments(id,token,password)
+        if(result===401){
+            weakPasswords.push(password)
+        }
     }
     return result.data
 }
@@ -253,12 +256,16 @@ export async function getHole(id:number|string,token:string,password:string){
         if(password.length===0)return 404
         result=await remotelyGetLocalHole(id,token,password)
     }
-    if(result===404)return 404
+    if(result===401)return 401
     if(result===503)return 503
+    if(result===404)return 404
     if(typeof result==='number')return 500
     if(Number(result.data.timestamp)===0)return 404
-    if(password.length>0){
-        await remotelyGetHole(id,token,password)
+    if(!weakPasswords.includes(password)){
+        const result=await remotelyGetHole(id,token,password)
+        if(result===401){
+            weakPasswords.push(password)
+        }
     }
     return result.data
 }
@@ -267,6 +274,7 @@ export async function getStars(token:string){
         action:'getattention',
         user_token:token
     })
+    if(result===401)return 401
     if(result===503)return 503
     if(result===404)return []
     if(typeof result==='number')return 500
@@ -335,8 +343,11 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
     if(result===404)return []
     if(result===503)return 503
     if(typeof result==='number')return 500
-    if(password.length>0){
-        await remotelyGetPage(key,page,token,password)
+    if(!weakPasswords.includes(password)){
+        const result=await remotelyGetPage(key,page,token,password)
+        if(result===401){
+            weakPasswords.push(password)
+        }
     }
     const data=result.data
     if(data.length>0){

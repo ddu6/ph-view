@@ -31,7 +31,7 @@ export class Main extends LRStruct{
     loginCheckbox=document.createElement('div')
     flow=document.createElement('div')
     style=document.createElement('style')
-    fontStyle=document.createElement('style')
+    globalStyle=document.createElement('style')
     fetchLock=new KillableLock()
     appendLock=new KillableLock()
 
@@ -73,7 +73,7 @@ export class Main extends LRStruct{
         this.shadow=parent.attachShadow({mode:'closed'})
         this.shadow.append(this.element)
         this.element.append(this.style)
-        parent.append(this.fontStyle)
+        parent.append(this.globalStyle)
         this.sideContent.append(this.panel)
         this.main.append(this.flow)
         this.panel.append(this.menu)
@@ -115,7 +115,7 @@ export class Main extends LRStruct{
         this.pageInput.type='number'
         this.pageInput.min='1'
         this.style.textContent=css.main
-        this.fontStyle.textContent=fonts.icomoon
+        this.globalStyle.textContent=fonts.icomoon+css.global
         this.fillterInput.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
                 this.pageInput.value='1'
@@ -168,6 +168,8 @@ export class Main extends LRStruct{
             await this.start()
         })
         this.logoutCheckbox.addEventListener('click',async e=>{
+            this.logoutCheckbox.classList.add('checking')
+            await this.clear()
             this.tokenInput.value=this.token
             this.passwordInput.value=this.password
             this.token=''
@@ -175,20 +177,12 @@ export class Main extends LRStruct{
             window.localStorage.setItem('ph-token',this.token)
             window.localStorage.setItem('ph-password',this.password)
             await this.start()
-        })
-        document.addEventListener('scroll',async e=>{
-            await this.autoAppend()
-        })
-        document.addEventListener('touchmove',async e=>{
-            await this.autoAppend()
-        })
-        document.addEventListener('dblclick',async e=>{
-            await this.autoAppend()
+            this.logoutCheckbox.classList.remove('checking')
         })
         setInterval(async()=>{
             if(!this.inited)return
             if(this.auto){
-                this.main.scrollBy({left:0,top:this.scrollSpeed,behavior:"smooth"})
+                window.scrollBy({left:0,top:this.scrollSpeed,behavior:"smooth"})
             }
         },1000)
         setInterval(async()=>{
@@ -315,6 +309,9 @@ export class Main extends LRStruct{
             if(item.idOnly){
                 const data=await get.getHole(id,this.token,this.password)
                 if(data===404)continue
+                if(data===401){
+                    return 401
+                }
                 if(data===500){
                     this.errCount++
                     if(this.errCount>this.errLimit)return 500
@@ -469,9 +466,16 @@ export class Main extends LRStruct{
             this.page=0
             while(true){
                 const data1=await get.getStars(this.token)
+                if(data1===401){
+                    data0=data1
+                    break
+                }
                 if(data1===500){
                     this.errCount++
-                    if(this.errCount>this.errLimit){data0=data1;break}
+                    if(this.errCount>this.errLimit){
+                        data0=data1
+                        break
+                    }
                     await this.fetchLock.sleep(this.errSleep)
                     continue
                 }
@@ -521,6 +525,8 @@ export class Main extends LRStruct{
                 await this.appendLock.release(result)
                 return
             }
+            this.password=''
+            window.localStorage.setItem('ph-password',this.password)
             alert('Permission denied.')
             this.end=true
         }else if(data0===500){
@@ -531,8 +537,22 @@ export class Main extends LRStruct{
             }else{
                 this.page++
                 this.pageInput.value=this.page.toString()
-                const result=await this.basicallyAppend(data0)
-                if(result===500)this.end=true
+                const result1=await this.basicallyAppend(data0)
+                if(result1===401){
+                    if(this.order==='id'){
+                        alert('Wrong token.')
+                        this.flow.append(this.loginForm)
+                        this.end=true
+                        await this.appendLock.release(result)
+                        return
+                    }
+                    this.password=''
+                    window.localStorage.setItem('ph-password',this.password)
+                    alert('Permission denied.')
+                    this.end=true
+                }else if(result1===500){
+                    this.end=true
+                }
             }
         }
         if(this.end){
@@ -548,7 +568,7 @@ export class Main extends LRStruct{
     }
     async autoAppend(){
         if(Date.now()<this.lastAppend+250
-        ||this.main.scrollTop+window.innerHeight<this.main.scrollHeight-this.appendThreshod
+        ||window.pageYOffset+window.innerHeight<document.body.scrollHeight-this.appendThreshod
         ||this.appendLock.busy)return
         this.lastAppend=Date.now()
         await this.append()
@@ -558,8 +578,11 @@ export class Main extends LRStruct{
         await this.fetchLock.kill()
         await this.appendLock.kill()
         this.parseFillter()
-        if(this.star){
+        if(this.star||this.password.length===0){
             this.order='id'
+            this.orderSelect.classList.add('hide')
+        }else{
+            this.orderSelect.classList.remove('hide')
         }
         this.flow.innerHTML=''
         this.orderSelect.value=this.order
@@ -746,6 +769,10 @@ export class Main extends LRStruct{
             const data=await get.getHole(id,this.token,this.password)
             if(data===404){
                 data1=404
+                break
+            }
+            if(data===401){
+                data1=500
                 break
             }
             if(data===500){
