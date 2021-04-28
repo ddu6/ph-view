@@ -159,11 +159,15 @@ export class Main extends LRStruct{
             await this.start()
         })
         this.starCheckbox.addEventListener('click',async e=>{
+            const {classList}=this.starCheckbox
+            if(classList.contains('checking'))return
+            classList.add('checking')
             this.pageInput.value='1'
             if(this.fillterInput.value.startsWith('.d')){
                 this.fillterInput.value=this.fillterInput.value.replace(/^\.d\d*\s*/,'')
             }
             this.starCheckbox.classList.toggle('checked')
+            classList.remove('checking')
             await this.start()
         })
         this.autoCheckbox.addEventListener('click',async e=>{
@@ -182,7 +186,9 @@ export class Main extends LRStruct{
             await this.start()
         })
         this.logoutCheckbox.addEventListener('click',async e=>{
-            this.logoutCheckbox.classList.add('checking')
+            const {classList}=this.logoutCheckbox
+            if(classList.contains('checking'))return
+            classList.add('checking')
             await this.clear()
             this.tokenInput.value=this.token
             this.passwordInput.value=this.password
@@ -197,10 +203,11 @@ export class Main extends LRStruct{
             window.localStorage.setItem('ph-max-id',this.maxId.toString())
             window.localStorage.setItem('ph-max-etimestamp',this.maxETimestamp.toString())
             await this.start()
-            this.logoutCheckbox.classList.remove('checking')
+            classList.remove('checking')
         })
         this.addCheckbox.addEventListener('click',async e=>{
             const {classList}=this.addCheckbox
+            if(classList.contains('checking'))return
             classList.add('checking')
             if(classList.contains('checked')){
                 this.addForm.classList.add('hide')
@@ -213,15 +220,20 @@ export class Main extends LRStruct{
         })
         this.sendCheckbox.addEventListener('click',async e=>{
             const {classList}=this.sendCheckbox
-            classList.add('checking')
+            if(classList.contains('checking'))return
             if(this.token.length===0)return
             const text=this.textarea.value
             if(text.length===0)return
+            classList.add('checking')
             const result0=await this.fetchLock.get()
-            if(result0===false)return
+            if(result0===false){
+                classList.remove('checking')
+                return
+            }
             const result1=await get.add(text,this.token)
             if(result1!==200){
                 await this.fetchLock.release(result0)
+                classList.remove('checking')
                 return
             }
             this.textarea.value=''

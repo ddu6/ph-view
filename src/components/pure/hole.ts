@@ -48,6 +48,7 @@ export class Hole{
         this.sendCheckbox.classList.add('checkbox')
         this.commentCheckbox.addEventListener('click',async e=>{
             const {classList}=this.commentCheckbox
+            if(classList.contains('checking'))return
             classList.add('checking')
             if(classList.contains('checked')){
                 this.commentForm.classList.add('hide')
@@ -60,12 +61,14 @@ export class Hole{
         })
         this.starCheckbox.addEventListener('click',async e=>{
             const {classList}=this.starCheckbox
+            if(classList.contains('checking'))return
             classList.add('checking')
             await this.handleStar()
             classList.remove('checking')
         })
         this.refreshCheckbox.addEventListener('click',async e=>{
             const {classList}=this.refreshCheckbox
+            if(classList.contains('checking'))return
             const {classList:bigClassList}=this.element
             this.reverse=!this.reverse
             classList.add('checking')
@@ -76,6 +79,7 @@ export class Hole{
         })
         this.sendCheckbox.addEventListener('click',async e=>{
             const {classList}=this.sendCheckbox
+            if(classList.contains('checking'))return
             const {classList:bigClassList}=this.element
             classList.add('checking')
             bigClassList.add('refreshing')
