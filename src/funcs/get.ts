@@ -280,7 +280,7 @@ export async function getHole(id:number|string,token:string,password:string){
     if(typeof result==='number')return 500
     const data=result.data
     if(Number(data.timestamp)===0)return 404
-    if(!weakPasswords.includes(password)&&Number(data.hidden)===0){
+    if(!weakPasswords.includes(password)&&Number(data.hidden)!==1){
         const result=await remotelyGetHole(id,token,password)
         if(result===401){
             weakPasswords.push(password)
