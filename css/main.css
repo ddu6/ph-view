@@ -432,6 +432,7 @@ textarea {
 
 .comment-form,
 .add-form,
+.login-form,
 .token-line,
 .password-line {
     display: flex;
@@ -440,8 +441,8 @@ textarea {
 
 .comment-form>:not(:first-child),
 .add-form>:not(:first-child),
-.comments>:not(:first-child),
 .hole>:not(:first-child),
+.comments>:not(:first-child),
 .panel>:not(:first-child) {
     margin-top: var(--length-gap);
 }
