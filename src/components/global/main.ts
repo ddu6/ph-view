@@ -207,8 +207,6 @@ export class Main extends LRStruct{
         })
         this.addCheckbox.addEventListener('click',async e=>{
             const {classList}=this.addCheckbox
-            if(classList.contains('checking'))return
-            classList.add('checking')
             if(classList.contains('checked')){
                 this.addForm.classList.add('hide')
                 classList.remove('checked')
@@ -216,7 +214,6 @@ export class Main extends LRStruct{
                 this.addForm.classList.remove('hide')
                 classList.add('checked')
             }
-            classList.remove('checking')
         })
         this.sendCheckbox.addEventListener('click',async e=>{
             const {classList}=this.sendCheckbox
@@ -244,8 +241,8 @@ export class Main extends LRStruct{
             this.fillterInput.value=''
             this.pageInput.value='1'
             await this.fetchLock.release(result0)
-            await this.start()
             classList.remove('checking')
+            await this.start()
         })
         setInterval(async()=>{
             if(!this.inited)return

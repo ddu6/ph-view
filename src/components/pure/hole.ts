@@ -48,8 +48,6 @@ export class Hole{
         this.sendCheckbox.classList.add('checkbox')
         this.commentCheckbox.addEventListener('click',async e=>{
             const {classList}=this.commentCheckbox
-            if(classList.contains('checking'))return
-            classList.add('checking')
             if(classList.contains('checked')){
                 this.commentForm.classList.add('hide')
                 classList.remove('checked')
@@ -57,7 +55,6 @@ export class Hole{
                 this.commentForm.classList.remove('hide')
                 classList.add('checked')
             }
-            classList.remove('checking')
         })
         this.starCheckbox.addEventListener('click',async e=>{
             const {classList}=this.starCheckbox
