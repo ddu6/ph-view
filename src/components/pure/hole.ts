@@ -187,6 +187,9 @@ export class Hole{
         })
     }
     renderComments(data:CommentData[]){
+        if(data.length>Number(this.replyCheckbox.textContent)){
+            this.replyCheckbox.textContent=data.length.toString()+' '
+        }
         this.comments.innerHTML=''
         this.restComments=[]
         if(data.length>=2){
