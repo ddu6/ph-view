@@ -87,7 +87,7 @@ async function basicallyGet(url:string,params:Record<string,string>={},form:Reco
 async function getResult(params:Record<string,string>={},form:Record<string,string>={}){
     Object.assign(params,{
         PKUHelperAPI:'3.0',
-        jsapiver:'201027113050-449842'
+        jsapiver:`201027113050-${2*Math.floor(Date.now()/72e5)}`
     })
     const result=await basicallyGet('https://pkuhelper.pku.edu.cn/services/pkuhole/api.php',params,form)
     if(typeof result==='number')return result
@@ -97,6 +97,7 @@ async function getResult(params:Record<string,string>={},form:Record<string,stri
         const {code,data,msg}=JSON.parse(body)
         if(code===0)return {data:data}
         if(msg==='没有这条树洞')return 404
+        if(msg==='已经关注过了')return 409
         if(typeof msg==='string'&&msg.length>0){
             console.log(msg)
         }
@@ -301,7 +302,8 @@ export async function getStars(token:string){
     return data
 }
 export async function star(id:number|string,starred:boolean,token:string){
-    if(Number(id)<=oldCommentsThreshold)return 500
+    id=Number(id)
+    if(id<=oldCommentsThreshold||hiddenIds.includes(id))return 500
     const result=await getResult({
         action:'attention',
         pid:id.toString(),
@@ -310,11 +312,12 @@ export async function star(id:number|string,starred:boolean,token:string){
     })
     if(typeof result!=='number')return 200
     if(result===503)return 503
-    if(result===404)return 404
+    if(result===409)return 409
     return 500
 }
 export async function comment(id:number|string,text:string,token:string){
-    if(Number(id)<=oldCommentsThreshold||text.length===0)return 500
+    id=Number(id)
+    if(id<=oldCommentsThreshold||hiddenIds.includes(id))return 500
     const result=await getResult({
         action:'docomment',
         user_token:token
@@ -325,7 +328,20 @@ export async function comment(id:number|string,text:string,token:string){
     })
     if(typeof result!=='number')return 200
     if(result===503)return 503
-    if(result===404)return 404
+    return 500
+}
+export async function add(text:string,token:string){
+    if(text.length===0)return 500
+    const result=await getResult({
+        action:'dopost',
+        user_token:token
+    },{
+        text:text,
+        type:'text',
+        user_token:token
+    })
+    if(typeof result!=='number')return 200
+    if(result===503)return 503
     return 500
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){

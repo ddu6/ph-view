@@ -2,13 +2,12 @@ import {HoleData,CommentData,domain} from '../../funcs/get'
 export class Hole{
     element=document.createElement('div')
     index=document.createElement('div')
-    content=document.createElement('div')
     text=document.createElement('div')
     attachment=document.createElement('div')
     comments=document.createElement('div')
     menu=document.createElement('div')
-    replyArea=document.createElement('div')
-    replyCheckbox=document.createElement('div')
+    commentForm=document.createElement('div')
+    commentCheckbox=document.createElement('div')
     starCheckbox=document.createElement('div')
     refreshCheckbox=document.createElement('div')
     textarea=document.createElement('textarea')
@@ -21,34 +20,69 @@ export class Hole{
     maxETimestamp=0
     constructor(){
         this.element.append(this.index)
-        this.element.append(this.content)
-        this.content.append(this.text)
-        this.content.append(this.attachment)
-        this.content.append(this.menu)
-        this.menu.append(this.replyCheckbox)
+        this.element.append(this.text)
+        this.element.append(this.attachment)
+        this.element.append(this.menu)
+        this.menu.append(this.commentCheckbox)
         this.menu.append(this.starCheckbox)
         this.menu.append(this.refreshCheckbox)
-        this.content.append(this.replyArea)
-        this.replyArea.append(this.textarea)
-        this.replyArea.append(this.sendCheckbox)
-        this.content.append(this.comments)
+        this.element.append(this.commentForm)
+        this.commentForm.append(this.textarea)
+        this.commentForm.append(this.sendCheckbox)
+        this.element.append(this.comments)
         this.element.classList.add('hole')
         this.index.classList.add('index')
-        this.content.classList.add('content')
         this.text.classList.add('text')
         this.attachment.classList.add('attachment')
         this.menu.classList.add('menu')
-        this.replyArea.classList.add('reply-area')
-        this.replyArea.classList.add('hide')
+        this.commentForm.classList.add('comment-form')
+        this.commentForm.classList.add('hide')
         this.comments.classList.add('comments')
-        this.replyCheckbox.classList.add('reply')
-        this.replyCheckbox.classList.add('checkbox')
+        this.commentCheckbox.classList.add('comment')
+        this.commentCheckbox.classList.add('checkbox')
         this.starCheckbox.classList.add('star')
         this.starCheckbox.classList.add('checkbox')
         this.refreshCheckbox.classList.add('refresh')
         this.refreshCheckbox.classList.add('checkbox')
         this.sendCheckbox.classList.add('send')
         this.sendCheckbox.classList.add('checkbox')
+        this.commentCheckbox.addEventListener('click',async e=>{
+            const {classList}=this.commentCheckbox
+            classList.add('checking')
+            if(classList.contains('checked')){
+                this.commentForm.classList.add('hide')
+                classList.remove('checked')
+            }else{
+                this.commentForm.classList.remove('hide')
+                classList.add('checked')
+            }
+            classList.remove('checking')
+        })
+        this.starCheckbox.addEventListener('click',async e=>{
+            const {classList}=this.starCheckbox
+            classList.add('checking')
+            await this.handleStar()
+            classList.remove('checking')
+        })
+        this.refreshCheckbox.addEventListener('click',async e=>{
+            const {classList}=this.refreshCheckbox
+            const {classList:bigClassList}=this.element
+            this.reverse=!this.reverse
+            classList.add('checking')
+            bigClassList.add('refreshing')
+            await this.handleRefresh()
+            bigClassList.remove('refreshing')
+            classList.remove('checking')
+        })
+        this.sendCheckbox.addEventListener('click',async e=>{
+            const {classList}=this.sendCheckbox
+            const {classList:bigClassList}=this.element
+            classList.add('checking')
+            bigClassList.add('refreshing')
+            await this.handleSend()
+            bigClassList.remove('refreshing')
+            classList.remove('checking')
+        })
     }
     render(data:HoleData,local:boolean,isRef:boolean,starred:boolean,maxId:number,maxETimestamp:number){
         this.isRef=isRef
@@ -73,7 +107,7 @@ export class Hole{
         this.id=Number(pid)
         this.index.innerHTML=`<span class="id">${pid}</span> ${prettyDate(timestamp)}${tag.length>0?` <span class="tag">${prettyText(tag)}</span>`:''}`
         if(Number(reply)!==0){
-            this.replyCheckbox.textContent=reply.toString()+' '
+            this.commentCheckbox.textContent=reply.toString()+' '
         }
         if(Number(likenum)!==0){
             this.starCheckbox.textContent=likenum.toString()+' '
@@ -82,43 +116,6 @@ export class Hole{
             this.starCheckbox.classList.add('checked')
         }else{
             this.starCheckbox.classList.remove('checked')
-        }
-        this.replyCheckbox.onclick=async e=>{
-            const {classList}=this.replyCheckbox
-            classList.add('checking')
-            if(classList.contains('checked')){
-                this.replyArea.classList.add('hide')
-                classList.remove('checked')
-            }else{
-                this.replyArea.classList.remove('hide')
-                classList.add('checked')
-            }
-            classList.remove('checking')
-        }
-        this.starCheckbox.onclick=async e=>{
-            const {classList}=this.starCheckbox
-            classList.add('checking')
-            await this.handleStar()
-            classList.remove('checking')
-        }
-        this.refreshCheckbox.onclick=async e=>{
-            const {classList}=this.refreshCheckbox
-            const {classList:bigClassList}=this.element
-            this.reverse=!this.reverse
-            classList.add('checking')
-            bigClassList.add('refreshing')
-            await this.handleRefresh()
-            bigClassList.remove('refreshing')
-            classList.remove('checking')
-        }
-        this.sendCheckbox.onclick=async e=>{
-            const {classList}=this.sendCheckbox
-            const {classList:bigClassList}=this.element
-            classList.add('checking')
-            bigClassList.add('refreshing')
-            await this.handleSend()
-            bigClassList.remove('refreshing')
-            classList.remove('checking')
         }
         this.text.innerHTML=prettyText(text)
         this.attachment.innerHTML=''
@@ -160,10 +157,12 @@ export class Hole{
         const content=document.createElement('div')
         element.append(index)
         element.append(content)
-        element.classList.add('comment')
         index.classList.add('index')
-        content.classList.add('content')
         content.classList.add('text')
+        element.addEventListener('click',e=>{
+            if(this.textarea.value.length>0)return
+            this.textarea.value=`Re ${name}: `
+        })
         index.textContent=`${name} ${prettyDate(timestamp)}${tag.length>0?` <span class="tag">${prettyText(tag)}</span>`:''}`
         content.innerHTML=prettyText(text)
         this.comments.append(element)
@@ -187,8 +186,8 @@ export class Hole{
         })
     }
     renderComments(data:CommentData[]){
-        if(data.length>Number(this.replyCheckbox.textContent)){
-            this.replyCheckbox.textContent=data.length.toString()+' '
+        if(data.length>Number(this.commentCheckbox.textContent)){
+            this.commentCheckbox.textContent=data.length.toString()+' '
         }
         this.comments.innerHTML=''
         this.restComments=[]

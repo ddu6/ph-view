@@ -259,6 +259,8 @@ textarea {
 }
 
 .checkbox {
+    display: inline-block;
+    min-width: 1em;
     color: var(--color-light);
     cursor: pointer;
     padding: var(--length-padding-span);
@@ -275,6 +277,46 @@ textarea {
     background-color: var(--color-slice);
 }
 
+.menu {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.star::after {
+    content: "\e9d7";
+}
+
+.refresh::after {
+    content: "\e984";
+    font-size: .8em;
+}
+
+.auto::after {
+    content: "\ea0a";
+}
+
+.comment::after {
+    content: "\e900";
+}
+
+.send::after {
+    content: "\e901";
+}
+
+.logout::after {
+    content: "\e902";
+}
+
+.login::after {
+    content: "\e903";
+}
+
+.add::after {
+    content: "\ea0b";
+    font-size: .8em;
+}
+
 .flow {
     padding: 0 var(--length-tab);
     max-width: var(--length-width);
@@ -285,11 +327,18 @@ textarea {
     content: "loading...";
 }
 
+.panel {
+    padding: var(--length-padding);
+    display: flex;
+    flex-direction: column;
+}
+
 .hole {
     background-color: var(--color-pre);
     padding: var(--length-padding);
     margin: var(--length-gap) 0;
     border-radius: var(--length-padding);
+    overflow-x: hidden;
 }
 
 .hole.ref>.index::before {
@@ -318,21 +367,9 @@ textarea {
 
 .index {
     font-size: var(--length-font-log);
-    white-space: pre;
+    white-space: pre-wrap;
     color: var(--color-light);
     overflow-x: auto;
-}
-
-.hole>.index {
-    margin-bottom: var(--length-gap);
-}
-
-.index>.tag {
-    white-space: pre-wrap;
-}
-
-.content {
-    overflow-x: hidden;
 }
 
 .text {
@@ -341,10 +378,6 @@ textarea {
     overflow-wrap: anywhere;
     line-break: anywhere;
     overflow-x: auto;
-}
-
-.text:not(:empty)+.attachment:not(:empty) {
-    margin-top: var(--length-gap);
 }
 
 .audio {
@@ -356,14 +389,6 @@ textarea {
     max-height: 30em;
     overflow-y: auto;
     background-color: var(--color-pre);
-}
-
-.comments:not(:empty) {
-    margin-top: var(--length-gap);
-}
-
-.comments>:not(:first-child) {
-    margin-top: var(--length-gap);
 }
 
 .more {
@@ -391,77 +416,6 @@ textarea {
     font-size: var(--length-font-log);
 }
 
-.panel {
-    padding: var(--length-padding);
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-}
-
-.panel>* {
-    margin-bottom: var(--length-gap);
-}
-
-.menu {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.hole .menu {
-    margin-top: var(--length-gap);
-    font-size: var(--length-font-log);
-}
-
-.star::after {
-    content: "\e9d7";
-}
-
-.refresh::after {
-    content: "\e984";
-    font-size: .8em;
-}
-
-.auto::after {
-    content: "\ea1c";
-}
-
-.reply::after {
-    content: "\e900";
-}
-
-.send::after {
-    content: "\e901";
-}
-
-.logout::after {
-    content: "\e902";
-}
-
-.login::after {
-    content: "\e903";
-}
-
-.reply-area {
-    margin-top: var(--length-gap);
-    display: flex;
-    flex-direction: column;
-}
-
-.send {
-    margin-top: var(--length-gap);
-    font-size: var(--length-font-log);
-}
-
-.token-line,.password-line {
-    display: flex;
-    flex-direction: column;
-}
-
-.login-form>:not(:first-child) {
-    margin-top: var(--length-gap);
-}
-
 .token-line::before {
     display: block;
     content: "Token";
@@ -476,6 +430,27 @@ textarea {
     font-size: var(--length-font-log);
 }
 
-.reply-area.hide,.order.hide {
+.comment-form,
+.add-form,
+.token-line,
+.password-line {
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-form>:not(:first-child),
+.add-form>:not(:first-child),
+.comments>:not(:first-child),
+.hole>:not(:first-child),
+.panel>:not(:first-child) {
+    margin-top: var(--length-gap);
+}
+
+.comment-form.hide,
+.add-form.hide,
+.order.hide,
+.text:empty,
+.attachment:empty,
+.comments:empty {
     display: none;
 }

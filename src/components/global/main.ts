@@ -30,6 +30,10 @@ export class Main extends LRStruct{
     passwordLine=document.createElement('div')
     loginCheckbox=document.createElement('div')
     flow=document.createElement('div')
+    addForm=document.createElement('div')
+    textarea=document.createElement('textarea')
+    sendCheckbox=document.createElement('div')
+    addCheckbox=document.createElement('div')
     style=document.createElement('style')
     globalStyle=document.createElement('style')
     fetchLock=new KillableLock()
@@ -77,12 +81,16 @@ export class Main extends LRStruct{
         this.sideContent.append(this.panel)
         this.main.append(this.flow)
         this.panel.append(this.menu)
-        this.menu.append(this.autoCheckbox)
+        this.menu.append(this.addCheckbox)
         this.menu.append(this.starCheckbox)
-        this.menu.append(this.logoutCheckbox)
+        this.menu.append(this.autoCheckbox)
+        this.panel.append(this.addForm)
+        this.addForm.append(this.textarea)
+        this.addForm.append(this.sendCheckbox)
         this.panel.append(this.orderSelect)
         this.panel.append(this.fillterInput)
-        this.panel.append(this.pageInput)        
+        this.panel.append(this.pageInput)
+        this.panel.append(this.logoutCheckbox)     
         this.loginForm.append(this.tokenLine)
         this.tokenLine.append(this.tokenInput)
         this.loginForm.append(this.passwordLine)
@@ -111,6 +119,12 @@ export class Main extends LRStruct{
         this.passwordLine.classList.add('password-line')
         this.loginCheckbox.classList.add('login')
         this.loginCheckbox.classList.add('checkbox')
+        this.addForm.classList.add('add-form')
+        this.addForm.classList.add('hide')
+        this.addCheckbox.classList.add('add')
+        this.addCheckbox.classList.add('checkbox')
+        this.sendCheckbox.classList.add('send')
+        this.sendCheckbox.classList.add('checkbox')
         this.orderSelect.innerHTML='<option>id</option><option>active</option><option>hot</option>'
         this.pageInput.type='number'
         this.pageInput.min='1'
@@ -184,6 +198,42 @@ export class Main extends LRStruct{
             window.localStorage.setItem('ph-max-etimestamp',this.maxETimestamp.toString())
             await this.start()
             this.logoutCheckbox.classList.remove('checking')
+        })
+        this.addCheckbox.addEventListener('click',async e=>{
+            const {classList}=this.addCheckbox
+            classList.add('checking')
+            if(classList.contains('checked')){
+                this.addForm.classList.add('hide')
+                classList.remove('checked')
+            }else{
+                this.addForm.classList.remove('hide')
+                classList.add('checked')
+            }
+            classList.remove('checking')
+        })
+        this.sendCheckbox.addEventListener('click',async e=>{
+            const {classList}=this.sendCheckbox
+            classList.add('checking')
+            if(this.token.length===0)return
+            const text=this.textarea.value
+            if(text.length===0)return
+            const result0=await this.fetchLock.get()
+            if(result0===false)return
+            const result1=await get.add(text,this.token)
+            if(result1!==200){
+                await this.fetchLock.release(result0)
+                return
+            }
+            this.textarea.value=''
+            this.addForm.classList.add('hide')
+            this.addCheckbox.classList.remove('checked')
+            this.starCheckbox.classList.remove('checked')
+            this.orderSelect.value='id'
+            this.fillterInput.value=''
+            this.pageInput.value='1'
+            await this.fetchLock.release(result0)
+            await this.start()
+            classList.remove('checking')
         })
         setInterval(async()=>{
             if(!this.inited)return
@@ -382,8 +432,8 @@ export class Main extends LRStruct{
                     return
                 }
                 hole.textarea.value=''
-                hole.replyArea.classList.add('hide')
-                hole.replyCheckbox.classList.remove('checked')
+                hole.commentForm.classList.add('hide')
+                hole.commentCheckbox.classList.remove('checked')
                 hole.reverse=true
                 this.stars.push(id)
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
