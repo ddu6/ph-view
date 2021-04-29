@@ -14,7 +14,6 @@ type AppendData={
     idOnly:true
 }
 export class Main extends LRStruct{
-    shadow:ShadowRoot
     panel=document.createElement('div')
     orderSelect=document.createElement('select')
     fillterInput=document.createElement('input')
@@ -35,7 +34,6 @@ export class Main extends LRStruct{
     sendCheckbox=document.createElement('div')
     addCheckbox=document.createElement('div')
     style=document.createElement('style')
-    globalStyle=document.createElement('style')
     fetchLock=new KillableLock()
     appendLock=new KillableLock()
 
@@ -74,10 +72,8 @@ export class Main extends LRStruct{
     idsRegExp=/#\d{1,7}-\d{1,7}|#\d{1,4}\*\*\*|#\d{1,5}\*\*|#\d{1,6}\*|#\d{1,7}/g
     constructor(public parent:HTMLElement){
         super()
-        this.shadow=parent.attachShadow({mode:'closed'})
-        this.shadow.append(this.element)
-        this.element.append(this.style)
-        parent.append(this.globalStyle)
+        parent.append(this.element)
+        parent.append(this.style)
         this.sideContent.append(this.panel)
         this.main.append(this.flow)
         this.panel.append(this.menu)
@@ -99,6 +95,7 @@ export class Main extends LRStruct{
         this.tokenInput.type='password'
         this.passwordInput.type='password'
         parent.classList.add('root')
+        parent.classList.add('dark')
         this.panel.classList.add('panel')
         this.flow.classList.add('flow')
         this.orderSelect.classList.add('order')
@@ -128,8 +125,7 @@ export class Main extends LRStruct{
         this.orderSelect.innerHTML='<option>id</option><option>active</option><option>hot</option>'
         this.pageInput.type='number'
         this.pageInput.min='1'
-        this.style.textContent=css.main
-        this.globalStyle.textContent=fonts.icomoon+css.main
+        this.style.textContent=fonts.icomoon+css.main+css.dark
         this.fillterInput.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
                 this.pageInput.value='1'
@@ -221,19 +217,15 @@ export class Main extends LRStruct{
             if(this.token.length===0)return
             const text=this.textarea.value
             if(text.length===0)return
-            const {classList:bigClassList}=this.element
             classList.add('checking')
-            bigClassList.add('refreshing')
             const result0=await this.fetchLock.get()
             if(result0===false){
-                bigClassList.remove('refreshing')
                 classList.remove('checking')
                 return
             }
             const result1=await get.add(text,this.token)
             if(result1===500||result1===503){
                 await this.fetchLock.release(result0)
-                bigClassList.remove('refreshing')
                 classList.remove('checking')
                 return
             }
@@ -247,7 +239,6 @@ export class Main extends LRStruct{
             this.pageInput.value='1'
             this.stars.push(id)
             await this.fetchLock.release(result0)
-            bigClassList.remove('refreshing')
             classList.remove('checking')
             await this.start()
         })

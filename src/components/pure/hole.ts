@@ -123,6 +123,7 @@ export class Hole{
         if(typeof url==='string'&&url.length>0){
             if(type==='image'){
                 const img=document.createElement('img')
+                img.classList.add('dark')
                 img.src=`https://${local?`${domain}/ph/imgs`:'pkuhelper.pku.edu.cn/services/pkuhole/images'}/${url}`
                 this.attachment.append(img)
             }

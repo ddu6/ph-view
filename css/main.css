@@ -1,22 +1,22 @@
 .root {
-    --color-text: #cccccc;
-    --color-light: #8f8f8f;
-    --color-string: #df9e61;
-    --color-number: #B5CEA8;
-    --color-keyword: #cc80c6;
-    --color-function: #DCDCAA;
-    --color-variable: #6ec0ec;
-    --color-modifier: #3074ac;
-    --color-class: #4EC9B0;
-    --color-warn: #F44747;
-    --color-comment: #6A9955;
-    --color-border: #2e3133;
-    --color-bg: #131313;
-    --color-area: #161616;
-    --color-pre: #191b1d;
-    --color-slice: rgba(88, 88, 88, 0.5);
-    --color-selection: rgba(95, 144, 163, 0.5);
-    --color-span: rgba(58, 61, 65, 0.5);
+    --color-text: black;
+    --color-light: #6a737d;
+    --color-string: darkorange;
+    --color-number: #098658;
+    --color-keyword: #AF00DB;
+    --color-function: #ecad00;
+    --color-variable: deepskyblue;
+    --color-modifier: dodgerblue;
+    --color-class: #267f99;
+    --color-warn: red;
+    --color-comment: limegreen;
+    --color-border: #e1e4e8;
+    --color-bg: white;
+    --color-area: whitesmoke;
+    --color-pre: #f6f8fa;
+    --color-slice: rgba(211, 211, 211, 0.5);
+    --color-selection: rgba(135, 206, 235, 0.5);
+    --color-span: rgba(27, 31, 35, .05);
     --font: icomoon, "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", "STHeiti Light", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --length-width: calc(210mm - .8in);
     --length-width-side: 280px;
@@ -129,10 +129,10 @@ input[type="submit"].pushing,
     background-color: var(--color-selection);
 }
 
-img {
+img,
+.img {
     max-width: 100%;
     max-height: 280vh;
-    filter: grayscale(50%) brightness(50%);
     display: block;
 }
 
@@ -361,6 +361,10 @@ textarea {
     text-decoration: line-through;
 }
 
+.hole.refreshing {
+    filter: brightness(.5);
+}
+
 .index {
     font-size: var(--length-font-log);
     white-space: pre-wrap;
@@ -452,7 +456,28 @@ textarea {
     display: none;
 }
 
-.lr-struct.refreshing,
-.hole.refreshing {
-    filter: brightness(.5);
+@media print {
+    @page {
+        color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+        size: A4 portrait;
+    }
+
+    .lr-struct {
+        min-height: 0;
+    }
+
+    .lr-struct>.main {
+        margin-left: 0 !important;
+    }
+
+    .lr-struct>.side,
+    .lr-struct>.button {
+        display: none;
+    }
+
+    .main>.flow {
+        margin: 0;
+        padding: 0;
+    }
 }
