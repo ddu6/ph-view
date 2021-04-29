@@ -221,18 +221,23 @@ export class Main extends LRStruct{
             if(this.token.length===0)return
             const text=this.textarea.value
             if(text.length===0)return
+            const {classList:bigClassList}=this.element
             classList.add('checking')
+            bigClassList.add('refreshing')
             const result0=await this.fetchLock.get()
             if(result0===false){
+                bigClassList.remove('refreshing')
                 classList.remove('checking')
                 return
             }
             const result1=await get.add(text,this.token)
-            if(result1!==200){
+            if(result1===500||result1===503){
                 await this.fetchLock.release(result0)
+                bigClassList.remove('refreshing')
                 classList.remove('checking')
                 return
             }
+            const {id}=result1
             this.textarea.value=''
             this.addForm.classList.add('hide')
             this.addCheckbox.classList.remove('checked')
@@ -240,7 +245,9 @@ export class Main extends LRStruct{
             this.orderSelect.value='id'
             this.fillterInput.value=''
             this.pageInput.value='1'
+            this.stars.push(id)
             await this.fetchLock.release(result0)
+            bigClassList.remove('refreshing')
             classList.remove('checking')
             await this.start()
         })
@@ -417,10 +424,12 @@ export class Main extends LRStruct{
                     this.stars.push(id)
                     likenum++
                 }
-                if(likenum===0){
-                    hole.starCheckbox.textContent=''
-                }else{
-                    hole.starCheckbox.textContent=likenum.toString()+' '
+                if(result1!==409){
+                    if(likenum===0){
+                        hole.starCheckbox.textContent=''
+                    }else{
+                        hole.starCheckbox.textContent=likenum.toString()+' '
+                    }
                 }
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
                 classList.toggle('checked')

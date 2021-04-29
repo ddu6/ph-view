@@ -340,9 +340,13 @@ export async function add(text:string,token:string){
         type:'text',
         user_token:token
     })
-    if(typeof result!=='number')return 200
     if(result===503)return 503
-    return 500
+    if(typeof result==='number')return 500
+    const {data}=result
+    if(typeof data!=='string'&&typeof data!=='number')return 500
+    const id=Number(data)
+    if(isNaN(id))return 500
+    return {id:id}
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
     if(order!=='id'){

@@ -318,7 +318,7 @@ textarea {
 }
 
 .flow {
-    padding: 0 var(--length-tab);
+    padding: 0 var(--length-padding);
     max-width: var(--length-width);
     margin: 0 auto;
 }
@@ -359,10 +359,6 @@ textarea {
 
 .hole.hidden>.index>.id {
     text-decoration: line-through;
-}
-
-.hole.refreshing {
-    filter: brightness(.5);
 }
 
 .index {
@@ -454,4 +450,9 @@ textarea {
 .attachment:empty,
 .comments:empty {
     display: none;
+}
+
+.lr-struct.refreshing,
+.hole.refreshing {
+    filter: brightness(.5);
 }
