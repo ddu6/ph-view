@@ -140,13 +140,13 @@ export class Main extends LRStruct{
         this.orderSelect.addEventListener('input',async e=>{
             this.pageInput.value='1'
             if(this.orderSelect.value==='hot'){
-                if(!this.fillterInput.value.startsWith('.d')){
+                if(!this.fillterInput.value.startsWith('.d ')){
                     this.fillterInput.value='.d '+this.fillterInput.value
                 }
             }
             else{
-                if(this.fillterInput.value.startsWith('.d')){
-                    this.fillterInput.value=this.fillterInput.value.replace(/^\.d\d*\s*/,'')
+                if(this.fillterInput.value.startsWith('.d ')){
+                    this.fillterInput.value=this.fillterInput.value.slice(3)
                 }
             }
             if(this.orderSelect.value!=='id'){
@@ -159,8 +159,8 @@ export class Main extends LRStruct{
             if(classList.contains('checking'))return
             classList.add('checking')
             this.pageInput.value='1'
-            if(this.fillterInput.value.startsWith('.d')){
-                this.fillterInput.value=this.fillterInput.value.replace(/^\.d\d*\s*/,'')
+            if(this.fillterInput.value.startsWith('.d ')){
+                this.fillterInput.value=this.fillterInput.value.slice(3)
             }
             this.starCheckbox.classList.toggle('checked')
             classList.remove('checking')
