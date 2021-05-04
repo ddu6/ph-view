@@ -4,6 +4,7 @@ import {KillableLock} from '../../wheels/lock'
 import * as get from '../../funcs/get'
 import * as css from '../../lib/css'
 import * as fonts from '../../lib/fonts'
+import { Checkbox, CommonEle, Form, FormLine } from '../pure/common'
 type AppendData={
     data:get.HoleData
     isRef:boolean
@@ -14,29 +15,38 @@ type AppendData={
     idOnly:true
 }
 export class Main extends LRStruct{
-    panel=document.createElement('div')
-    orderSelect=document.createElement('select')
-    fillterInput=document.createElement('input')
-    pageInput=document.createElement('input')
-    menu=document.createElement('div')
-    starCheckbox=document.createElement('div')
-    autoCheckbox=document.createElement('div')
-    logoutCheckbox=document.createElement('div')
-    loginForm=document.createElement('div')
-    tokenInput=document.createElement('input')
-    passwordInput=document.createElement('input')
-    tokenLine=document.createElement('div')
-    passwordLine=document.createElement('div')
-    loginCheckbox=document.createElement('div')
-    flow=document.createElement('div')
-    addForm=document.createElement('div')
-    textarea=document.createElement('textarea')
-    sendCheckbox=document.createElement('div')
-    addCheckbox=document.createElement('div')
-    style=document.createElement('style')
+    flow=new CommonEle(['flow'])
+    panel=new Form('panel')
+    styleEle=document.createElement('style')
     fetchLock=new KillableLock()
     appendLock=new KillableLock()
-
+    inputs={
+        fillter:document.createElement('input'),
+        page:document.createElement('input'),
+        password:document.createElement('input'),
+        token:document.createElement('input'),
+        refLimit:document.createElement('input')
+    }
+    selects={
+        order:document.createElement('select'),
+        colorScheme:document.createElement('select'),
+        refMode:document.createElement('select')
+    }
+    textareas={
+        text:document.createElement('textarea')
+    }
+    checkboxes={
+        add:new Checkbox('add'),
+        star:new Checkbox('star'),
+        auto:new Checkbox('auto'),
+        logout:new Checkbox('logout'),
+        login:new Checkbox('login'),
+        send:new Checkbox('send')
+    }
+    forms={
+        add:new Form('add'),
+        login:new Form('login')
+    }
     auto=false
     star=false
     order:get.Order='id'
@@ -44,8 +54,11 @@ export class Main extends LRStruct{
     page=0
     token=''
     password=''
+    colorScheme:'auto'|'dark'|'light'='auto'
+    refMode:'direct'|'recur'='direct'
+    refLimit=3
+    
     stars:number[]=[]
-
     s=0
     e=0
     ids:number[]=[]
@@ -60,8 +73,6 @@ export class Main extends LRStruct{
     maxETimestamp=0
     
     local=false
-    refMode:'direct'|'recur'|'none'='direct'
-    refLimit=3
     scrollSpeed=500
     appendThreshod=1000
     congestionSleep=5000
@@ -73,121 +84,164 @@ export class Main extends LRStruct{
     constructor(public parent:HTMLElement){
         super()
         parent.append(this.element)
-        parent.append(this.style)
-        this.sideContent.append(this.panel)
+        parent.append(this.styleEle)
+        this.sideContent.append(this.panel
+            .append(new CommonEle(['menu'])
+                .append(this.checkboxes.add)
+                .append(this.checkboxes.star)
+                .append(this.checkboxes.auto))
+            .append(this.forms.add
+                .append(this.textareas.text)
+                .append(this.checkboxes.send))
+            .append(new FormLine('order')
+                .append(this.selects.order))
+            .append(new FormLine('fillter')
+                .append(this.inputs.fillter))
+            .append(new FormLine('page')
+                .append(this.inputs.page))
+            .append(new FormLine('color scheme')
+                .append(this.selects.colorScheme))
+            .append(new FormLine('ref mode')
+                .append(this.selects.refMode))
+            .append(new FormLine('ref limit')
+                .append(this.inputs.refLimit))
+            .append(this.checkboxes.logout))
         this.main.append(this.flow)
-        this.panel.append(this.menu)
-        this.menu.append(this.addCheckbox)
-        this.menu.append(this.starCheckbox)
-        this.menu.append(this.autoCheckbox)
-        this.panel.append(this.addForm)
-        this.addForm.append(this.textarea)
-        this.addForm.append(this.sendCheckbox)
-        this.panel.append(this.orderSelect)
-        this.panel.append(this.fillterInput)
-        this.panel.append(this.pageInput)
-        this.panel.append(this.logoutCheckbox)     
-        this.loginForm.append(this.tokenLine)
-        this.tokenLine.append(this.tokenInput)
-        this.loginForm.append(this.passwordLine)
-        this.passwordLine.append(this.passwordInput)
-        this.loginForm.append(this.loginCheckbox)
-        this.tokenInput.type='password'
-        this.passwordInput.type='password'
+        this.forms.login.append(new FormLine('token')
+            .append(this.inputs.token))
+        .append(new FormLine('password')
+            .append(this.inputs.password))
+        .append(this.checkboxes.login)
+
         parent.classList.add('root')
-        parent.classList.add('dark')
-        this.panel.classList.add('panel')
-        this.flow.classList.add('flow')
-        this.orderSelect.classList.add('order')
-        this.fillterInput.classList.add('fillter')
-        this.pageInput.classList.add('page')
-        this.menu.classList.add('menu')
-        this.starCheckbox.classList.add('star')
-        this.autoCheckbox.classList.add('auto')
-        this.starCheckbox.classList.add('checkbox')
-        this.autoCheckbox.classList.add('checkbox')
-        this.logoutCheckbox.classList.add('logout')
-        this.logoutCheckbox.classList.add('checkbox')
-        this.loginForm.classList.add('login-form')
-        this.loginForm.classList.add('hole')
-        this.tokenInput.classList.add('token')
-        this.passwordInput.classList.add('password')
-        this.tokenLine.classList.add('token-line')
-        this.passwordLine.classList.add('password-line')
-        this.loginCheckbox.classList.add('login')
-        this.loginCheckbox.classList.add('checkbox')
-        this.addForm.classList.add('add-form')
-        this.addForm.classList.add('hide')
-        this.addCheckbox.classList.add('add')
-        this.addCheckbox.classList.add('checkbox')
-        this.sendCheckbox.classList.add('send')
-        this.sendCheckbox.classList.add('checkbox')
-        this.orderSelect.innerHTML='<option>id</option><option>active</option><option>hot</option>'
-        this.pageInput.type='number'
-        this.pageInput.min='1'
-        this.style.textContent=fonts.icomoon+css.main+css.dark
-        this.fillterInput.addEventListener('keydown',async e=>{
+        this.styleEle.textContent=fonts.icomoon+css.main+css.dark
+        this.selects.order.innerHTML='<option>id</option><option>active</option><option>hot</option>'
+        this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
+        this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
+        this.inputs.page.type='number'
+        this.inputs.page.min='1'
+        this.inputs.refLimit.type='number'
+        this.inputs.refLimit.min='0'
+        this.inputs.token.type='password'
+        this.inputs.password.type='password'
+        this.forms.add.classList.add('hide')
+        this.forms.login.classList.add('hole')
+
+        const params=new URLSearchParams(document.location.search)
+        const fillter=params.get('fillter')
+        if(typeof fillter==='string'&&fillter.length>0){
+            this.fillter=decodeURIComponent(fillter).trim()
+        }
+        if(params.has('local')){
+            this.local=true
+        }
+        const token=window.localStorage.getItem('ph-token')
+        if(typeof token==='string'&&token.length===32){
+            this.token=token
+        }
+        const password=window.localStorage.getItem('ph-password')
+        if(typeof password==='string'&&password.length>0){
+            this.password=password
+        }
+        const stars=window.localStorage.getItem('ph-stars')
+        if(stars!==null){
+            this.stars=stars.split(',').map(val=>Number(val))
+        }
+        const colorScheme=window.localStorage.getItem('ph-color-scheme')
+        if(colorScheme==='auto'||colorScheme==='dark'||colorScheme==='light'){
+            this.colorScheme=colorScheme
+            this.parent.dataset.colorScheme=colorScheme
+        }
+        const refMode=window.localStorage.getItem('ph-ref-mode')
+        if(refMode==='direct'||refMode==='recur'){
+            this.refMode=refMode
+        }
+        const tmp=window.localStorage.getItem('ph-ref-limit')
+        if(tmp!==null){
+            const refLimit=Number(tmp)
+            if(refLimit>=0){
+                this.refLimit=refLimit
+            }
+        }
+
+        this.inputs.fillter.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
-                this.pageInput.value='1'
+                this.inputs.page.value='1'
                 await this.start()
             }
         })
-        this.pageInput.addEventListener('keydown',async e=>{
+        this.inputs.page.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
                 await this.start()
             }
         })
-        this.orderSelect.addEventListener('input',async e=>{
-            this.pageInput.value='1'
-            if(this.orderSelect.value==='hot'){
-                if(!this.fillterInput.value.startsWith('.d ')){
-                    this.fillterInput.value='.d '+this.fillterInput.value
+        this.inputs.refLimit.addEventListener('keydown',async e=>{
+            if(e.key==='Enter'){
+                await this.start()
+            }
+        })
+        this.selects.refMode.addEventListener('input',async e=>{
+            await this.start()
+        })
+        this.selects.colorScheme.addEventListener('input',e=>{
+            const colorScheme=this.selects.colorScheme.value
+            if(colorScheme==='auto'||colorScheme==='dark'||colorScheme==='light'){
+                this.colorScheme=colorScheme
+                window.localStorage.setItem('ph-color-scheme',colorScheme)
+                this.parent.dataset.colorScheme=colorScheme
+            }
+        })
+        this.selects.order.addEventListener('input',async e=>{
+            this.inputs.page.value='1'
+            if(this.selects.order.value==='hot'){
+                if(!this.inputs.fillter.value.startsWith('.d ')){
+                    this.inputs.fillter.value='.d '+this.inputs.fillter.value
                 }
             }
             else{
-                if(this.fillterInput.value.startsWith('.d ')){
-                    this.fillterInput.value=this.fillterInput.value.slice(3)
+                if(this.inputs.fillter.value.startsWith('.d ')){
+                    this.inputs.fillter.value=this.inputs.fillter.value.slice(3)
                 }
             }
-            if(this.orderSelect.value!=='id'){
-                this.starCheckbox.classList.remove('checked')
+            if(this.selects.order.value!=='id'){
+                this.checkboxes.star.classList.remove('checked')
             }
             await this.start()
         })
-        this.starCheckbox.addEventListener('click',async e=>{
-            const {classList}=this.starCheckbox
+        this.checkboxes.star.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.star
             if(classList.contains('checking'))return
             classList.add('checking')
-            this.pageInput.value='1'
-            if(this.fillterInput.value.startsWith('.d ')){
-                this.fillterInput.value=this.fillterInput.value.slice(3)
+            this.inputs.page.value='1'
+            if(this.inputs.fillter.value.startsWith('.d ')){
+                this.inputs.fillter.value=this.inputs.fillter.value.slice(3)
             }
-            this.starCheckbox.classList.toggle('checked')
+            this.checkboxes.star.classList.toggle('checked')
             classList.remove('checking')
             await this.start()
         })
-        this.autoCheckbox.addEventListener('click',async e=>{
-            this.autoCheckbox.classList.toggle('checked')
-            this.auto=this.autoCheckbox.classList.contains('checked')
+        this.checkboxes.auto.addEventListener('click',async e=>{
+            this.checkboxes.auto.classList.toggle('checked')
+            this.auto=this.checkboxes.auto.classList.contains('checked')
         })
-        this.loginCheckbox.addEventListener('click',async e=>{
-            if(this.tokenInput.value.length!==32){
+        this.checkboxes.login.addEventListener('click',async e=>{
+            if(this.inputs.token.value.length!==32){
                 alert('Invalid token.')
                 return
             }
-            this.token=this.tokenInput.value
-            this.password=this.passwordInput.value
+            this.token=this.inputs.token.value
+            this.password=this.inputs.password.value
             window.localStorage.setItem('ph-token',this.token)
             window.localStorage.setItem('ph-password',this.password)
             await this.start()
         })
-        this.logoutCheckbox.addEventListener('click',async e=>{
-            const {classList}=this.logoutCheckbox
+        this.checkboxes.logout.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.logout
             if(classList.contains('checking'))return
             classList.add('checking')
             await this.clear()
-            this.tokenInput.value=this.token
-            this.passwordInput.value=this.password
+            this.inputs.token.value=this.token
+            this.inputs.password.value=this.password
             this.token=''
             this.password=''
             this.stars=[]
@@ -201,21 +255,21 @@ export class Main extends LRStruct{
             await this.start()
             classList.remove('checking')
         })
-        this.addCheckbox.addEventListener('click',async e=>{
-            const {classList}=this.addCheckbox
+        this.checkboxes.add.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.add
             if(classList.contains('checked')){
-                this.addForm.classList.add('hide')
+                this.forms.add.classList.add('hide')
                 classList.remove('checked')
             }else{
-                this.addForm.classList.remove('hide')
+                this.forms.add.classList.remove('hide')
                 classList.add('checked')
             }
         })
-        this.sendCheckbox.addEventListener('click',async e=>{
-            const {classList}=this.sendCheckbox
+        this.checkboxes.send.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.send
             if(classList.contains('checking'))return
             if(this.token.length===0)return
-            const text=this.textarea.value
+            const text=this.textareas.text.value
             if(text.length===0)return
             classList.add('checking')
             const result0=await this.fetchLock.get()
@@ -230,13 +284,13 @@ export class Main extends LRStruct{
                 return
             }
             const {id}=result1
-            this.textarea.value=''
-            this.addForm.classList.add('hide')
-            this.addCheckbox.classList.remove('checked')
-            this.starCheckbox.classList.remove('checked')
-            this.orderSelect.value='id'
-            this.fillterInput.value=''
-            this.pageInput.value='1'
+            this.textareas.text.value=''
+            this.forms.add.classList.add('hide')
+            this.checkboxes.add.classList.remove('checked')
+            this.checkboxes.star.classList.remove('checked')
+            this.selects.order.value='id'
+            this.inputs.fillter.value=''
+            this.inputs.page.value='1'
             this.stars.push(id)
             await this.fetchLock.release(result0)
             classList.remove('checking')
@@ -250,7 +304,7 @@ export class Main extends LRStruct{
         },1000)
         setInterval(async()=>{
             if(!this.inited)return
-            await this.autoAppend()
+            await this.autoAppendHols()
         },500)
     }
     async getAndRenderComments(id:number|string,hole:Hole){
@@ -360,11 +414,11 @@ export class Main extends LRStruct{
         this.keys=fillter.split(/\s+/)
         this.key=this.keys.join(' ')
     }
-    async basicallyAppend(data0:AppendData[]){
+    async basicallyAppendHoles(data0:AppendData[]){
         for(let i=0;i<data0.length;i++){
             let item=data0[i]
             const {isRef}=item
-            if(isRef&&this.refMode==='none')continue
+            if(isRef&&this.refLimit<=0)continue
             const id=Number(item.data.pid)
             if(this.appendedIds.includes(id))continue
             this.appendedIds.push(id)
@@ -398,14 +452,14 @@ export class Main extends LRStruct{
                 if(this.token.length===0)return
                 const result0=await this.fetchLock.get()
                 if(result0===false)return
-                const {classList}=hole.starCheckbox
+                const {classList}=hole.checkboxes.star
                 const starrd=classList.contains('checked')
                 const result1=await get.star(id,starrd,this.token)
                 if(result1===503||result1===500){
                     await this.fetchLock.release(result0)
                     return
                 }
-                let likenum=Number(hole.starCheckbox.textContent)
+                let likenum=Number(hole.checkboxes.star.element.textContent)
                 if(starrd){
                     for(let i=0;i<this.stars.length;i++){
                         if(this.stars[i]===id)this.stars[i]=-1
@@ -417,9 +471,9 @@ export class Main extends LRStruct{
                 }
                 if(result1!==409){
                     if(likenum===0){
-                        hole.starCheckbox.textContent=''
+                        hole.checkboxes.star.element.textContent=''
                     }else{
-                        hole.starCheckbox.textContent=likenum.toString()+' '
+                        hole.checkboxes.star.element.textContent=likenum.toString()+' '
                     }
                 }
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
@@ -431,8 +485,8 @@ export class Main extends LRStruct{
             }
             hole.handleSend=async ()=>{
                 if(this.token.length===0)return
-                const text=hole.textarea.value
-                if(text.length===0)return
+                const text=hole.textareas.comment.value
+                if(text.length===0||text.match(hole.toNameRegExp)!==null)return
                 const result0=await this.fetchLock.get()
                 if(result0===false)return
                 const result1=await get.comment(id,text,this.token)
@@ -440,9 +494,9 @@ export class Main extends LRStruct{
                     await this.fetchLock.release(result0)
                     return
                 }
-                hole.textarea.value=''
-                hole.commentForm.classList.add('hide')
-                hole.commentCheckbox.classList.remove('checked')
+                hole.textareas.comment.value=''
+                hole.forms.comment.classList.add('hide')
+                hole.checkboxes.comment.classList.remove('checked')
                 hole.reverse=true
                 this.stars.push(id)
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
@@ -470,7 +524,7 @@ export class Main extends LRStruct{
                 result0=result1
                 break
             }
-            if(this.refMode==='none')continue
+            if(this.refLimit<=0)continue
             let text=data1.text
             if(typeof text!=='string')text=''
             const fullText=text+'\n'+result0.map(val=>{
@@ -513,12 +567,12 @@ export class Main extends LRStruct{
         }
         return out
     }
-    async append(){
+    async appendHoles(){
         if(this.end||!this.inited)return
         const result=await this.appendLock.get()
         if(result===false)return
         if(this.token.length===0){
-            this.flow.append(this.loginForm)
+            this.flow.append(this.forms.login)
             this.end=true
         }
         if(this.end){
@@ -585,7 +639,7 @@ export class Main extends LRStruct{
         if(data0===401){
             if(this.order==='id'){
                 alert('Wrong token.')
-                this.flow.append(this.loginForm)
+                this.flow.append(this.forms.login)
                 this.end=true
                 await this.appendLock.release(result)
                 return
@@ -601,12 +655,12 @@ export class Main extends LRStruct{
                 this.end=true
             }else{
                 this.page++
-                this.pageInput.value=this.page.toString()
-                const result1=await this.basicallyAppend(data0)
+                this.inputs.page.value=this.page.toString()
+                const result1=await this.basicallyAppendHoles(data0)
                 if(result1===401){
                     if(this.order==='id'){
                         alert('Wrong token.')
-                        this.flow.append(this.loginForm)
+                        this.flow.append(this.forms.login)
                         this.end=true
                         await this.appendLock.release(result)
                         return
@@ -631,39 +685,42 @@ export class Main extends LRStruct{
         }
         await this.appendLock.release(result)
     }
-    async autoAppend(){
+    async autoAppendHols(){
         if(Date.now()<this.lastAppend+250
         ||window.pageYOffset+window.innerHeight<document.body.scrollHeight-this.appendThreshod
         ||this.appendLock.busy)return
         this.lastAppend=Date.now()
-        await this.append()
+        await this.appendHoles()
     }
     async clear(){
-        this.flow.innerHTML=''
+        this.flow.element.innerHTML=''
         await this.fetchLock.kill()
         await this.appendLock.kill()
         this.parseFillter()
         if(this.star||this.password.length===0){
             this.order='id'
-            this.orderSelect.classList.add('hide')
+            this.parent.classList.add('weak')
         }else{
-            this.orderSelect.classList.remove('hide')
+            this.parent.classList.remove('weak')
         }
-        this.flow.innerHTML=''
-        this.orderSelect.value=this.order
-        this.fillterInput.value=this.fillter
-        this.pageInput.value=this.page.toString()
+        this.flow.element.innerHTML=''
+        this.selects.order.value=this.order
+        this.selects.colorScheme.value=this.colorScheme
+        this.selects.refMode.value=this.refMode
+        this.inputs.fillter.value=this.fillter
+        this.inputs.page.value=this.page.toString()
+        this.inputs.refLimit.value=this.refLimit.toString()
         if(this.star){
-            this.starCheckbox.classList.add('checked')
+            this.checkboxes.star.classList.add('checked')
         }
         else{
-            this.starCheckbox.classList.remove('checked')
+            this.checkboxes.star.classList.remove('checked')
         }
         if(this.auto){
-            this.autoCheckbox.classList.add('checked')
+            this.checkboxes.auto.classList.add('checked')
         }
         else{
-            this.autoCheckbox.classList.remove('checked')
+            this.checkboxes.auto.classList.remove('checked')
         }
         this.end=false
         this.appendedIds=[]
@@ -683,7 +740,7 @@ export class Main extends LRStruct{
         await this.appendLock.revive()
     }
     async start(){
-        let value=this.fillterInput.value.trim()
+        let value=this.inputs.fillter.value.trimStart()
         const result=value.match(/^\w{32,}$/)
         if(result!==null&&result.length>0){
             const tmp=result[0]
@@ -691,14 +748,14 @@ export class Main extends LRStruct{
             this.password=tmp.slice(0,-32)
             window.localStorage.setItem('ph-token',this.token)
             window.localStorage.setItem('ph-password',this.password)
-            this.fillterInput.value=''
+            this.inputs.fillter.value=''
             value=''
         }else if(value.startsWith('$t ')){
             const tmp=value.slice(3).trim()
             if(tmp.length===32){
                 this.token=tmp
                 window.localStorage.setItem('ph-token',tmp)
-                this.fillterInput.value=''
+                this.inputs.fillter.value=''
                 value=''
             }
         }else if(value.startsWith('$p ')){
@@ -706,123 +763,37 @@ export class Main extends LRStruct{
             if(tmp.length>0){
                 this.password=tmp
                 window.localStorage.setItem('ph-password',tmp)
-                this.fillterInput.value=''
+                this.inputs.fillter.value=''
                 value=''
             }
         }
         this.fillter=value
-        const p1=Number(this.pageInput.value)
+        const p1=Number(this.inputs.page.value)
         if(!isNaN(p1)&&p1>=1&&p1%1===0){
             this.page=p1-1
         }
-        const order=this.orderSelect.value
+        const order=this.selects.order.value
         if(order==='id')this.order='id'
         else if(order==='active')this.order='active'
         else if(order==='hot')this.order='hot'
-        this.star=this.starCheckbox.classList.contains('checked')
+        this.star=this.checkboxes.star.classList.contains('checked')
+        const refMode=this.selects.refMode.value
+        if(refMode==='direct'||refMode==='recur'){
+            this.refMode=refMode
+            window.localStorage.setItem('ph-ref-mode',refMode)
+        }
+        const refLimit=Number(this.inputs.refLimit.value)
+        if(refLimit>=0){
+            this.refLimit=refLimit
+            window.localStorage.setItem('ph-ref-limit',refLimit.toString())
+        }
         await this.clear()
-        await this.append()
+        await this.appendHoles()
     }
     async init(){
-        const params=new URLSearchParams(document.location.search)
-        if(params.has('auto')){
-            this.auto=true
-        }
-        if(params.has('star')){
-            this.star=true
-        }
-        const order=params.get('order')
-        if(order==='active'){
-            this.order='active'
-        }
-        else if(order==='hot'){
-            this.order='hot'
-        }
-        const fillter=params.get('fillter')
-        if(typeof fillter==='string'&&fillter.length>0){
-            this.fillter=decodeURIComponent(fillter).trim()
-        }
-        const page0=params.get('page')
-        if(typeof page0==='string'&&page0.length>0){
-            const page1=Number(page0)
-            if(!isNaN(page1)&&page1>=1&&page1%1===0){
-                this.page=page1
-            }
-        }
-        const token=window.localStorage.getItem('ph-token')
-        if(typeof token==='string'&&token.length===32){
-            this.token=token
-        }
-        const password=window.localStorage.getItem('ph-password')
-        if(typeof password==='string'&&password.length>0){
-            this.password=password
-        }
-        const stars=window.localStorage.getItem('ph-stars')
-        if(stars!==null){
-            this.stars=stars.split(',').map(val=>Number(val))
-        }
-        if(params.has('local')){
-            this.local=true
-        }
-        const refMode=params.get('refMode')
-        if(refMode==='recur'){
-            this.refMode='recur'
-        }
-        else if(refMode==='none'){
-            this.refMode='none'
-        }
-        const refLimit0=params.get('refLimit')
-        if(refLimit0!==null){
-            const refLimit1=Number(refLimit0)
-            if(!isNaN(refLimit1)&&refLimit1>=0&&refLimit1%1===0){
-                this.refLimit=refLimit1
-            }
-        }
-        const scrollSpeed0=params.get('scrollSpeed')
-        if(scrollSpeed0!==null){
-            const scrollSpeed1=Number(scrollSpeed0)
-            if(!isNaN(scrollSpeed1)&&scrollSpeed1>0){
-                this.scrollSpeed=scrollSpeed1
-            }
-        }
-        const appendThreshod0=params.get('appendThreshod')
-        if(appendThreshod0!==null){
-            const appendThreshod1=Number(appendThreshod0)
-            if(!isNaN(appendThreshod1)&&appendThreshod1>=0){
-                this.appendThreshod=appendThreshod1
-            }
-        }
-        const congestionSleep0=params.get('congestionSleep')
-        if(congestionSleep0!==null){
-            const congestionSleep1=Number(congestionSleep0)
-            if(!isNaN(congestionSleep1)&&congestionSleep1>=5000){
-                this.congestionSleep=congestionSleep1
-            }
-        }
-        const unauthorizedSleep0=params.get('unauthorizedSleep')
-        if(unauthorizedSleep0!==null){
-            const unauthorizedSleep1=Number(unauthorizedSleep0)
-            if(!isNaN(unauthorizedSleep1)&&unauthorizedSleep1>=300000){
-                this.recaptchaSleep=unauthorizedSleep1
-            }
-        }
-        const errLimit0=params.get('errLimit')
-        if(errLimit0!==null){
-            const errLimit1=Number(errLimit0)
-            if(!isNaN(errLimit1)&&errLimit1>=0&&errLimit1%1===0){
-                this.errLimit=errLimit1
-            }
-        }
-        const errSleep0=params.get('errSleep')
-        if(errSleep0!==null){
-            const errSleep1=Number(errSleep0)
-            if(!isNaN(errSleep1)&&errSleep1>=5000){
-                this.errSleep=errSleep1
-            }
-        }
         await this.clear()
         this.inited=true
-        await this.append()
+        await this.appendHoles()
     }
     async refreshHole(hole:Hole){
         const {id}=hole
@@ -881,12 +852,12 @@ export class Main extends LRStruct{
     }
     softPause(){
         if(!this.auto)return
-        this.autoCheckbox.classList.remove('checked')
+        this.checkboxes.auto.classList.remove('checked')
         this.auto=false
     }
     softContinue(){
         if(this.auto)return
-        this.autoCheckbox.classList.add('checked')
+        this.checkboxes.auto.classList.add('checked')
         this.auto=true
     }
     async wake(){

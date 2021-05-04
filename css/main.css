@@ -162,10 +162,27 @@ textarea:focus,
     border-color: var(--color-variable);
 }
 
-select,
-.select {
-    padding: 0;
-    height: 1.5em;
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+input[type=number] {
+    appearance: textfield;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+option,
+.option {
+    background-color: var(--color-bg);
 }
 
 textarea {
@@ -182,6 +199,8 @@ textarea {
 .lr-struct>.main {
     margin-left: var(--length-width-side);
     flex-grow: 1;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .lr-struct>.button {
@@ -277,44 +296,70 @@ textarea {
     background-color: var(--color-slice);
 }
 
+.checkbox.star::after {
+    content: "\e9d7";
+}
+
+.checkbox.refresh::after {
+    content: "\e984";
+    font-size: .8em;
+}
+
+.checkbox.auto::after {
+    content: "\ea0a";
+}
+
+.checkbox.comment::after {
+    content: "\e900";
+}
+
+.checkbox.send::after {
+    content: "\e901  Send";
+}
+
+.checkbox.logout::after {
+    content: "\e902  Logout";
+}
+
+.checkbox.login::after {
+    content: "\e903  Login";
+}
+
+.checkbox.add::after {
+    content: "\ea0b";
+    font-size: .8em;
+}
+
 .menu {
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
 
-.star::after {
-    content: "\e9d7";
+.form>:not(:first-child) {
+    margin-top: var(--length-gap);
 }
 
-.refresh::after {
-    content: "\e984";
-    font-size: .8em;
+.form,
+.form-line[data-name] {
+    display: flex;
+    flex-direction: column;
 }
 
-.auto::after {
-    content: "\ea0a";
+.form-line[data-name]::before {
+    display: block;
+    content: attr(data-name);
+    color: var(--color-light);
+    font-size: var(--length-font-log);
+    text-transform: capitalize;
 }
 
-.comment::after {
-    content: "\e900";
+.hide {
+    display: none !important;
 }
 
-.send::after {
-    content: "\e901";
-}
-
-.logout::after {
-    content: "\e902";
-}
-
-.login::after {
-    content: "\e903";
-}
-
-.add::after {
-    content: "\ea0b";
-    font-size: .8em;
+.root.weak .order.form-line {
+    display: none !important;
 }
 
 .flow {
@@ -329,8 +374,6 @@ textarea {
 
 .panel {
     padding: var(--length-padding);
-    display: flex;
-    flex-direction: column;
 }
 
 .hole {
@@ -365,6 +408,10 @@ textarea {
     filter: brightness(.5);
 }
 
+.hole>:empty:not(.checkbox) {
+    display: none !important;
+}
+
 .index {
     font-size: var(--length-font-log);
     white-space: pre-wrap;
@@ -388,13 +435,11 @@ textarea {
 .comments {
     max-height: 30em;
     overflow-y: auto;
-    background-color: var(--color-pre);
 }
 
 .more {
     cursor: pointer;
     text-align: center;
-    font-size: var(--length-font-log);
     color: var(--color-light);
 }
 
@@ -414,46 +459,6 @@ textarea {
     margin-bottom: 5em;
     color: var(--color-light);
     font-size: var(--length-font-log);
-}
-
-.token-line::before {
-    display: block;
-    content: "Token";
-    color: var(--color-light);
-    font-size: var(--length-font-log);
-}
-
-.password-line::before {
-    display: block;
-    content: "Password";
-    color: var(--color-light);
-    font-size: var(--length-font-log);
-}
-
-.comment-form,
-.add-form,
-.login-form,
-.token-line,
-.password-line {
-    display: flex;
-    flex-direction: column;
-}
-
-.comment-form>:not(:first-child),
-.add-form>:not(:first-child),
-.hole>:not(:first-child),
-.comments>:not(:first-child),
-.panel>:not(:first-child) {
-    margin-top: var(--length-gap);
-}
-
-.comment-form.hide,
-.add-form.hide,
-.order.hide,
-.text:empty,
-.attachment:empty,
-.comments:empty {
-    display: none;
 }
 
 @media print {

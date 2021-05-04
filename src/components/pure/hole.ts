@@ -1,70 +1,65 @@
 import {HoleData,CommentData,domain} from '../../funcs/get'
-export class Hole{
-    element=document.createElement('div')
-    index=document.createElement('div')
-    text=document.createElement('div')
-    attachment=document.createElement('div')
-    comments=document.createElement('div')
-    menu=document.createElement('div')
-    commentForm=document.createElement('div')
-    commentCheckbox=document.createElement('div')
-    starCheckbox=document.createElement('div')
-    refreshCheckbox=document.createElement('div')
-    textarea=document.createElement('textarea')
-    sendCheckbox=document.createElement('div')
+import { Checkbox, CommonEle, Form } from './common'
+export class Hole extends Form{
+    index=new CommonEle(['index'])
+    text=new CommonEle(['text'])
+    attachment=new CommonEle(['attachment'])
+    comments=new CommonEle(['comments'])
+    checkboxes={
+        comment:new Checkbox('comment'),
+        star:new Checkbox('star'),
+        refresh:new Checkbox('refresh'),
+        send:new Checkbox('send')
+    }
+    textareas={
+        comment:document.createElement('textarea')
+    }
+    forms={
+        comment:new Form('comment')
+    }
+
     restComments:CommentData[]=[]
     commentLimit=50
+    toNameRegExp=/^Re [\w\s]*: $/
     isRef=false
     id=-1
     reverse=false
     maxETimestamp=0
     constructor(){
-        this.element.append(this.index)
-        this.element.append(this.text)
-        this.element.append(this.attachment)
-        this.element.append(this.menu)
-        this.menu.append(this.commentCheckbox)
-        this.menu.append(this.starCheckbox)
-        this.menu.append(this.refreshCheckbox)
-        this.element.append(this.commentForm)
-        this.commentForm.append(this.textarea)
-        this.commentForm.append(this.sendCheckbox)
-        this.element.append(this.comments)
-        this.element.classList.add('hole')
-        this.index.classList.add('index')
-        this.text.classList.add('text')
-        this.attachment.classList.add('attachment')
-        this.menu.classList.add('menu')
-        this.commentForm.classList.add('comment-form')
-        this.commentForm.classList.add('hide')
-        this.comments.classList.add('comments')
-        this.commentCheckbox.classList.add('comment')
-        this.commentCheckbox.classList.add('checkbox')
-        this.starCheckbox.classList.add('star')
-        this.starCheckbox.classList.add('checkbox')
-        this.refreshCheckbox.classList.add('refresh')
-        this.refreshCheckbox.classList.add('checkbox')
-        this.sendCheckbox.classList.add('send')
-        this.sendCheckbox.classList.add('checkbox')
-        this.commentCheckbox.addEventListener('click',async e=>{
-            const {classList}=this.commentCheckbox
+        super('hole')
+        this.append(this.index)
+        .append(this.text)
+        .append(this.attachment)
+        .append(new CommonEle(['menu'])
+            .append(this.checkboxes.comment)
+            .append(this.checkboxes.star)
+            .append(this.checkboxes.refresh))
+        .append(this.forms.comment
+            .append(this.textareas.comment)
+            .append(this.checkboxes.send))
+        .append(this.comments)
+
+        this.forms.comment.classList.add('hide')
+        
+        this.checkboxes.comment.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.comment
             if(classList.contains('checked')){
-                this.commentForm.classList.add('hide')
+                this.forms.comment.classList.add('hide')
                 classList.remove('checked')
             }else{
-                this.commentForm.classList.remove('hide')
+                this.forms.comment.classList.remove('hide')
                 classList.add('checked')
             }
         })
-        this.starCheckbox.addEventListener('click',async e=>{
-            const {classList}=this.starCheckbox
+        this.checkboxes.star.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.star
             if(classList.contains('checking'))return
             classList.add('checking')
             await this.handleStar()
             classList.remove('checking')
         })
-        this.refreshCheckbox.addEventListener('click',async e=>{
-            const {classList}=this.refreshCheckbox
+        this.checkboxes.refresh.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.refresh
             if(classList.contains('checking'))return
             const {classList:bigClassList}=this.element
             this.reverse=!this.reverse
@@ -74,8 +69,8 @@ export class Hole{
             bigClassList.remove('refreshing')
             classList.remove('checking')
         })
-        this.sendCheckbox.addEventListener('click',async e=>{
-            const {classList}=this.sendCheckbox
+        this.checkboxes.send.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.send
             if(classList.contains('checking'))return
             const {classList:bigClassList}=this.element
             classList.add('checking')
@@ -106,20 +101,24 @@ export class Hole{
             tag=''
         }
         this.id=Number(pid)
-        this.index.innerHTML=`<span class="id">${pid}</span> ${prettyDate(timestamp)}${tag.length>0?` <span class="tag">${prettyText(tag)}</span>`:''}`
+        let indexStr=`<span class="id">${pid}</span> ${prettyDate(timestamp)}`
+        if(tag.length>0){
+            indexStr+=` <span class="tag">${prettyText(tag)}</span>`
+        }
+        this.index.element.innerHTML=indexStr
         if(Number(reply)!==0){
-            this.commentCheckbox.textContent=reply.toString()+' '
+            this.checkboxes.comment.element.textContent=reply.toString()+' '
         }
         if(Number(likenum)!==0){
-            this.starCheckbox.textContent=likenum.toString()+' '
+            this.checkboxes.star.element.textContent=likenum.toString()+' '
         }
         if(starred){
-            this.starCheckbox.classList.add('checked')
+            this.checkboxes.star.classList.add('checked')
         }else{
-            this.starCheckbox.classList.remove('checked')
+            this.checkboxes.star.classList.remove('checked')
         }
-        this.text.innerHTML=prettyText(text)
-        this.attachment.innerHTML=''
+        this.text.element.innerHTML=prettyText(text)
+        this.attachment.element.innerHTML=''
         if(typeof url==='string'&&url.length>0){
             if(type==='image'){
                 const img=document.createElement('img')
@@ -154,6 +153,20 @@ export class Hole{
         const spt=text.indexOf('] ')
         const name=text.slice(1,spt)
         text=text.slice(spt+2)
+        let indexStr=`${name} ${prettyDate(timestamp)}`
+        if(tag.length>0){
+            indexStr+=` <span class="tag">${prettyText(tag)}</span>`
+        }
+        if(text.startsWith('Re ')){
+            const spt=text.indexOf(': ')
+            if(spt!==-1){
+                const toName=text.slice(3,spt)
+                text=text.slice(spt+2)
+                if(toName!==''&&toName!=='洞主'&&toName!==name){
+                    indexStr+=` to ${toName}`
+                }
+            }
+        }
         const element=document.createElement('div')
         const index=document.createElement('div')
         const content=document.createElement('div')
@@ -161,11 +174,19 @@ export class Hole{
         element.append(content)
         index.classList.add('index')
         content.classList.add('text')
-        element.addEventListener('click',e=>{
-            if(this.textarea.value.length>0)return
-            this.textarea.value=`Re ${name}: `
+        index.addEventListener('click',e=>{
+            if(!this.checkboxes.comment.classList.contains('checked'))return
+            if(
+                this.textareas.comment.value.length>0
+                &&this.textareas.comment.value.match(this.toNameRegExp)===null
+            )return
+            if(name!==''&&name!=='洞主'){
+                this.textareas.comment.value=`Re ${name}: `
+            }else{
+                this.textareas.comment.value=''
+            }
         })
-        index.textContent=`${name} ${prettyDate(timestamp)}${tag.length>0?` <span class="tag">${prettyText(tag)}</span>`:''}`
+        index.textContent=indexStr
         content.innerHTML=prettyText(text)
         this.comments.append(element)
         if(typeof timestamp==='string'){
@@ -188,10 +209,10 @@ export class Hole{
         })
     }
     renderComments(data:CommentData[]){
-        if(data.length>Number(this.commentCheckbox.textContent)){
-            this.commentCheckbox.textContent=data.length.toString()+' '
+        if(data.length>Number(this.checkboxes.comment.element.textContent)){
+            this.checkboxes.comment.element.textContent=data.length.toString()+' '
         }
-        this.comments.innerHTML=''
+        this.comments.element.innerHTML=''
         this.restComments=[]
         if(data.length>=2){
             if(Number(data[0].cid)>Number(data[1].cid)){

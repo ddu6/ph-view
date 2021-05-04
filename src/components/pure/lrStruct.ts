@@ -1,31 +1,25 @@
 import { SimpleTouch } from "../../funcs/touch"
+import { CommonEle } from "./common"
 
-export class LRStruct{
-    readonly element=document.createElement('div')
-    readonly side=document.createElement('div')
-    readonly button=document.createElement('div')
-    readonly sideContent=document.createElement('div')
-    readonly main=document.createElement('div')
-    readonly sash=document.createElement('div')
-    readonly cover=document.createElement('div')
+export class LRStruct extends CommonEle{
+    readonly side=new CommonEle(['side'])
+    readonly button=new CommonEle(['button'])
+    readonly sideContent=new CommonEle(['content'])
+    readonly main=new CommonEle(['main'])
+    readonly sash=new CommonEle(['sash'])
+    readonly cover=new CommonEle(['cover'])
     sashing=false
     sashX=0
     sideWidth:number
     constructor(){
-        this.side.append(this.sideContent)
-        this.side.append(this.cover)
-        this.side.append(this.sash)
-        this.element.append(this.main)
-        this.element.append(this.button)
-        this.element.append(this.side)
-        this.element.classList.add('lr-struct')
-        this.main.classList.add('main')
-        this.button.classList.add('button')
-        this.side.classList.add('side')
-        this.sideContent.classList.add('content')
-        this.sash.classList.add('sash')
-        this.cover.classList.add('cover')
-        this.sideWidth=this.side.offsetWidth
+        super(['lr-struct'])
+        this.side.element.append(this.sideContent.element)
+        this.side.element.append(this.cover.element)
+        this.side.element.append(this.sash.element)
+        this.element.append(this.main.element)
+        this.element.append(this.button.element)
+        this.element.append(this.side.element)
+        this.sideWidth=this.side.element.offsetWidth
         this.button.addEventListener('mousedown',e=>{
             e.preventDefault()
             this.side.classList.add('active')
@@ -37,7 +31,7 @@ export class LRStruct{
             e.preventDefault()
             this.sashing=true
             this.sashX=e.clientX
-            this.sideWidth=this.side.offsetWidth
+            this.sideWidth=this.side.element.offsetWidth
             this.element.classList.add('sashing')
         })
         this.sash.addEventListener('touchstart',e=>{
@@ -45,7 +39,7 @@ export class LRStruct{
             const touch=new SimpleTouch(e).targetTouch
             if(touch===undefined)return
             this.sashX=touch.clientX
-            this.sideWidth=this.side.offsetWidth
+            this.sideWidth=this.side.element.offsetWidth
             this.element.classList.add('sashing')
         })
         document.addEventListener('mousemove',e=>{
@@ -54,8 +48,8 @@ export class LRStruct{
             const dx=e.clientX-this.sashX
             const newWidth=Math.min(Math.max(this.sideWidth+dx,30),this.element.offsetWidth)
             this.side.style.width=newWidth+'px'
-            this.main.style.marginLeft=this.side.offsetWidth+'px'
-            if(this.side.offsetWidth<=50)this.sideContent.classList.add('vanished')
+            this.main.style.marginLeft=this.side.element.offsetWidth+'px'
+            if(this.side.element.offsetWidth<=50)this.sideContent.classList.add('vanished')
             else this.sideContent.classList.remove('vanished')
         })
         this.sash.addEventListener('touchmove',e=>{
@@ -66,8 +60,8 @@ export class LRStruct{
             const dx=touch.clientX-this.sashX
             const newWidth=Math.min(Math.max(this.sideWidth+dx,30),this.element.offsetWidth)
             this.side.style.width=newWidth+'px'
-            this.main.style.marginLeft=this.side.offsetWidth+'px'
-            if(this.side.offsetWidth<=50)this.sideContent.classList.add('vanished')
+            this.main.style.marginLeft=this.side.element.offsetWidth+'px'
+            if(this.side.element.offsetWidth<=50)this.sideContent.classList.add('vanished')
             else this.sideContent.classList.remove('vanished')
         })
         document.addEventListener('mouseup',async e=>{
