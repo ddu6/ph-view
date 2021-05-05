@@ -25,7 +25,9 @@ export class Main extends LRStruct{
         page:document.createElement('input'),
         password:document.createElement('input'),
         token:document.createElement('input'),
-        refLimit:document.createElement('input')
+        refLimit:document.createElement('input'),
+        s:document.createElement('input'),
+        e:document.createElement('input')
     }
     selects={
         order:document.createElement('select'),
@@ -59,8 +61,8 @@ export class Main extends LRStruct{
     refLimit=3
     
     stars:number[]=[]
-    s=0
-    e=0
+    s=NaN
+    e=NaN
     ids:number[]=[]
     keys:string[]=[]
     key=''
@@ -97,6 +99,10 @@ export class Main extends LRStruct{
                 .append(this.selects.order))
             .append(new FormLine('fillter')
                 .append(this.inputs.fillter))
+            .append(new FormLine('start date')
+                .append(this.inputs.s))
+            .append(new FormLine('end date')
+                .append(this.inputs.e))
             .append(new FormLine('page')
                 .append(this.inputs.page))
             .append(new FormLine('color scheme')
@@ -124,6 +130,8 @@ export class Main extends LRStruct{
         this.inputs.refLimit.min='0'
         this.inputs.token.type='password'
         this.inputs.password.type='password'
+        this.inputs.s.type='date'
+        this.inputs.e.type='date'
         this.forms.add.classList.add('hide')
         this.forms.login.classList.add('hole')
 
@@ -175,6 +183,16 @@ export class Main extends LRStruct{
                 await this.start()
             }
         })
+        this.inputs.s.addEventListener('keydown',async e=>{
+            if(e.key==='Enter'){
+                await this.start()
+            }
+        })
+        this.inputs.e.addEventListener('keydown',async e=>{
+            if(e.key==='Enter'){
+                await this.start()
+            }
+        })
         this.inputs.refLimit.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
                 await this.start()
@@ -194,14 +212,7 @@ export class Main extends LRStruct{
         this.selects.order.addEventListener('input',async e=>{
             this.inputs.page.value='1'
             if(this.selects.order.value==='hot'){
-                if(!this.inputs.fillter.value.startsWith('.d ')){
-                    this.inputs.fillter.value='.d '+this.inputs.fillter.value
-                }
-            }
-            else{
-                if(this.inputs.fillter.value.startsWith('.d ')){
-                    this.inputs.fillter.value=this.inputs.fillter.value.slice(3)
-                }
+                this.inputs.fillter.value='.d '+this.inputs.fillter.value
             }
             if(this.selects.order.value!=='id'){
                 this.checkboxes.star.classList.remove('checked')
@@ -213,9 +224,6 @@ export class Main extends LRStruct{
             if(classList.contains('checking'))return
             classList.add('checking')
             this.inputs.page.value='1'
-            if(this.inputs.fillter.value.startsWith('.d ')){
-                this.inputs.fillter.value=this.inputs.fillter.value.slice(3)
-            }
             this.checkboxes.star.classList.toggle('checked')
             classList.remove('checking')
             await this.start()
@@ -330,12 +338,10 @@ export class Main extends LRStruct{
         return result1
     }
     parseFillter(){
-        this.s=0
-        this.e=0
         this.ids=[]
         this.keys=[]
         this.key=''
-        let fillter=this.fillter.trim()
+        const fillter=this.fillter.trim()
         if(fillter.length===0)return
         const array0=fillter.match(this.dRegExp)
         if(Array.isArray(array0)&&array0.length>0){
@@ -410,9 +416,9 @@ export class Main extends LRStruct{
                 this.ids.push(id)
             }
         }
-        fillter=fillter.replace(this.dRegExp,' ').replace(this.idsRegExp,' ').trim()
-        this.keys=fillter.split(/\s+/)
-        this.key=this.keys.join(' ')
+        this.fillter=fillter.replace(this.dRegExp,' ').trim()
+        this.key=this.fillter.replace(this.idsRegExp,' ').trim()
+        this.keys=this.key.split(/\s+/)
     }
     async basicallyAppendHoles(data0:AppendData[]){
         for(let i=0;i<data0.length;i++){
@@ -703,6 +709,15 @@ export class Main extends LRStruct{
         }else{
             this.parent.classList.remove('weak')
         }
+        if(this.ids.length>0){
+            this.order='id'
+        }
+        this.parent.dataset.order=this.order
+        this.parent.dataset.star=this.star?'true':'false'
+        if(this.order==='id'&&!this.star){
+            this.s=NaN
+            this.e=NaN
+        }
         this.flow.element.innerHTML=''
         this.selects.order.value=this.order
         this.selects.colorScheme.value=this.colorScheme
@@ -710,6 +725,8 @@ export class Main extends LRStruct{
         this.inputs.fillter.value=this.fillter
         this.inputs.page.value=this.page.toString()
         this.inputs.refLimit.value=this.refLimit.toString()
+        this.inputs.s.valueAsNumber=this.s*1000
+        this.inputs.e.valueAsNumber=this.e*1000-24*3600000
         if(this.star){
             this.checkboxes.star.classList.add('checked')
         }
@@ -787,6 +804,8 @@ export class Main extends LRStruct{
             this.refLimit=refLimit
             window.localStorage.setItem('ph-ref-limit',refLimit.toString())
         }
+        this.s=this.inputs.s.valueAsNumber/1000
+        this.e=this.inputs.e.valueAsNumber/1000+24*3600
         await this.clear()
         await this.appendHoles()
     }

@@ -174,10 +174,11 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-clear-button,
+input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { 
-    -webkit-appearance: none;
-    margin: 0;
+    display: none;
 }
 
 option,
@@ -211,7 +212,7 @@ textarea {
 }
 
 .lr-struct>.button::after {
-    content: "≡";
+    content: "\e904";
 }
 
 .lr-struct>.side {
@@ -359,6 +360,11 @@ textarea {
 }
 
 .root.weak .order.form-line {
+    display: none !important;
+}
+
+.root[data-order=id]:not([data-star=true]) .start-date,
+.root[data-order=id]:not([data-star=true]) .end-date {
     display: none !important;
 }
 

@@ -4,7 +4,7 @@ export class Hole extends Form{
     index=new CommonEle(['index'])
     text=new CommonEle(['text'])
     attachment=new CommonEle(['attachment'])
-    comments=new CommonEle(['comments'])
+    commentsEle=new CommonEle(['comments'])
     checkboxes={
         comment:new Checkbox('comment'),
         star:new Checkbox('star'),
@@ -19,6 +19,7 @@ export class Hole extends Form{
     }
 
     restComments:CommentData[]=[]
+    comments:CommentData[]=[]
     commentLimit=50
     toNameRegExp=/^Re [\w\s]*: $/
     isRef=false
@@ -37,7 +38,7 @@ export class Hole extends Form{
         .append(this.forms.comment
             .append(this.textareas.comment)
             .append(this.checkboxes.send))
-        .append(this.comments)
+        .append(this.commentsEle)
 
         this.forms.comment.classList.add('hide')
         
@@ -160,9 +161,20 @@ export class Hole extends Form{
         if(text.startsWith('Re ')){
             const spt=text.indexOf(': ')
             if(spt!==-1){
-                const toName=text.slice(3,spt)
+                let toName=text.slice(3,spt)
                 text=text.slice(spt+2)
-                if(toName!==''&&toName!=='洞主'&&toName!==name){
+                if(toName.startsWith('#')){
+                    const id=toName.slice(1)
+                    for(let i=0;i<this.comments.length;i++){
+                        const {cid,text}=this.comments[i]
+                        if(typeof text!=='string')continue
+                        if(cid.toString()===id){
+                            toName=text.slice(1,text.indexOf('] '))
+                            break
+                        }
+                    }
+                }
+                if(toName!==''&&toName!=='洞主'&&toName!==name&&!toName.startsWith('#')){
                     indexStr+=` to ${toName}`
                 }
             }
@@ -188,7 +200,7 @@ export class Hole extends Form{
         })
         index.textContent=indexStr
         content.innerHTML=prettyText(text)
-        this.comments.append(element)
+        this.commentsEle.append(element)
         if(typeof timestamp==='string'){
             timestamp=Number(timestamp)
         }
@@ -200,7 +212,7 @@ export class Hole extends Form{
     }
     private addMoreButton(restLength:number){
         const element=document.createElement('div')
-        this.comments.append(element)
+        this.commentsEle.append(element)
         element.textContent=`${restLength} more`
         element.classList.add('more')
         element.addEventListener('click',e=>{
@@ -212,7 +224,7 @@ export class Hole extends Form{
         if(data.length>Number(this.checkboxes.comment.element.textContent)){
             this.checkboxes.comment.element.textContent=data.length.toString()+' '
         }
-        this.comments.element.innerHTML=''
+        this.commentsEle.element.innerHTML=''
         this.restComments=[]
         if(data.length>=2){
             if(Number(data[0].cid)>Number(data[1].cid)){
@@ -222,6 +234,7 @@ export class Hole extends Form{
                 if(this.reverse)data.reverse()
             }
         }
+        this.comments=data
         if(data.length<2*this.commentLimit){
             for(let i=0;i<data.length;i++){
                 this.appendComment(data[i])
