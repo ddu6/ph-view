@@ -151,25 +151,31 @@ export class Hole extends Form{
         let {text,tag,timestamp}=data
         if(typeof text!=='string')text=''
         if(typeof tag!=='string')tag=''
-        const spt=text.indexOf('] ')
+        const spt=text.indexOf(']')
         const name=text.slice(1,spt)
-        text=text.slice(spt+2)
+        text=text.slice(spt+1)
+        if(text.startsWith(' ')){
+            text=text.slice(1)
+        }
         let indexStr=`${name} ${prettyDate(timestamp)}`
         if(tag.length>0){
             indexStr+=` <span class="tag">${prettyText(tag)}</span>`
         }
         if(text.startsWith('Re ')){
-            const spt=text.indexOf(': ')
+            const spt=text.indexOf(':')
             if(spt!==-1){
                 let toName=text.slice(3,spt)
-                text=text.slice(spt+2)
+                text=text.slice(spt+1)
+                if(text.startsWith(' ')){
+                    text=text.slice(1)
+                }
                 if(toName.startsWith('#')){
                     const id=toName.slice(1)
                     for(let i=0;i<this.comments.length;i++){
                         const {cid,text}=this.comments[i]
                         if(typeof text!=='string')continue
                         if(cid.toString()===id){
-                            toName=text.slice(1,text.indexOf('] '))
+                            toName=text.slice(1,text.indexOf(']'))
                             break
                         }
                     }
