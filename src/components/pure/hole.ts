@@ -4,7 +4,7 @@ export class Hole extends Form{
     index=new CommonEle(['index'])
     text=new CommonEle(['text'])
     attachment=new CommonEle(['attachment'])
-    commentsEle=new CommonEle(['comments'])
+    commentsEle=new Form('comments')
     checkboxes={
         comment:new Checkbox('comment'),
         star:new Checkbox('star'),
