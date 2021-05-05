@@ -725,8 +725,23 @@ export class Main extends LRStruct{
         this.inputs.fillter.value=this.fillter
         this.inputs.page.value=this.page.toString()
         this.inputs.refLimit.value=this.refLimit.toString()
-        this.inputs.s.valueAsNumber=this.s*1000
-        this.inputs.e.valueAsNumber=this.e*1000-24*3600000
+        try{
+            this.inputs.s.valueAsNumber=this.s*1000
+            this.inputs.e.valueAsNumber=this.e*1000-24*3600000
+        }catch(err){
+            if(isNaN(this.s)){
+                this.inputs.s.value=''
+            }else{
+                const date=new Date(this.s*1000)
+                this.inputs.s.value=`${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
+            }
+            if(isNaN(this.e)){
+                this.inputs.e.value=''
+            }else{
+                const date=new Date(this.e*1000-24*3600000)
+                this.inputs.e.value=`${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
+            }
+        }
         if(this.star){
             this.checkboxes.star.classList.add('checked')
         }
@@ -804,8 +819,23 @@ export class Main extends LRStruct{
             this.refLimit=refLimit
             window.localStorage.setItem('ph-ref-limit',refLimit.toString())
         }
-        this.s=this.inputs.s.valueAsNumber/1000
-        this.e=this.inputs.e.valueAsNumber/1000+24*3600
+        try{
+            this.s=this.inputs.s.valueAsNumber/1000
+            this.e=this.inputs.e.valueAsNumber/1000+24*3600
+        }catch(err){
+            let dateStr=this.inputs.s.value
+            if(dateStr===''){
+                this.s=NaN
+            }else{
+                this.s=new Date(dateStr).getTime()/1000
+            }
+            dateStr=this.inputs.e.value
+            if(dateStr===''){
+                this.e=NaN
+            }else{
+                this.e=new Date(dateStr).getTime()/1000+24*3600
+            }
+        }
         await this.clear()
         await this.appendHoles()
     }
