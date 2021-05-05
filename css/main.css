@@ -102,9 +102,9 @@ a[href]:hover {
 }
 
 button,
-input[type="button"],
-input[type="reset"],
-input[type="submit"],
+input[type=button],
+input[type=reset],
+input[type=submit],
 .button {
     font: inherit;
     color: var(--color-text);
@@ -117,14 +117,14 @@ input[type="submit"],
 }
 
 button:hover,
-input[type="button"]:hover,
-input[type="reset"]:hover,
-input[type="submit"]:hover,
+input[type=button]:hover,
+input[type=reset]:hover,
+input[type=submit]:hover,
 .button:hover,
 button.pushing,
-input[type="button"].pushing,
-input[type="reset"].pushing,
-input[type="submit"].pushing,
+input[type=button].pushing,
+input[type=reset].pushing,
+input[type=submit].pushing,
 .button.pushing {
     background-color: var(--color-selection);
 }
@@ -168,16 +168,25 @@ select {
     -moz-appearance: none;
 }
 
-input[type=number] {
+input[type=number],
+input[type=date] {
     appearance: textfield;
     -webkit-appearance: textfield;
     -moz-appearance: textfield;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="date"]::-webkit-clear-button,
+input[type=date] {
+    height: auto;
+    width: auto;
+    vertical-align: middle;
+    height: 1.5em;
+}
+
+
 input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button { 
+input[type=number]::-webkit-outer-spin-button,
+input[type=date]::-webkit-calendar-picker-indicator,
+input[type=date]::-webkit-clear-button { 
     display: none;
 }
 
@@ -447,6 +456,7 @@ textarea {
     cursor: pointer;
     text-align: center;
     color: var(--color-light);
+    padding: var(--length-padding-span);
 }
 
 .hr {
