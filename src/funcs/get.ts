@@ -349,12 +349,6 @@ export async function add(text:string,token:string){
     return {id:id}
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
-    if(isNaN(s)){
-        s=0
-    }
-    if(isNaN(e)){
-        e=0
-    }
     if(order!=='id'){
         if(password.length===0)return 401
         const result=await remotelyGetLocalPage(key,page,order,s,e,token,password)

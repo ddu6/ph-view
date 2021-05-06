@@ -61,8 +61,8 @@ export class Main extends LRStruct{
     refLimit=3
     
     stars:number[]=[]
-    s=NaN
-    e=NaN
+    s=0
+    e=0
     ids:number[]=[]
     keys:string[]=[]
     key=''
@@ -255,11 +255,11 @@ export class Main extends LRStruct{
             this.stars=[]
             this.maxId=-1
             this.maxETimestamp=0
-            window.localStorage.setItem('ph-token',this.token)
-            window.localStorage.setItem('ph-password',this.password)
-            window.localStorage.setItem('ph-stars',this.stars.join(','))
-            window.localStorage.setItem('ph-max-id',this.maxId.toString())
-            window.localStorage.setItem('ph-max-etimestamp',this.maxETimestamp.toString())
+            window.localStorage.removeItem('ph-token')
+            window.localStorage.removeItem('ph-password')
+            window.localStorage.removeItem('ph-stars')
+            window.localStorage.removeItem('ph-max-id')
+            window.localStorage.removeItem('ph-max-etimestamp')
             await this.start()
             classList.remove('checking')
         })
@@ -558,7 +558,7 @@ export class Main extends LRStruct{
             const item=data[i]
             const timestamp=Number(item.timestamp)
             if(timestamp<this.s
-            ||this.e>0&&timestamp>this.e)continue
+                ||this.e>0&&timestamp>this.e)continue
             let text=item.text
             if(typeof text!=='string')text=''
             let ok=true
@@ -700,9 +700,9 @@ export class Main extends LRStruct{
     }
     async clear(){
         this.flow.element.innerHTML=''
+        this.parseFillter()
         await this.fetchLock.kill()
         await this.appendLock.kill()
-        this.parseFillter()
         if(this.star||this.password.length===0){
             this.order='id'
             this.parent.classList.add('weak')
@@ -715,8 +715,8 @@ export class Main extends LRStruct{
         this.parent.dataset.order=this.order
         this.parent.dataset.star=this.star?'true':'false'
         if(this.order==='id'&&!this.star){
-            this.s=NaN
-            this.e=NaN
+            this.s=0
+            this.e=0
         }
         this.flow.element.innerHTML=''
         this.selects.order.value=this.order
@@ -725,22 +725,17 @@ export class Main extends LRStruct{
         this.inputs.fillter.value=this.fillter
         this.inputs.page.value=this.page.toString()
         this.inputs.refLimit.value=this.refLimit.toString()
-        try{
-            this.inputs.s.valueAsNumber=this.s*1000
-            this.inputs.e.valueAsNumber=this.e*1000-24*3600000
-        }catch(err){
-            if(isNaN(this.s)){
-                this.inputs.s.value=''
-            }else{
-                const date=new Date(this.s*1000)
-                this.inputs.s.value=`${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
-            }
-            if(isNaN(this.e)){
-                this.inputs.e.value=''
-            }else{
-                const date=new Date(this.e*1000-24*3600000)
-                this.inputs.e.value=`${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
-            }
+        if(this.s===0){
+            this.inputs.s.value=''
+        }else{
+            const date=new Date(this.s*1000)
+            this.inputs.s.value=`${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
+        }
+        if(this.e===0){
+            this.inputs.e.value=''
+        }else{
+            const date=new Date(this.e*1000-24*3600000)
+            this.inputs.e.value=`${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
         }
         if(this.star){
             this.checkboxes.star.classList.add('checked')
@@ -772,34 +767,7 @@ export class Main extends LRStruct{
         await this.appendLock.revive()
     }
     async start(){
-        let value=this.inputs.fillter.value.trimStart()
-        const result=value.match(/^\w{32,}$/)
-        if(result!==null&&result.length>0){
-            const tmp=result[0]
-            this.token=tmp.slice(-32)
-            this.password=tmp.slice(0,-32)
-            window.localStorage.setItem('ph-token',this.token)
-            window.localStorage.setItem('ph-password',this.password)
-            this.inputs.fillter.value=''
-            value=''
-        }else if(value.startsWith('$t ')){
-            const tmp=value.slice(3).trim()
-            if(tmp.length===32){
-                this.token=tmp
-                window.localStorage.setItem('ph-token',tmp)
-                this.inputs.fillter.value=''
-                value=''
-            }
-        }else if(value.startsWith('$p ')){
-            const tmp=value.slice(3).trim()
-            if(tmp.length>0){
-                this.password=tmp
-                window.localStorage.setItem('ph-password',tmp)
-                this.inputs.fillter.value=''
-                value=''
-            }
-        }
-        this.fillter=value
+        this.fillter=this.inputs.fillter.value.trim()
         const p1=Number(this.inputs.page.value)
         if(!isNaN(p1)&&p1>=1&&p1%1===0){
             this.page=p1-1
@@ -819,22 +787,17 @@ export class Main extends LRStruct{
             this.refLimit=refLimit
             window.localStorage.setItem('ph-ref-limit',refLimit.toString())
         }
-        try{
-            this.s=this.inputs.s.valueAsNumber/1000
-            this.e=this.inputs.e.valueAsNumber/1000+24*3600
-        }catch(err){
-            let dateStr=this.inputs.s.value
-            if(dateStr===''){
-                this.s=NaN
-            }else{
-                this.s=new Date(dateStr).getTime()/1000
-            }
-            dateStr=this.inputs.e.value
-            if(dateStr===''){
-                this.e=NaN
-            }else{
-                this.e=new Date(dateStr).getTime()/1000+24*3600
-            }
+        let dateStr=this.inputs.s.value
+        if(dateStr===''){
+            this.s=0
+        }else{
+            this.s=new Date(dateStr).getTime()/1000
+        }
+        dateStr=this.inputs.e.value
+        if(dateStr===''){
+            this.e=0
+        }else{
+            this.e=new Date(dateStr).getTime()/1000+24*3600
         }
         await this.clear()
         await this.appendHoles()
