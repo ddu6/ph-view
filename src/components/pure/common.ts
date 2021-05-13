@@ -23,6 +23,14 @@ export class CommonEle{
         }))
         return this
     }
+    setText(string:string){
+        this.element.textContent=string
+        return this
+    }
+    setHTML(string:string){
+        this.element.innerHTML=string
+        return this
+    }
     addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions){
         this.element.addEventListener(type,listener,options)
         return this

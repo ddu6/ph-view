@@ -1,4 +1,4 @@
-import {Hole} from '../pure/hole'
+import {Hole,prettyDate, prettyText} from '../pure/hole'
 import {LRStruct} from '../pure/lrStruct'
 import {KillableLock} from '../../wheels/lock'
 import * as get from '../../funcs/get'
@@ -40,14 +40,18 @@ export class Main extends LRStruct{
     checkboxes={
         add:new Checkbox('add'),
         star:new Checkbox('star'),
-        auto:new Checkbox('auto'),
         logout:new Checkbox('logout'),
         login:new Checkbox('login'),
-        send:new Checkbox('send')
+        send:new Checkbox('send'),
+        refresh:new Checkbox('refresh'),
+        settings:new Checkbox('settings'),
+        messages:new Checkbox('messages')
     }
     forms={
         add:new Form('add'),
-        login:new Form('login')
+        login:new Form('login'),
+        settings:new Form('settings'),
+        messages:new Form('messages')
     }
     auto=false
     star=false
@@ -91,7 +95,7 @@ export class Main extends LRStruct{
             .append(new CommonEle(['menu'])
                 .append(this.checkboxes.add)
                 .append(this.checkboxes.star)
-                .append(this.checkboxes.auto))
+                .append(this.checkboxes.refresh))
             .append(this.forms.add
                 .append(this.textareas.text)
                 .append(this.checkboxes.send))
@@ -105,13 +109,17 @@ export class Main extends LRStruct{
                 .append(this.inputs.e))
             .append(new FormLine('page')
                 .append(this.inputs.page))
-            .append(new FormLine('color scheme')
-                .append(this.selects.colorScheme))
-            .append(new FormLine('ref mode')
-                .append(this.selects.refMode))
-            .append(new FormLine('ref limit')
-                .append(this.inputs.refLimit))
-            .append(this.checkboxes.logout))
+            .append(this.checkboxes.messages)
+            .append(this.forms.messages)
+            .append(this.checkboxes.settings)
+            .append(this.forms.settings
+                .append(new FormLine('color scheme')
+                    .append(this.selects.colorScheme))
+                .append(new FormLine('ref mode')
+                    .append(this.selects.refMode))
+                .append(new FormLine('ref limit')
+                    .append(this.inputs.refLimit))
+                .append(this.checkboxes.logout)))
         this.main.append(this.flow)
         this.forms.login.append(new FormLine('token')
             .append(this.inputs.token))
@@ -134,6 +142,8 @@ export class Main extends LRStruct{
         this.inputs.e.type='date'
         this.forms.add.classList.add('hide')
         this.forms.login.classList.add('hole')
+        this.forms.messages.classList.add('hide')
+        this.forms.settings.classList.add('hide')
 
         const params=new URLSearchParams(document.location.search)
         const fillter=params.get('fillter')
@@ -193,13 +203,19 @@ export class Main extends LRStruct{
                 await this.start()
             }
         })
-        this.inputs.refLimit.addEventListener('keydown',async e=>{
-            if(e.key==='Enter'){
-                await this.start()
+        this.inputs.refLimit.addEventListener('blur',async e=>{
+            const refLimit=Number(this.inputs.refLimit.value)
+            if(refLimit>=0){
+                this.refLimit=refLimit
+                window.localStorage.setItem('ph-ref-limit',refLimit.toString())
             }
         })
         this.selects.refMode.addEventListener('input',async e=>{
-            await this.start()
+            const refMode=this.selects.refMode.value
+            if(refMode==='direct'||refMode==='recur'){
+                this.refMode=refMode
+                window.localStorage.setItem('ph-ref-mode',refMode)
+            }
         })
         this.selects.colorScheme.addEventListener('input',e=>{
             const colorScheme=this.selects.colorScheme.value
@@ -220,17 +236,9 @@ export class Main extends LRStruct{
             await this.start()
         })
         this.checkboxes.star.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.star
-            if(classList.contains('checking'))return
-            classList.add('checking')
             this.inputs.page.value='1'
             this.checkboxes.star.classList.toggle('checked')
-            classList.remove('checking')
             await this.start()
-        })
-        this.checkboxes.auto.addEventListener('click',async e=>{
-            this.checkboxes.auto.classList.toggle('checked')
-            this.auto=this.checkboxes.auto.classList.contains('checked')
         })
         this.checkboxes.login.addEventListener('click',async e=>{
             if(this.inputs.token.value.length!==32){
@@ -263,16 +271,6 @@ export class Main extends LRStruct{
             await this.start()
             classList.remove('checking')
         })
-        this.checkboxes.add.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.add
-            if(classList.contains('checked')){
-                this.forms.add.classList.add('hide')
-                classList.remove('checked')
-            }else{
-                this.forms.add.classList.remove('hide')
-                classList.add('checked')
-            }
-        })
         this.checkboxes.send.addEventListener('click',async e=>{
             const {classList}=this.checkboxes.send
             if(classList.contains('checking'))return
@@ -303,6 +301,65 @@ export class Main extends LRStruct{
             await this.fetchLock.release(result0)
             classList.remove('checking')
             await this.start()
+        })
+        this.checkboxes.refresh.addEventListener('click',async e=>{
+            await this.start()
+        })
+        this.checkboxes.add.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.add
+            if(classList.contains('checked')){
+                this.forms.add.classList.add('hide')
+                classList.remove('checked')
+            }else{
+                this.forms.add.classList.remove('hide')
+                classList.add('checked')
+            }
+        })
+        this.checkboxes.messages.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.messages
+            if(classList.contains('checked')){
+                this.forms.messages.classList.add('hide')
+                classList.remove('checked')
+            }else{
+                if(this.token.length===0)return
+                classList.add('checking')
+                this.forms.messages.element.innerHTML=''
+                this.forms.messages.classList.remove('hide')
+                const data=await get.getMsgs(this.token)
+                if(typeof data==='number'){
+                    classList.remove('checking')
+                    return
+                }
+                for(let i=0;i<data.length;i++){
+                    let {content,timestamp,title}=data[i]
+                    let indStr=''
+                    if(typeof title==='string'&&title.length>0){
+                        indStr+=`${title} `
+                    }
+                    indStr+=prettyDate(timestamp)
+                    if(typeof content!=='string'){
+                        content=''
+                    }
+                    this.forms.messages.append(new CommonEle([])
+                        .append(new CommonEle(['index']).setText(indStr))
+                        .append(new CommonEle(['text']).setHTML(prettyText(content))))
+                }
+                if(data.length===0){
+                    this.forms.messages.element.innerHTML='empty'
+                }
+                classList.add('checked')
+                classList.remove('checking')
+            }
+        })
+        this.checkboxes.settings.addEventListener('click',async e=>{
+            const {classList}=this.checkboxes.settings
+            if(classList.contains('checked')){
+                this.forms.settings.classList.add('hide')
+                classList.remove('checked')
+            }else{
+                this.forms.settings.classList.remove('hide')
+                classList.add('checked')
+            }
         })
         setInterval(async()=>{
             if(!this.inited)return
@@ -579,7 +636,10 @@ export class Main extends LRStruct{
         if(result===false)return
         if(this.token.length===0){
             this.flow.append(this.forms.login)
+            this.parent.classList.add('login')
             this.end=true
+        }else{
+            this.parent.classList.remove('login')
         }
         if(this.end){
             await this.appendLock.release(result)
@@ -646,6 +706,7 @@ export class Main extends LRStruct{
             if(this.order==='id'){
                 alert('Wrong token.')
                 this.flow.append(this.forms.login)
+                this.parent.classList.add('login')
                 this.end=true
                 await this.appendLock.release(result)
                 return
@@ -667,6 +728,7 @@ export class Main extends LRStruct{
                     if(this.order==='id'){
                         alert('Wrong token.')
                         this.flow.append(this.forms.login)
+                        this.parent.classList.add('login')
                         this.end=true
                         await this.appendLock.release(result)
                         return
@@ -743,12 +805,6 @@ export class Main extends LRStruct{
         else{
             this.checkboxes.star.classList.remove('checked')
         }
-        if(this.auto){
-            this.checkboxes.auto.classList.add('checked')
-        }
-        else{
-            this.checkboxes.auto.classList.remove('checked')
-        }
         this.end=false
         this.appendedIds=[]
         this.errCount=0
@@ -777,16 +833,6 @@ export class Main extends LRStruct{
         else if(order==='active')this.order='active'
         else if(order==='hot')this.order='hot'
         this.star=this.checkboxes.star.classList.contains('checked')
-        const refMode=this.selects.refMode.value
-        if(refMode==='direct'||refMode==='recur'){
-            this.refMode=refMode
-            window.localStorage.setItem('ph-ref-mode',refMode)
-        }
-        const refLimit=Number(this.inputs.refLimit.value)
-        if(refLimit>=0){
-            this.refLimit=refLimit
-            window.localStorage.setItem('ph-ref-limit',refLimit.toString())
-        }
         let dateStr=this.inputs.s.value
         if(dateStr===''){
             this.s=0
@@ -864,12 +910,10 @@ export class Main extends LRStruct{
     }
     softPause(){
         if(!this.auto)return
-        this.checkboxes.auto.classList.remove('checked')
         this.auto=false
     }
     softContinue(){
         if(this.auto)return
-        this.checkboxes.auto.classList.add('checked')
         this.auto=true
     }
     async wake(){

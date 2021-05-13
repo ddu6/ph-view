@@ -340,6 +340,14 @@ textarea {
     font-size: .8em;
 }
 
+.checkbox.settings::after {
+    content: "\e905  Settings";
+}
+
+.checkbox.messages::after {
+    content: "\e906  Messages";
+}
+
 .menu {
     display: flex;
     justify-content: space-around;
@@ -372,6 +380,11 @@ textarea {
     display: none !important;
 }
 
+.root.login .messages,
+.root.login .logout {
+    display: none;
+}
+
 .root[data-order=id]:not([data-star=true]) .start-date,
 .root[data-order=id]:not([data-star=true]) .end-date {
     display: none !important;
@@ -389,6 +402,12 @@ textarea {
 
 .panel {
     padding: var(--length-padding);
+    overflow: auto;
+}
+
+.form.messages {
+    max-height: 30em;
+    overflow: auto;
 }
 
 .hole {

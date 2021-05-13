@@ -28,6 +28,11 @@ export interface CommentData{
     timestamp:number|string
     name:string|null|undefined
 }
+export interface MsgData{
+    content:string|null|undefined
+    timestamp:number|string
+    title:string|null|undefined
+}
 export type Order='id'|'active'|'hot'
 async function basicallyGet(url:string,params:Record<string,string>={},form:Record<string,string>={},cookie='',referer=''){
     let paramsStr=new URL(url).searchParams.toString()
@@ -99,8 +104,33 @@ async function getResult(params:Record<string,string>={},form:Record<string,stri
         if(msg==='没有这条树洞')return 404
         if(msg==='已经关注过了')return 409
         if(typeof msg==='string'&&msg.length>0){
-            console.log(msg)
+            if(msg.startsWith('你已被禁言')){
+                alert(msg)
+            }else{
+                console.log(msg)
+            }
         }
+    }catch(err){
+        console.log(err)
+    }
+    return 500
+}
+export async function getMsgs(token:string){
+    const result=await basicallyGet('https://pkuhelper.pku.edu.cn/api_xmcp/hole/system_msg',{
+        user_token:token,
+        PKUHelperAPI:'3.0',
+        jsapiver:`201027113050-${2*Math.floor(Date.now()/72e5)}`
+    })
+    if(result===503)return 503
+    if(typeof result==='number')return 500
+    const {status,body}=result
+    if(status===503)return 503
+    if(status!==200)return 500
+    try{
+        const {result}=JSON.parse(body)
+        if(!Array.isArray(result))return 500
+        const data:MsgData[]=result
+        return data
     }catch(err){
         console.log(err)
     }

@@ -278,7 +278,7 @@ export class Hole extends Form{
 
     }
 }
-function prettyText(text:string){
+export function prettyText(text:string){
     text=text.replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
@@ -289,7 +289,7 @@ function prettyText(text:string){
     .replace(/(\b\d{5,7}\b)(?=[^<>]*(<[^\/]|$))/g,`<a href="${document.location.origin+document.location.pathname}?fillter=%23$1" target="_blank">$1</a>`)
     return text
 }
-function prettyDate(stamp:string|number){
+export function prettyDate(stamp:string|number){
     const date=new Date(Number(stamp+'000'))
     const now=new Date()
     const year=date.getFullYear()
