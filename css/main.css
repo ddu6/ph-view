@@ -221,7 +221,7 @@ textarea {
 }
 
 .lr-struct>.button::after {
-    content: "\e904";
+    content: "\e903";
 }
 
 .lr-struct>.side {
@@ -307,16 +307,13 @@ textarea {
 }
 
 .checkbox.star::after {
-    content: "\e9d7";
+    content: "\e905";
+    font-size: 1.2em;
 }
 
 .checkbox.refresh::after {
-    content: "\e984";
-    font-size: .8em;
-}
-
-.checkbox.auto::after {
-    content: "\ea0a";
+    content: "\e904";
+    font-size: 1.2em;
 }
 
 .checkbox.comment::after {
@@ -324,28 +321,28 @@ textarea {
 }
 
 .checkbox.send::after {
-    content: "\e901  Send";
+    content: "\e902  Send";
 }
 
 .checkbox.logout::after {
-    content: "\e902  Logout";
+    content: "\e907  Logout";
 }
 
 .checkbox.login::after {
-    content: "\e903  Login";
+    content: "\e908  Login";
 }
 
 .checkbox.add::after {
-    content: "\ea0b";
-    font-size: .8em;
+    content: "\e901";
+    font-size: 1.2em;
 }
 
 .checkbox.settings::after {
-    content: "\e905  Settings";
+    content: "\e906  Settings";
 }
 
 .checkbox.messages::after {
-    content: "\e906  Messages";
+    content: "\e909  Messages";
 }
 
 .menu {
