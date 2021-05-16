@@ -160,6 +160,7 @@ export class Main extends LRStruct{
         this.selects.order.innerHTML='<option>id</option><option>active</option><option>hot</option>'
         this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
         this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
+        this.selects.foldText.innerHTML='<option>true</option><option>false</option>'
         this.selects.foldImg.innerHTML='<option>true</option><option>false</option>'
         this.selects.foldComments.innerHTML='<option>true</option><option>false</option>'
         this.inputs.page.type='number'
@@ -293,7 +294,7 @@ export class Main extends LRStruct{
             }
         })
         this.selects.foldComments.addEventListener('input',async e=>{
-            const val=this.selects.foldImg.value
+            const val=this.selects.foldComments.value
             if(val==='true'||val==='false'){
                 this.foldComments=val
                 window.localStorage.setItem('ph-fold-comments',val)
@@ -951,6 +952,7 @@ export class Main extends LRStruct{
         this.selects.order.value=this.order
         this.selects.colorScheme.value=this.colorScheme
         this.selects.refMode.value=this.refMode
+        this.selects.foldText.value=this.foldText
         this.selects.foldImg.value=this.foldImg
         this.selects.foldComments.value=this.foldComments
         this.inputs.fillter.value=this.fillter
