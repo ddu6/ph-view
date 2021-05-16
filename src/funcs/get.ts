@@ -166,7 +166,7 @@ async function remotelyGetResult(path:string,params:Record<string,string>={}){
     return result
 }
 async function remotelyGetComments(id:number|string,token:string,password:string){
-    const data:{data:CommentData[]}|number=await remotelyGetResult(`c${id}`,{
+    const data:{data:CommentData[]}|number=await remotelyGetResult(`cs${id}`,{
         update:'',
         token:token,
         password:password
@@ -174,7 +174,7 @@ async function remotelyGetComments(id:number|string,token:string,password:string
     return data
 }
 async function remotelyGetLocalComments(id:number|string,token:string,password:string){
-    const data:{data:CommentData[]}|number=await remotelyGetResult(`local/c${id}`,{
+    const data:{data:CommentData[]}|number=await remotelyGetResult(`local/cs${id}`,{
         token:token,
         password:password
     })
@@ -253,6 +253,19 @@ async function locallyGetPage(key:string,page:number|string,token:string){
     if(key.length===0)return await getList(page,token)
     return await getSearch(key,page,token)
 }
+export async function getComment(cid:number|string,token:string,password:string){
+    cid=Number(cid)
+    const result:number|{
+        data: CommentData
+    }=await remotelyGetResult(`local/c${cid}`,{
+        token:token,
+        password:password
+    })
+    if(result===404)return 404
+    if(result===503)return 503
+    if(typeof result==='number')return 500
+    return result.data
+}
 export async function getComments(id:number|string,token:string,password:string){
     let result:number|{
         data: CommentData[]
@@ -304,6 +317,9 @@ export async function getHole(id:number|string,token:string,password:string){
     if(result===404){
         if(password.length===0)return 404
         result=await remotelyGetLocalHole(id,token,password)
+        if(typeof result!=='number'){
+            result.data.hidden=1
+        }
     }
     if(result===401)return 401
     if(result===503)return 503
