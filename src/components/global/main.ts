@@ -542,41 +542,44 @@ export class Main extends LRStruct{
     async basicallyAppendHoles(data0:AppendData[]){
         for(let i=0;i<data0.length;i++){
             let item=data0[i]
-            const {isRef}=item
-            if(isRef&&this.refLimit<=0)continue
             const id=Number(item.data.pid)
             if(this.appendedIds.includes(id))continue
             this.appendedIds.push(id)
             let data1:get.HoleData
             if(item.idOnly){
-                if(item.comment===undefined){
+                if(item.comment===undefined&&this.password.length>0){
                     const comment=await get.getComment(id,this.token,this.password)
-                    if(comment===401){
-                        return 401
-                    }
-                    if(comment===503){
+                    if(comment===403){
+                        this.password=''
+                        window.localStorage.setItem('ph-password',this.password)
+                        this.parent.classList.add('weak')
+                    }else if(comment===503){
                         await this.fetchLock.sleep(this.congestionSleep)
                         this.appendedIds.pop()
                         i--
                         continue
-                    }
-                    if(comment===500){
+                    }else if(comment===500){
                         this.errCount++
                         if(this.errCount>this.errLimit)return 500
                         await this.fetchLock.sleep(this.errSleep)
                         this.appendedIds.pop()
                         i--
                         continue
-                    }
-                    if(comment!==404){
+                    }else if(comment!==404){
                         const {pid}=comment
-                        data0.splice(i+1,0,{data:{pid:pid},isRef:false,idOnly:true,comment:comment})
+                        data0.splice(i+1,0,{data:{pid:pid},isRef:item.isRef,idOnly:true,comment:comment})
                     }
                 }
                 const data=await get.getHole(id,this.token,this.password)
                 if(data===404)continue
                 if(data===401){
                     return 401
+                }
+                if(data===403){
+                    this.password=''
+                    window.localStorage.setItem('ph-password',this.password)
+                    this.parent.classList.add('weak')
+                    continue
                 }
                 if(data===500){
                     this.errCount++
@@ -596,7 +599,7 @@ export class Main extends LRStruct{
             }
             else data1=item.data
             const hole=new Hole()
-            hole.render(data1,this.local,isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
+            hole.render(data1,this.local,item.isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
             hole.handleStar=async ()=>{
                 if(this.token.length===0)return
                 const {classList}=hole.checkboxes.star
@@ -680,7 +683,7 @@ export class Main extends LRStruct{
                 if(typeof text!=='string')text=''
                 return text
             }).join('\n')
-            if(!isRef||this.refMode==='recur'){
+            if(!item.isRef||this.refMode==='recur'){
                 const result=fullText.match(/\b\d{6,7}\b|%23\d{3,7}\b/g)
                 if(result!==null){
                     const length=Math.min(result.length,this.refLimit)
@@ -720,6 +723,7 @@ export class Main extends LRStruct{
         const result=await this.appendLock.get()
         if(result===false)return
         if(this.token.length===0){
+            this.flow.element.innerHTML=''
             this.flow.append(this.forms.login)
             this.parent.classList.add('login')
             this.end=true
@@ -730,7 +734,7 @@ export class Main extends LRStruct{
             await this.appendLock.release(result)
             return
         }
-        let data0:AppendData[]|500|401
+        let data0:AppendData[]|500|401|403
         if(this.star){
             this.end=true
             this.page=0
@@ -770,6 +774,10 @@ export class Main extends LRStruct{
                     data0=data1
                     break
                 }
+                if(data1===403){
+                    data0=data1
+                    break
+                }
                 if(data1===500){
                     this.errCount++
                     if(this.errCount>this.errLimit){
@@ -788,17 +796,17 @@ export class Main extends LRStruct{
             }
         }
         if(data0===401){
-            if(this.order==='id'){
-                alert('Wrong token.')
-                this.flow.append(this.forms.login)
-                this.parent.classList.add('login')
-                this.end=true
-                await this.appendLock.release(result)
-                return
-            }
+            alert('Wrong token.')
+            this.flow.element.innerHTML=''
+            this.flow.append(this.forms.login)
+            this.parent.classList.add('login')
+            this.end=true
+            await this.appendLock.release(result)
+            return
+        }else if(data0===403){
+            alert('Permission denied.')
             this.password=''
             window.localStorage.setItem('ph-password',this.password)
-            alert('Permission denied.')
             this.end=true
         }else if(data0===500){
             this.end=true
@@ -810,18 +818,13 @@ export class Main extends LRStruct{
                 this.inputs.page.value=this.page.toString()
                 const result1=await this.basicallyAppendHoles(data0)
                 if(result1===401){
-                    if(this.order==='id'){
-                        alert('Wrong token.')
-                        this.flow.append(this.forms.login)
-                        this.parent.classList.add('login')
-                        this.end=true
-                        await this.appendLock.release(result)
-                        return
-                    }
-                    this.password=''
-                    window.localStorage.setItem('ph-password',this.password)
-                    alert('Permission denied.')
+                    alert('Wrong token.')
+                    this.flow.element.innerHTML=''
+                    this.flow.append(this.forms.login)
+                    this.parent.classList.add('login')
                     this.end=true
+                    await this.appendLock.release(result)
+                    return
                 }else if(result1===500){
                     this.end=true
                 }
@@ -850,7 +853,7 @@ export class Main extends LRStruct{
         this.parseFillter()
         await this.fetchLock.kill()
         await this.appendLock.kill()
-        if(this.star||this.password.length===0){
+        if(this.password.length===0){
             this.order='id'
             this.parent.classList.add('weak')
         }else{
@@ -858,9 +861,18 @@ export class Main extends LRStruct{
         }
         if(this.ids.length>0){
             this.order='id'
+            this.parent.classList.add('ids')
+        }else{
+            this.parent.classList.remove('ids')
+        }
+        if(this.star){
+            this.order='id'
+            this.parent.classList.add('star')
+        }else{
+            this.parent.classList.remove('star')
         }
         this.parent.dataset.order=this.order
-        this.parent.dataset.star=this.star?'true':'false'
+
         if(this.order==='id'&&!this.star){
             this.s=0
             this.e=0
@@ -950,6 +962,13 @@ export class Main extends LRStruct{
             }
             if(data===401){
                 data1=500
+                break
+            }
+            if(data===403){
+                this.password=''
+                window.localStorage.setItem('ph-password',this.password)
+                this.parent.classList.add('weak')
+                data1=404
                 break
             }
             if(data===500){

@@ -254,6 +254,7 @@ async function locallyGetPage(key:string,page:number|string,token:string){
     return await getSearch(key,page,token)
 }
 export async function getComment(cid:number|string,token:string,password:string){
+    if(password.length===0)return 403
     cid=Number(cid)
     const result:number|{
         data: CommentData
@@ -261,7 +262,7 @@ export async function getComment(cid:number|string,token:string,password:string)
         token:token,
         password:password
     })
-    if(result===401)return 401
+    if(result===403)return 403
     if(result===404)return 404
     if(result===503)return 503
     if(typeof result==='number')return 500
@@ -282,7 +283,7 @@ export async function getComments(id:number|string,token:string,password:string)
         const data=result.data
         if(!weakPasswords.includes(password)&&data.length>0){
             const result=await remotelyGetComments(id,token,password)
-            if(result===401){
+            if(result===403){
                 weakPasswords.push(password)
             }
         }
@@ -321,6 +322,7 @@ export async function getHole(id:number|string,token:string,password:string){
         if(typeof result!=='number'){
             result.data.hidden=1
         }
+        if(result===403)return 403
     }
     if(result===401)return 401
     if(result===503)return 503
@@ -330,7 +332,7 @@ export async function getHole(id:number|string,token:string,password:string){
     if(Number(data.timestamp)===0)return 404
     if(!weakPasswords.includes(password)&&Number(data.hidden)!==1){
         const result=await remotelyGetHole(id,token,password)
-        if(result===401){
+        if(result===403){
             weakPasswords.push(password)
         }
     }
@@ -407,9 +409,10 @@ export async function add(text:string,src:string,token:string){
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
     if(order!=='id'){
-        if(password.length===0)return 401
+        if(password.length===0)return 403
         const result=await remotelyGetLocalPage(key,page,order,s,e,token,password)
         if(result===401)return 401
+        if(result===403)return 403
         if(result===503)return 503
         if(typeof result==='number')return 500
         const data=result.data
@@ -443,7 +446,7 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
     if(data.length>0){
         if(!weakPasswords.includes(password)){
             const result=await remotelyGetPage(key,page,token,password)
-            if(result===401){
+            if(result===403){
                 weakPasswords.push(password)
             }
         }

@@ -393,7 +393,9 @@ textarea {
     display: none !important;
 }
 
-.root.weak .order.form-line {
+.root.star .form-line.order,
+.root.ids .form-line.order,
+.root.weak .form-line.order {
     display: none !important;
 }
 
@@ -402,8 +404,8 @@ textarea {
     display: none !important;
 }
 
-.root[data-order=id]:not([data-star=true]) .start-date,
-.root[data-order=id]:not([data-star=true]) .end-date {
+.root[data-order=id]:not(.star) .start-date,
+.root[data-order=id]:not(.star) .end-date {
     display: none !important;
 }
 
