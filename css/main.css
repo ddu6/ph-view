@@ -19,8 +19,7 @@
     --color-span: rgba(27, 31, 35, .05);
     --font: icomoon, "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", "STHeiti Light", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --length-width: calc(210mm - .8in);
-    --length-width-side: 280px;
-    --length-width-bar: 15px;
+    --length-width-side: 21em;
     --length-tab: 2em;
     --length-padding: 1em;
     --length-gap: .5em;
