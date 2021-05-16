@@ -36,11 +36,13 @@ export class Main extends LRStruct{
         order:document.createElement('select'),
         colorScheme:document.createElement('select'),
         refMode:document.createElement('select'),
+        foldText:document.createElement('select'),
         foldImg:document.createElement('select'),
         foldComments:document.createElement('select')
     }
     textareas={
-        text:document.createElement('textarea')
+        text:document.createElement('textarea'),
+        view:document.createElement('textarea')
     }
     checkboxes={
         add:new Checkbox('add'),
@@ -58,7 +60,8 @@ export class Main extends LRStruct{
         add:new Form('add'),
         login:new Form('login'),
         settings:new Form('settings'),
-        messages:new Form('messages')
+        messages:new Form('messages'),
+        view:new Form('view')
     }
     buttons={
         delete:new Button('delete')
@@ -72,7 +75,8 @@ export class Main extends LRStruct{
     password=''
     colorScheme:'auto'|'dark'|'light'='auto'
     refMode:'direct'|'recur'='direct'
-    foldImg:'true'|'false'='true'
+    foldText:'true'|'false'='false'
+    foldImg:'true'|'false'='false'
     foldComments:'true'|'false'='true'
     refLimit=3
     
@@ -135,12 +139,15 @@ export class Main extends LRStruct{
                     .append(this.selects.refMode))
                 .append(new FormLine('ref limit')
                     .append(this.inputs.refLimit))
+                .append(new FormLine('fold long text')
+                    .append(this.selects.foldText))
                 .append(new FormLine('fold long image')
                     .append(this.selects.foldImg))
                 .append(new FormLine('fold long comments')
                     .append(this.selects.foldComments))
                 .append(this.checkboxes.view)
-                .append(new CommonEle(['view','hide']))
+                .append(this.forms.view
+                    .append(this.textareas.view))
                 .append(this.checkboxes.logout)))
         this.main.append(this.flow)
         this.forms.login.append(new FormLine('token')
@@ -149,7 +156,6 @@ export class Main extends LRStruct{
             .append(this.inputs.password))
         .append(this.checkboxes.login)
 
-        parent.classList.add('root')
         this.styleEle.textContent=fonts.icomoon+css.main+css.dark
         this.selects.order.innerHTML='<option>id</option><option>active</option><option>hot</option>'
         this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
@@ -166,10 +172,12 @@ export class Main extends LRStruct{
         this.inputs.e.type='date'
         this.inputs.img.type='file'
         this.inputs.img.accept='image/*'
+        parent.classList.add('root')
         this.forms.add.classList.add('hide')
         this.forms.login.classList.add('hole')
         this.forms.messages.classList.add('hide')
         this.forms.settings.classList.add('hide')
+        this.forms.view.classList.add('hide')
 
         const params=new URLSearchParams(document.location.search)
         const fillter=params.get('fillter')
@@ -194,8 +202,8 @@ export class Main extends LRStruct{
         const colorScheme=window.localStorage.getItem('ph-color-scheme')
         if(colorScheme==='auto'||colorScheme==='dark'||colorScheme==='light'){
             this.colorScheme=colorScheme
-            this.parent.dataset.colorScheme=colorScheme
         }
+        this.parent.dataset.colorScheme=this.colorScheme
         const refMode=window.localStorage.getItem('ph-ref-mode')
         if(refMode==='direct'||refMode==='recur'){
             this.refMode=refMode
@@ -207,16 +215,21 @@ export class Main extends LRStruct{
                 this.refLimit=refLimit
             }
         }
+        const foldText=window.localStorage.getItem('ph-fold-text')
+        if(foldText==='true'||foldText==='false'){
+            this.foldText=foldText
+        }
+        this.parent.dataset.foldText=this.foldText
         const foldImg=window.localStorage.getItem('ph-fold-img')
         if(foldImg==='true'||foldImg==='false'){
             this.foldImg=foldImg
-            this.parent.dataset.foldImg=foldImg
         }
+        this.parent.dataset.foldImg=this.foldImg
         const foldComments=window.localStorage.getItem('ph-fold-comments')
         if(foldComments==='true'||foldComments==='false'){
             this.foldComments=foldComments
-            this.parent.dataset.foldComments=foldComments
         }
+        this.parent.dataset.foldComments=this.foldComments
 
         this.inputs.fillter.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
@@ -261,6 +274,14 @@ export class Main extends LRStruct{
                 this.colorScheme=colorScheme
                 window.localStorage.setItem('ph-color-scheme',colorScheme)
                 this.parent.dataset.colorScheme=colorScheme
+            }
+        })
+        this.selects.foldText.addEventListener('input',async e=>{
+            const val=this.selects.foldText.value
+            if(val==='true'||val==='false'){
+                this.foldText=val
+                window.localStorage.setItem('ph-fold-text',val)
+                this.parent.dataset.foldText=val
             }
         })
         this.selects.foldImg.addEventListener('input',async e=>{
@@ -439,14 +460,12 @@ export class Main extends LRStruct{
         })
         this.checkboxes.view.addEventListener('click',e=>{
             this.checkboxes.view.classList.toggle('checked')
-            const ele=this.checkboxes.view.element.nextElementSibling
-            if(ele===null)return
             if(this.checkboxes.view.classList.contains('checked')){
-                ele.textContent=this.token
-                ele.classList.remove('hide')
+                this.textareas.view.value=this.token
+                this.forms.view.classList.remove('hide')
             }else{
-                ele.textContent=''
-                ele.classList.add('hide')
+                this.textareas.view.value=''
+                this.forms.view.classList.add('hide')
             }
         })
         this.inputs.img.addEventListener('change',async e=>{

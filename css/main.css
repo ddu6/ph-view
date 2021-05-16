@@ -386,6 +386,7 @@ textarea {
     text-transform: capitalize;
 }
 
+.root[data-fold-text=true] .text,
 .root[data-fold-img=true] .attachment,
 .panel .attachment,
 .root[data-fold-comments=true] .comments,
