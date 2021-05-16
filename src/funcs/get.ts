@@ -360,16 +360,26 @@ export async function comment(id:number|string,text:string,token:string){
     if(result===503)return 503
     return 500
 }
-export async function add(text:string,token:string){
-    if(text.length===0)return 500
+export async function add(text:string,src:string,token:string){
+    let form:Record<string,string>
+    if(src.length>0){
+        form={
+            text:text,
+            type:'image',
+            data:src,
+            user_token:token
+        }
+    }else if(text.length>0){
+        form={
+            text:text,
+            type:'text',
+            user_token:token
+        }
+    }else return 500
     const result=await getResult({
         action:'dopost',
         user_token:token
-    },{
-        text:text,
-        type:'text',
-        user_token:token
-    })
+    },form)
     if(result===503)return 503
     if(typeof result==='number')return 500
     const {data}=result

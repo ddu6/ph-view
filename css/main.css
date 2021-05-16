@@ -114,6 +114,7 @@ input[type=submit],
     border: none;
     outline: none;
     text-align: center;
+    cursor: pointer;
 }
 
 button:hover,
@@ -132,7 +133,6 @@ input[type=submit].pushing,
 img,
 .img {
     max-width: 100%;
-    max-height: 280vh;
     display: block;
 }
 
@@ -182,11 +182,14 @@ input[type=date] {
     height: 1.5em;
 }
 
-
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button,
 input[type=date]::-webkit-calendar-picker-indicator,
 input[type=date]::-webkit-clear-button { 
+    opacity: 0;
+}
+
+input[type=file]::-webkit-file-upload-button {
     display: none;
 }
 
@@ -220,17 +223,13 @@ textarea {
     top: 0;
 }
 
-.lr-struct>.button::after {
-    content: "\e903";
-}
-
 .lr-struct>.side {
     box-sizing: border-box;
     position: fixed;
     left: 0;
     top: 0;
     width: var(--length-width-side);
-    max-width: 60%;
+    max-width: 80%;
     height: 100vh;
     background-color: var(--color-pre);
     border-right: 1px solid var(--color-border);
@@ -302,18 +301,17 @@ textarea {
     color: var(--color-variable);
 }
 
+.checkbox:hover,
 .checkbox.checking {
     background-color: var(--color-slice);
 }
 
 .checkbox.star::after {
     content: "\e905";
-    font-size: 1.2em;
 }
 
 .checkbox.refresh::after {
     content: "\e904";
-    font-size: 1.2em;
 }
 
 .checkbox.comment::after {
@@ -334,7 +332,6 @@ textarea {
 
 .checkbox.add::after {
     content: "\e901";
-    font-size: 1.2em;
 }
 
 .checkbox.settings::after {
@@ -345,7 +342,19 @@ textarea {
     content: "\e909  Messages";
 }
 
-.menu {
+.checkbox.img::after {
+    content: "\e90a  Add Image";
+}
+
+.button.delete::after {
+    content: "\e90b";
+}
+
+.button.menu::after {
+    content: "\e903";
+}
+
+.tools {
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -361,12 +370,24 @@ textarea {
     flex-direction: column;
 }
 
+.form>*,
+.form-line[data-name]>* {
+    flex-shrink: 0;
+}
+
 .form-line[data-name]::before {
     display: block;
     content: attr(data-name);
     color: var(--color-light);
     font-size: var(--length-font-log);
     text-transform: capitalize;
+}
+
+.attachment,
+.comments,
+.form.messages {
+    max-height: 30em;
+    overflow-y: auto;
 }
 
 .hide {
@@ -379,11 +400,16 @@ textarea {
 
 .root.login .messages,
 .root.login .logout {
-    display: none;
+    display: none !important;
 }
 
 .root[data-order=id]:not([data-star=true]) .start-date,
 .root[data-order=id]:not([data-star=true]) .end-date {
+    display: none !important;
+}
+
+.form.add.img>.checkbox.img,
+.form.add:not(.img)>.attachment {
     display: none !important;
 }
 
@@ -399,11 +425,6 @@ textarea {
 
 .panel {
     padding: var(--length-padding);
-    overflow: auto;
-}
-
-.form.messages {
-    max-height: 30em;
     overflow: auto;
 }
 
@@ -463,11 +484,6 @@ textarea {
     margin: 0 var(--length-gap);
 }
 
-.comments {
-    max-height: 30em;
-    overflow-y: auto;
-}
-
 .more {
     cursor: pointer;
     text-align: center;
@@ -491,6 +507,36 @@ textarea {
     margin-bottom: 5em;
     color: var(--color-light);
     font-size: var(--length-font-log);
+}
+
+.checkbox.img {
+    position: relative;
+}
+
+.checkbox.img>input {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    width: 100%;
+    cursor: pointer;
+}
+
+.attachment {
+    position: relative;
+}
+
+.button.delete {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.form.add>textarea {
+    height: 15em;
 }
 
 @media print {

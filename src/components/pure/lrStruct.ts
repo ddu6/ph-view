@@ -1,9 +1,9 @@
 import { SimpleTouch } from "../../funcs/touch"
-import { CommonEle } from "./common"
+import { Button, CommonEle } from "./common"
 
 export class LRStruct extends CommonEle{
     readonly side=new CommonEle(['side'])
-    readonly button=new CommonEle(['button'])
+    readonly button=new Button('menu')
     readonly sideContent=new CommonEle(['content'])
     readonly main=new CommonEle(['main'])
     readonly sash=new CommonEle(['sash'])

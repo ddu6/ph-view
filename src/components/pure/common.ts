@@ -23,6 +23,27 @@ export class CommonEle{
         }))
         return this
     }
+    prepend(...nodes: (string | Node | CommonEle)[]){
+        this.element.prepend(...nodes.map(val=>{
+            if(val instanceof CommonEle)return val.element
+            return val
+        }))
+        return this
+    }
+    after(...nodes: (string | Node | CommonEle)[]){
+        this.element.after(...nodes.map(val=>{
+            if(val instanceof CommonEle)return val.element
+            return val
+        }))
+        return this
+    }
+    before(...nodes: (string | Node | CommonEle)[]){
+        this.element.before(...nodes.map(val=>{
+            if(val instanceof CommonEle)return val.element
+            return val
+        }))
+        return this
+    }
     setText(string:string){
         this.element.textContent=string
         return this
@@ -49,6 +70,12 @@ export class NamedEle extends CommonEle{
 export class Checkbox extends NamedEle{
     constructor(name:string){
         super(name,'checkbox')
+    }
+}
+
+export class Button extends NamedEle{
+    constructor(name:string){
+        super(name,'button')
     }
 }
 export class FormLine extends NamedEle{

@@ -31,7 +31,7 @@ export class Hole extends Form{
         this.append(this.index)
         .append(this.text)
         .append(this.attachment)
-        .append(new CommonEle(['menu'])
+        .append(new CommonEle(['tools'])
             .append(this.checkboxes.comment)
             .append(this.checkboxes.star)
             .append(this.checkboxes.refresh))

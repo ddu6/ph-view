@@ -4,7 +4,8 @@ import {KillableLock} from '../../wheels/lock'
 import * as get from '../../funcs/get'
 import * as css from '../../lib/css'
 import * as fonts from '../../lib/fonts'
-import { Checkbox, CommonEle, Form, FormLine } from '../pure/common'
+import { Button, Checkbox, CommonEle, Form, FormLine } from '../pure/common'
+import { compress } from '../../funcs/img'
 type AppendData={
     data:get.HoleData
     isRef:boolean
@@ -27,7 +28,8 @@ export class Main extends LRStruct{
         token:document.createElement('input'),
         refLimit:document.createElement('input'),
         s:document.createElement('input'),
-        e:document.createElement('input')
+        e:document.createElement('input'),
+        img:document.createElement('input')
     }
     selects={
         order:document.createElement('select'),
@@ -45,13 +47,17 @@ export class Main extends LRStruct{
         send:new Checkbox('send'),
         refresh:new Checkbox('refresh'),
         settings:new Checkbox('settings'),
-        messages:new Checkbox('messages')
+        messages:new Checkbox('messages'),
+        img:new Checkbox('img')
     }
     forms={
         add:new Form('add'),
         login:new Form('login'),
         settings:new Form('settings'),
         messages:new Form('messages')
+    }
+    buttons={
+        delete:new Button('delete')
     }
     auto=false
     star=false
@@ -92,12 +98,16 @@ export class Main extends LRStruct{
         parent.append(this.element)
         parent.append(this.styleEle)
         this.sideContent.append(this.panel
-            .append(new CommonEle(['menu'])
+            .append(new CommonEle(['tools'])
                 .append(this.checkboxes.add)
                 .append(this.checkboxes.star)
                 .append(this.checkboxes.refresh))
             .append(this.forms.add
                 .append(this.textareas.text)
+                .append(this.checkboxes.img
+                    .append(this.inputs.img))
+                .append(new CommonEle(['attachment'])
+                    .append(this.buttons.delete))
                 .append(this.checkboxes.send))
             .append(new FormLine('order')
                 .append(this.selects.order))
@@ -140,6 +150,8 @@ export class Main extends LRStruct{
         this.inputs.password.type='password'
         this.inputs.s.type='date'
         this.inputs.e.type='date'
+        this.inputs.img.type='file'
+        this.inputs.img.accept='image/*'
         this.forms.add.classList.add('hide')
         this.forms.login.classList.add('hole')
         this.forms.messages.classList.add('hide')
@@ -278,15 +290,28 @@ export class Main extends LRStruct{
             const {classList}=this.checkboxes.send
             if(classList.contains('checking'))return
             if(this.token.length===0)return
+            let src=''
+            if(this.forms.add.classList.contains('img')){
+                const img=this.buttons.delete.element.previousElementSibling
+                if(img!==null&&img instanceof HTMLImageElement){
+                    const tmp=img.src
+                    if(tmp.startsWith('data:image/jpeg;base64,')){
+                        src=tmp.slice(23)
+                    }
+                }
+            }
             const text=this.textareas.text.value
-            if(text.length===0)return
+            if(text.length===0&&src.length===0){
+                alert('Empty.')
+                return
+            }
             classList.add('checking')
             const result0=await this.fetchLock.get()
             if(result0===false){
                 classList.remove('checking')
                 return
             }
-            const result1=await get.add(text,this.token)
+            const result1=await get.add(text,src,this.token)
             if(result1===500||result1===503){
                 await this.fetchLock.release(result0)
                 classList.remove('checking')
@@ -294,6 +319,13 @@ export class Main extends LRStruct{
             }
             const {id}=result1
             this.textareas.text.value=''
+            if(this.forms.add.classList.contains('img')){
+                this.forms.add.classList.remove('img')
+                const img=this.buttons.delete.element.previousElementSibling
+                if(img!==null){
+                    img.remove()
+                }
+            }
             this.forms.add.classList.add('hide')
             this.checkboxes.add.classList.remove('checked')
             this.checkboxes.star.classList.remove('checked')
@@ -363,6 +395,31 @@ export class Main extends LRStruct{
             }else{
                 this.forms.settings.classList.remove('hide')
                 classList.add('checked')
+            }
+        })
+        this.inputs.img.addEventListener('change',async e=>{
+            const files=this.inputs.img.files
+            if(files===null||files.length===0
+                ||this.checkboxes.img.classList.contains('checking'))return
+            this.checkboxes.img.classList.add('checking')
+            const src=await compress(URL.createObjectURL(files[0]))
+            this.inputs.img.value=''
+            if(src.length===0){
+                this.checkboxes.img.classList.remove('checking')
+                return
+            }
+            const img=document.createElement('img')
+            img.classList.add('dark')
+            img.src=src
+            this.buttons.delete.before(img)
+            this.forms.add.classList.add('img')
+            this.checkboxes.img.classList.remove('checking')
+        })
+        this.buttons.delete.addEventListener('click',e=>{
+            this.forms.add.classList.remove('img')
+            const img=this.buttons.delete.element.previousElementSibling
+            if(img!==null){
+                img.remove()
             }
         })
         setInterval(async()=>{
