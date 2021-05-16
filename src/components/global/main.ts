@@ -195,11 +195,13 @@ export class Main extends LRStruct{
         })
         this.inputs.s.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
+                this.inputs.page.value='1'
                 await this.start()
             }
         })
         this.inputs.e.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
+                this.inputs.page.value='1'
                 await this.start()
             }
         })
@@ -268,6 +270,7 @@ export class Main extends LRStruct{
             window.localStorage.removeItem('ph-stars')
             window.localStorage.removeItem('ph-max-id')
             window.localStorage.removeItem('ph-max-etimestamp')
+            this.inputs.page.value='1'
             await this.start()
             classList.remove('checking')
         })
@@ -303,6 +306,7 @@ export class Main extends LRStruct{
             await this.start()
         })
         this.checkboxes.refresh.addEventListener('click',async e=>{
+            this.inputs.page.value='1'
             await this.start()
         })
         this.checkboxes.add.addEventListener('click',async e=>{
