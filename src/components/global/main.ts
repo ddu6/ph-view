@@ -549,7 +549,7 @@ export class Main extends LRStruct{
                     }
                 }
             }
-            const s=new Date(`${y}/${m}/${d1}`).getTime()/1000
+            const s=new Date(`${y}/${m}/${d1} 00:00:00`).getTime()/1000
             if(!isNaN(s)){
                 const e=s+24*60*60
                 this.s=s
@@ -1008,13 +1008,13 @@ export class Main extends LRStruct{
         if(dateStr===''){
             this.s=0
         }else{
-            this.s=new Date(dateStr).getTime()/1000
+            this.s=new Date(dateStr+' 00:00:00').getTime()/1000
         }
         dateStr=this.inputs.e.value
         if(dateStr===''){
             this.e=0
         }else{
-            this.e=new Date(dateStr).getTime()/1000+24*3600
+            this.e=new Date(dateStr+' 00:00:00').getTime()/1000+24*3600
         }
         await this.clear()
         await this.appendHoles()
