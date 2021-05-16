@@ -38,7 +38,8 @@ export class Main extends LRStruct{
         refMode:document.createElement('select'),
         foldText:document.createElement('select'),
         foldImg:document.createElement('select'),
-        foldComments:document.createElement('select')
+        foldComments:document.createElement('select'),
+        fontSize:document.createElement('select')
     }
     textareas={
         text:document.createElement('textarea'),
@@ -74,6 +75,7 @@ export class Main extends LRStruct{
     token=''
     password=''
     colorScheme:'auto'|'dark'|'light'='auto'
+    fontSize:'small'|'medium'|'large'='small'
     refMode:'direct'|'recur'='direct'
     foldText:'true'|'false'='false'
     foldImg:'true'|'false'='false'
@@ -135,6 +137,8 @@ export class Main extends LRStruct{
             .append(this.forms.settings
                 .append(new FormLine('color scheme')
                     .append(this.selects.colorScheme))
+                .append(new FormLine('font size')
+                    .append(this.selects.fontSize))
                 .append(new FormLine('ref mode')
                     .append(this.selects.refMode))
                 .append(new FormLine('ref limit')
@@ -159,6 +163,7 @@ export class Main extends LRStruct{
         this.styleEle.textContent=fonts.icomoon+css.main+css.dark
         this.selects.order.innerHTML='<option>id</option><option>active</option><option>hot</option>'
         this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
+        this.selects.fontSize.innerHTML='<option>small</option><option>medium</option><option>large</option>'
         this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
         this.selects.foldText.innerHTML='<option>true</option><option>false</option>'
         this.selects.foldImg.innerHTML='<option>true</option><option>false</option>'
@@ -205,6 +210,11 @@ export class Main extends LRStruct{
             this.colorScheme=colorScheme
         }
         this.parent.dataset.colorScheme=this.colorScheme
+        const fontSize=window.localStorage.getItem('ph-font-size')
+        if(fontSize==='small'||fontSize==='medium'||fontSize==='large'){
+            this.fontSize=fontSize
+        }
+        this.parent.dataset.fontSize=this.fontSize
         const refMode=window.localStorage.getItem('ph-ref-mode')
         if(refMode==='direct'||refMode==='recur'){
             this.refMode=refMode
@@ -270,11 +280,19 @@ export class Main extends LRStruct{
             }
         })
         this.selects.colorScheme.addEventListener('input',e=>{
-            const colorScheme=this.selects.colorScheme.value
-            if(colorScheme==='auto'||colorScheme==='dark'||colorScheme==='light'){
-                this.colorScheme=colorScheme
-                window.localStorage.setItem('ph-color-scheme',colorScheme)
-                this.parent.dataset.colorScheme=colorScheme
+            const val=this.selects.colorScheme.value
+            if(val==='auto'||val==='dark'||val==='light'){
+                this.colorScheme=val
+                window.localStorage.setItem('ph-color-scheme',val)
+                this.parent.dataset.colorScheme=val
+            }
+        })
+        this.selects.fontSize.addEventListener('input',e=>{
+            const val=this.selects.fontSize.value
+            if(val==='small'||val==='medium'||val==='large'){
+                this.fontSize=val
+                window.localStorage.setItem('ph-font-size',val)
+                this.parent.dataset.fontSize=val
             }
         })
         this.selects.foldText.addEventListener('input',async e=>{
@@ -951,6 +969,7 @@ export class Main extends LRStruct{
         this.flow.element.innerHTML=''
         this.selects.order.value=this.order
         this.selects.colorScheme.value=this.colorScheme
+        this.selects.fontSize.value=this.fontSize
         this.selects.refMode.value=this.refMode
         this.selects.foldText.value=this.foldText
         this.selects.foldImg.value=this.foldImg
