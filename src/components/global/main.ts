@@ -14,6 +14,7 @@ type AppendData={
     data:{pid:number|string}
     isRef:boolean
     idOnly:true
+    comment?:get.CommentData
 }
 export class Main extends LRStruct{
     flow=new CommonEle(['flow'])
@@ -312,8 +313,8 @@ export class Main extends LRStruct{
                 return
             }
             const result1=await get.add(text,src,this.token)
+            await this.fetchLock.release(result0)
             if(result1===500||result1===503){
-                await this.fetchLock.release(result0)
                 classList.remove('checking')
                 return
             }
@@ -334,7 +335,6 @@ export class Main extends LRStruct{
             this.inputs.page.value='1'
             this.stars.push(id)
             window.localStorage.setItem('ph-stars',this.stars.join(','))
-            await this.fetchLock.release(result0)
             classList.remove('checking')
             await this.start()
         })
@@ -434,12 +434,14 @@ export class Main extends LRStruct{
             await this.autoAppendHols()
         },500)
     }
-    async getAndRenderComments(id:number|string,hole:Hole){
+    async getAndRenderComments(hole:Hole){
+        const {id}=hole
+        if(isNaN(id)||id===-1)return 500
         const result0=await this.fetchLock.get()
         if(result0===false)return 500
         const result1=await get.getComments(id,this.token,this.password)
+        await this.fetchLock.release(result0)
         if(result1===503||result1===500){
-            await this.fetchLock.release(result0)
             return result1
         }
         hole.renderComments(result1)
@@ -449,11 +451,9 @@ export class Main extends LRStruct{
             if(typeof text!=='string')continue
             if(text.startsWith('[Helper]')){
                 hole.renderComments([item])
-                await this.fetchLock.release(result0)
                 return 423
             }
         }
-        await this.fetchLock.release(result0)
         return result1
     }
     parseFillter(){
@@ -549,6 +549,30 @@ export class Main extends LRStruct{
             this.appendedIds.push(id)
             let data1:get.HoleData
             if(item.idOnly){
+                if(item.comment===undefined){
+                    const comment=await get.getComment(id,this.token,this.password)
+                    if(comment===401){
+                        return 401
+                    }
+                    if(comment===503){
+                        await this.fetchLock.sleep(this.congestionSleep)
+                        this.appendedIds.pop()
+                        i--
+                        continue
+                    }
+                    if(comment===500){
+                        this.errCount++
+                        if(this.errCount>this.errLimit)return 500
+                        await this.fetchLock.sleep(this.errSleep)
+                        this.appendedIds.pop()
+                        i--
+                        continue
+                    }
+                    if(comment!==404){
+                        const {pid}=comment
+                        data0.splice(i+1,0,{data:{pid:pid},isRef:false,idOnly:true,comment:comment})
+                    }
+                }
                 const data=await get.getHole(id,this.token,this.password)
                 if(data===404)continue
                 if(data===401){
@@ -575,15 +599,13 @@ export class Main extends LRStruct{
             hole.render(data1,this.local,isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
             hole.handleStar=async ()=>{
                 if(this.token.length===0)return
-                const result0=await this.fetchLock.get()
-                if(result0===false)return
                 const {classList}=hole.checkboxes.star
                 const starrd=classList.contains('checked')
+                const result0=await this.fetchLock.get()
+                if(result0===false)return
                 const result1=await get.star(id,starrd,this.token)
-                if(result1===503||result1===500){
-                    await this.fetchLock.release(result0)
-                    return
-                }
+                await this.fetchLock.release(result0)
+                if(result1===503||result1===500)return
                 let likenum=Number(hole.checkboxes.star.element.textContent)
                 if(starrd){
                     for(let i=0;i<this.stars.length;i++){
@@ -603,7 +625,6 @@ export class Main extends LRStruct{
                 }
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
                 classList.toggle('checked')
-                await this.fetchLock.release(result0)
             }
             hole.handleRefresh=async ()=>{
                 await this.refreshHole(hole)
@@ -615,8 +636,8 @@ export class Main extends LRStruct{
                 const result0=await this.fetchLock.get()
                 if(result0===false)return
                 const result1=await get.comment(id,text,this.token)
+                await this.fetchLock.release(result0)
                 if(result1!==200){
-                    await this.fetchLock.release(result0)
                     return
                 }
                 hole.textareas.comment.value=''
@@ -625,13 +646,15 @@ export class Main extends LRStruct{
                 hole.reverse=true
                 this.stars.push(id)
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
-                await this.fetchLock.release(result0)
                 await this.refreshHole(hole)
             }
             this.flow.append(hole.element)
             let result0:get.CommentData[]
-            while(true){
-                const result1=await this.getAndRenderComments(id,hole)
+            if(item.idOnly&&item.comment!==undefined){
+                result0=[item.comment]
+                hole.renderComments(result0)
+            }else while(true){
+                const result1=await this.getAndRenderComments(hole)
                 if(result1===500){
                     this.errCount++
                     if(this.errCount>this.errLimit)return 500
@@ -918,8 +941,6 @@ export class Main extends LRStruct{
     async refreshHole(hole:Hole){
         const {id}=hole
         if(isNaN(id)||id===-1)return 500
-        const symbol=await this.fetchLock.get()
-        if(symbol===false)return 500
         let data1:get.HoleData|404|500
         while(true){
             const data=await get.getHole(id,this.token,this.password)
@@ -947,11 +968,10 @@ export class Main extends LRStruct{
             data1=data
             break
         }
-        await this.fetchLock.release(symbol)
         if(typeof data1==='number')return data1
         hole.render(data1,this.local,hole.isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
         while(true){
-            const result1=await this.getAndRenderComments(id,hole)
+            const result1=await this.getAndRenderComments(hole)
             if(result1===500){
                 this.errCount++
                 if(this.errCount>this.errLimit)return 500

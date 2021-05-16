@@ -261,6 +261,7 @@ export async function getComment(cid:number|string,token:string,password:string)
         token:token,
         password:password
     })
+    if(result===401)return 401
     if(result===404)return 404
     if(result===503)return 503
     if(typeof result==='number')return 500
