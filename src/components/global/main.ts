@@ -35,7 +35,9 @@ export class Main extends LRStruct{
     selects={
         order:document.createElement('select'),
         colorScheme:document.createElement('select'),
-        refMode:document.createElement('select')
+        refMode:document.createElement('select'),
+        foldImg:document.createElement('select'),
+        foldComments:document.createElement('select')
     }
     textareas={
         text:document.createElement('textarea')
@@ -49,7 +51,8 @@ export class Main extends LRStruct{
         refresh:new Checkbox('refresh'),
         settings:new Checkbox('settings'),
         messages:new Checkbox('messages'),
-        img:new Checkbox('img')
+        img:new Checkbox('img'),
+        view:new Checkbox('view')
     }
     forms={
         add:new Form('add'),
@@ -69,6 +72,8 @@ export class Main extends LRStruct{
     password=''
     colorScheme:'auto'|'dark'|'light'='auto'
     refMode:'direct'|'recur'='direct'
+    foldImg:'true'|'false'='true'
+    foldComments:'true'|'false'='true'
     refLimit=3
     
     stars:number[]=[]
@@ -130,6 +135,12 @@ export class Main extends LRStruct{
                     .append(this.selects.refMode))
                 .append(new FormLine('ref limit')
                     .append(this.inputs.refLimit))
+                .append(new FormLine('fold long image')
+                    .append(this.selects.foldImg))
+                .append(new FormLine('fold long comments')
+                    .append(this.selects.foldComments))
+                .append(this.checkboxes.view)
+                .append(new CommonEle(['view','hide']))
                 .append(this.checkboxes.logout)))
         this.main.append(this.flow)
         this.forms.login.append(new FormLine('token')
@@ -143,6 +154,8 @@ export class Main extends LRStruct{
         this.selects.order.innerHTML='<option>id</option><option>active</option><option>hot</option>'
         this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
         this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
+        this.selects.foldImg.innerHTML='<option>true</option><option>false</option>'
+        this.selects.foldComments.innerHTML='<option>true</option><option>false</option>'
         this.inputs.page.type='number'
         this.inputs.page.min='1'
         this.inputs.refLimit.type='number'
@@ -194,6 +207,16 @@ export class Main extends LRStruct{
                 this.refLimit=refLimit
             }
         }
+        const foldImg=window.localStorage.getItem('ph-fold-img')
+        if(foldImg==='true'||foldImg==='false'){
+            this.foldImg=foldImg
+            this.parent.dataset.foldImg=foldImg
+        }
+        const foldComments=window.localStorage.getItem('ph-fold-comments')
+        if(foldComments==='true'||foldComments==='false'){
+            this.foldComments=foldComments
+            this.parent.dataset.foldComments=foldComments
+        }
 
         this.inputs.fillter.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
@@ -238,6 +261,22 @@ export class Main extends LRStruct{
                 this.colorScheme=colorScheme
                 window.localStorage.setItem('ph-color-scheme',colorScheme)
                 this.parent.dataset.colorScheme=colorScheme
+            }
+        })
+        this.selects.foldImg.addEventListener('input',async e=>{
+            const val=this.selects.foldImg.value
+            if(val==='true'||val==='false'){
+                this.foldImg=val
+                window.localStorage.setItem('ph-fold-img',val)
+                this.parent.dataset.foldImg=val
+            }
+        })
+        this.selects.foldComments.addEventListener('input',async e=>{
+            const val=this.selects.foldImg.value
+            if(val==='true'||val==='false'){
+                this.foldComments=val
+                window.localStorage.setItem('ph-fold-comments',val)
+                this.parent.dataset.foldComments=val
             }
         })
         this.selects.order.addEventListener('input',async e=>{
@@ -396,6 +435,18 @@ export class Main extends LRStruct{
             }else{
                 this.forms.settings.classList.remove('hide')
                 classList.add('checked')
+            }
+        })
+        this.checkboxes.view.addEventListener('click',e=>{
+            this.checkboxes.view.classList.toggle('checked')
+            const ele=this.checkboxes.view.element.nextElementSibling
+            if(ele===null)return
+            if(this.checkboxes.view.classList.contains('checked')){
+                ele.textContent=this.token
+                ele.classList.remove('hide')
+            }else{
+                ele.textContent=''
+                ele.classList.add('hide')
             }
         })
         this.inputs.img.addEventListener('change',async e=>{
@@ -881,6 +932,8 @@ export class Main extends LRStruct{
         this.selects.order.value=this.order
         this.selects.colorScheme.value=this.colorScheme
         this.selects.refMode.value=this.refMode
+        this.selects.foldImg.value=this.foldImg
+        this.selects.foldComments.value=this.foldComments
         this.inputs.fillter.value=this.fillter
         this.inputs.page.value=this.page.toString()
         this.inputs.refLimit.value=this.refLimit.toString()

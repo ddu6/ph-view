@@ -345,6 +345,10 @@ textarea {
     content: "\e90a  Add Image";
 }
 
+.checkbox.view::after {
+    content: "\e90c  View Token";
+}
+
 .button.delete::after {
     content: "\e90b";
 }
@@ -382,8 +386,9 @@ textarea {
     text-transform: capitalize;
 }
 
-.attachment,
-.comments,
+.root[data-fold-img=true] .attachment,
+.panel .attachment,
+.root[data-fold-comments=true] .comments,
 .form.messages {
     max-height: 30em;
     overflow-y: auto;
@@ -399,6 +404,7 @@ textarea {
     display: none !important;
 }
 
+.root.login .view,
 .root.login .messages,
 .root.login .logout {
     display: none !important;
