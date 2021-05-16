@@ -333,6 +333,7 @@ export class Main extends LRStruct{
             this.inputs.fillter.value=''
             this.inputs.page.value='1'
             this.stars.push(id)
+            window.localStorage.setItem('ph-stars',this.stars.join(','))
             await this.fetchLock.release(result0)
             classList.remove('checking')
             await this.start()
