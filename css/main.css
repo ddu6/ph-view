@@ -467,6 +467,7 @@ textarea {
 
 .panel {
     padding: var(--length-padding);
+    padding-bottom: var(--length-tab);
     overflow: auto;
 }
 

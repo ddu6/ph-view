@@ -423,7 +423,7 @@ export class Main extends LRStruct{
                 }
             }
             const text=this.textareas.text.value
-            if(text.length===0&&src.length===0){
+            if(text.trim().length===0&&src.length===0){
                 alert('Empty.')
                 return
             }
@@ -773,7 +773,10 @@ export class Main extends LRStruct{
             hole.handleSend=async ()=>{
                 if(this.token.length===0)return
                 const text=hole.textareas.comment.value
-                if(text.length===0||text.match(hole.toNameRegExp)!==null)return
+                if(text.trim().length===0||text.match(hole.toNameRegExp)!==null){
+                    alert('Empty.')
+                    return
+                }
                 const result0=await this.fetchLock.get()
                 if(result0===false)return
                 const result1=await get.comment(id,text,this.token)

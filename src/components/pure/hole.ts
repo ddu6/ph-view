@@ -268,6 +268,7 @@ export class Hole extends Form{
         }
         if(fixEle!==undefined){
             fixEle.element.scrollIntoView()
+            this.element.scrollIntoView()
         }
     }
     private renderRestComments(){
