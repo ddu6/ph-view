@@ -571,6 +571,15 @@ textarea {
     font-size: var(--length-font-log);
 }
 
+.comments>:not(.more).focus>.name {
+    color: var(--color-variable);
+}
+
+.comments>:not(.more)>.name:hover,
+.comments>:not(.more)>.name.checking {
+    background-color: var(--color-slice);
+}
+
 @media print {
     @page {
         color-adjust: exact;

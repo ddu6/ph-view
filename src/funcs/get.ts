@@ -27,6 +27,8 @@ export interface CommentData{
     pid:number|string
     timestamp:number|string
     name:string|null|undefined
+    toName:string|null|undefined
+    pureText:string|null|undefined
 }
 export interface MsgData{
     content:string|null|undefined

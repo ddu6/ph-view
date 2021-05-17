@@ -21,12 +21,13 @@ export class Hole extends Form{
     restComments:CommentData[]=[]
     comments:CommentData[]=[]
     commentLimit=50
-    toNameRegExp=/^Re [\w\s]*: $/
+    toNameRegExp=/^Re [\w\s]*:\s*$/
     isRef=false
     id=-1
     commentNum=0
     reverse=false
     maxETimestamp=0
+    focusName=''
     constructor(){
         super('hole')
         this.append(this.index)
@@ -150,42 +151,19 @@ export class Hole extends Form{
         }
     }
     private appendComment(data:CommentData){
-        let {text,tag,timestamp,cid}=data
-        if(typeof text!=='string')text=''
-        if(typeof tag!=='string')tag=''
-        const spt=text.indexOf(']')
-        const name=text.slice(1,spt)
-        text=text.slice(spt+1)
-        if(text.startsWith(' ')){
-            text=text.slice(1)
-        }
+        let {pureText,tag,timestamp,cid,name,toName}=data
         let indexStr=`${cid} ${prettyDate(timestamp)}`
-        if(tag.length>0){
+        if(typeof tag==='string'&&tag.length>0){
             indexStr+=` <span class="tag">${prettyText(tag)}</span>`
         }
-        if(text.startsWith('Re ')){
-            const spt=text.indexOf(':')
-            if(spt!==-1){
-                let toName=text.slice(3,spt)
-                text=text.slice(spt+1)
-                if(text.startsWith(' ')){
-                    text=text.slice(1)
-                }
-                if(toName.startsWith('#')){
-                    const id=toName.slice(1)
-                    for(let i=0;i<this.comments.length;i++){
-                        const {cid,text}=this.comments[i]
-                        if(typeof text!=='string')continue
-                        if(cid.toString()===id){
-                            toName=text.slice(1,text.indexOf(']'))
-                            break
-                        }
-                    }
-                }
-                if(toName!==''&&toName!=='洞主'&&toName!==name&&!toName.startsWith('#')){
-                    indexStr+=` to ${toName}`
-                }
-            }
+        if(typeof toName==='string'&&toName!==''){
+            indexStr+=` to ${toName}`
+        }
+        if(typeof pureText!=='string'){
+            pureText=''
+        }
+        if(typeof name!=='string'){
+            name=''
         }
         const element=new CommonEle([])
         const index=new CommonEle(['index'])
@@ -196,9 +174,12 @@ export class Hole extends Form{
             .append(nameEle.setText(name+' '))
             .append(content
                 .append(index.setText(indexStr))
-                .append(textEle.setHTML(prettyText(text)))))
+                .append(textEle.setHTML(prettyText(pureText)))))
         
-        index.addEventListener('click',e=>{
+        if(name===this.focusName){
+            element.classList.add('focus')
+        }
+        element.addEventListener('click',e=>{
             if(!this.checkboxes.comment.classList.contains('checked'))return
             if(
                 this.textareas.comment.value.length>0
@@ -210,6 +191,18 @@ export class Hole extends Form{
                 this.textareas.comment.value=''
             }
         })
+        nameEle.addEventListener('click',e=>{
+            if(nameEle.classList.contains('checking')
+                ||typeof name!=='string'
+                ||name.length===0)return
+            nameEle.classList.add('checking')
+            if(name===this.focusName){
+                this.unfocus(Number(cid))
+            }else{
+                this.focus(name,Number(cid))
+            }
+            nameEle.classList.remove('checking')
+        })
         if(typeof timestamp==='string'){
             timestamp=Number(timestamp)
         }
@@ -218,6 +211,7 @@ export class Hole extends Form{
                 this.element.classList.add('new-comment')
             }
         }
+        return element
     }
     private addMoreButton(restLength:number){
         const element=document.createElement('div')
@@ -233,28 +227,48 @@ export class Hole extends Form{
         if(data.length>Number(this.checkboxes.comment.element.textContent)){
             this.checkboxes.comment.element.textContent=data.length.toString()+' '
         }
-        this.commentsEle.element.innerHTML=''
-        this.restComments=[]
-        if(data.length>=2){
-            if(Number(data[0].cid)>Number(data[1].cid)){
-                if(!this.reverse)data.reverse()
-            }
-            else{
-                if(this.reverse)data.reverse()
-            }
+        fixComments(data)
+        if(data.length>=2&&this.reverse){
+            data.reverse()
         }
         this.comments=data
+        this.renderPartialComments(data)
+    }
+    renderPartialComments(data:CommentData[],fix?:number){
+        let limit=this.commentLimit
+        if(typeof fix==='number'){
+            for(let i=0;i<data.length;i++){
+                if(Number(data[i].cid)===fix){
+                    if(i>=limit){
+                        limit=i+1
+                    }
+                    break
+                }
+            }
+        }
+        let fixEle:CommonEle|undefined
+        this.commentsEle.element.innerHTML=''
+        this.restComments=[]
         if(data.length<2*this.commentLimit){
             for(let i=0;i<data.length;i++){
-                this.appendComment(data[i])
+                const tmp=this.appendComment(data[i])
+                if(Number(data[i].cid)===fix){
+                    fixEle=tmp
+                }
             }
-            return
+        }else{
+            for(let i=0;i<limit;i++){
+                const tmp=this.appendComment(data[i])
+                if(Number(data[i].cid)===fix){
+                    fixEle=tmp
+                }
+            }
+            this.restComments=data.slice(limit)
+            this.addMoreButton(this.restComments.length)
         }
-        for(let i=0;i<this.commentLimit;i++){
-            this.appendComment(data[i])
+        if(fixEle!==undefined){
+            fixEle.element.scrollIntoView()
         }
-        this.restComments=data.slice(this.commentLimit)
-        this.addMoreButton(this.restComments.length)
     }
     private renderRestComments(){
         if(this.restComments.length<20*this.commentLimit){
@@ -270,6 +284,14 @@ export class Hole extends Form{
             this.appendComment(data[i])
         }
         this.addMoreButton(this.restComments.length)
+    }
+    focus(name:string,fix:number){
+        this.focusName=name
+        this.renderPartialComments(this.comments.filter(val=>val.name===name||val.toName===name),fix)
+    }
+    unfocus(fix:number){
+        this.focusName=''
+        this.renderPartialComments(this.comments,fix)
     }
     async handleStar(){
 
@@ -308,4 +330,53 @@ export function prettyDate(stamp:string|number){
     if(year!==nowYear)return hms+' '+year+'/'+md
     if(nowMD!==md)return hms+' '+md
     return hms
+}
+function fixComments(data:CommentData[]){
+    if(data.length>=2){
+        if(Number(data[0].cid)>Number(data[1].cid)){
+            data.reverse()
+        }
+    }
+    const cidToName:Record<number,string|undefined>={}
+    for(let i=0;i<data.length;i++){
+        const item=data[i]
+        if(typeof item.toName==='string')continue
+        item.toName=''
+        let {text,cid}=item
+        if(typeof text!=='string'){
+            text=''
+        }
+        cid=Number(cid)
+        const spt=text.indexOf(']')
+        if(typeof item.name!=='string'||item.name.length===0){
+            item.name=text.slice(1,spt)
+        }
+        cidToName[cid]=item.name
+        text=text.slice(spt+1)
+        if(text.startsWith(' ')){
+            text=text.slice(1)
+        }
+        if(text.startsWith('Re ')){
+            const spt=text.indexOf(':')
+            if(spt!==-1&&spt<30){
+                item.toName=text.slice(3,spt)
+                text=text.slice(spt+1)
+                if(text.startsWith(' ')){
+                    text=text.slice(1)
+                }
+                if(item.toName===item.name||item.toName==='洞主'){
+                    item.toName=''
+                }else if(item.toName.startsWith('#')){
+                    item.toName=item.toName.slice(1)
+                    const tmp=cidToName[Number(item.toName)]
+                    if(tmp===item.name||tmp==='洞主'){
+                        item.toName=''
+                    }else if(tmp!==undefined){
+                        item.toName=tmp+' '+item.toName
+                    }
+                }
+            }
+        }
+        item.pureText=text
+    }
 }
