@@ -55,17 +55,24 @@ export class Main extends LRStruct{
         settings:new Checkbox('settings'),
         messages:new Checkbox('messages'),
         img:new Checkbox('img'),
-        view:new Checkbox('view')
+        view:new Checkbox('view'),
+        about:new Checkbox('about'),
+        search:new Checkbox('search')
     }
     forms={
         add:new Form('add'),
         login:new Form('login'),
         settings:new Form('settings'),
         messages:new Form('messages'),
-        view:new Form('view')
+        view:new Form('view'),
+        about:new Form('about')
     }
     buttons={
         delete:new Button('delete')
+    }
+    anchors={
+        rules:document.createElement('a'),
+        issures:document.createElement('a')
     }
     auto=false
     star=false
@@ -99,14 +106,22 @@ export class Main extends LRStruct{
     local=false
     scrollSpeed=500
     appendThreshod=1000
-    congestionSleep=5000
-    recaptchaSleep=1800000
-    errLimit=10
+    congestionSleep=1000
+    recaptchaSleep=15000
+    errLimit=5
     errSleep=5000
     dRegExp=/\.d\d{0,8}/g
     idsRegExp=/#\d{1,7}-\d{1,7}|#\d{1,4}\*\*\*|#\d{1,5}\*\*|#\d{1,6}\*|#\d{1,7}/g
     constructor(public parent:HTMLElement){
         super()
+        let version='0.1.0'
+        const script=document.querySelector('script')
+        if(script!==null){
+            const result=script.src.match(/\d+\.\d+\.\d+/)
+            if(result!==null&&result.length>0){
+                version=result[0]
+            }
+        }
         parent.append(this.element)
         parent.append(this.styleEle)
         this.sideContent.append(this.panel
@@ -131,8 +146,10 @@ export class Main extends LRStruct{
                 .append(this.inputs.e))
             .append(new FormLine('page')
                 .append(this.inputs.page))
+            .append(this.checkboxes.search)
             .append(this.checkboxes.messages)
             .append(this.forms.messages)
+            .append(this.anchors.rules)
             .append(this.checkboxes.settings)
             .append(this.forms.settings
                 .append(new FormLine('color scheme')
@@ -148,11 +165,16 @@ export class Main extends LRStruct{
                 .append(new FormLine('fold long image')
                     .append(this.selects.foldImg))
                 .append(new FormLine('fold long comments')
-                    .append(this.selects.foldComments))
-                .append(this.checkboxes.view)
-                .append(this.forms.view
-                    .append(this.textareas.view))
-                .append(this.checkboxes.logout)))
+                    .append(this.selects.foldComments)))
+            .append(this.anchors.issures)
+            .append(this.checkboxes.about)
+            .append(this.forms.about
+                .append(new FormLine('version').setText(version))
+                .append(new FormLine('contact').setText('ddu6@protonmail.com')))
+            .append(this.checkboxes.view)
+            .append(this.forms.view
+                .append(this.textareas.view))
+            .append(this.checkboxes.logout))
         this.main.append(this.flow)
         this.forms.login.append(new FormLine('token')
             .append(this.inputs.token))
@@ -178,12 +200,32 @@ export class Main extends LRStruct{
         this.inputs.e.type='date'
         this.inputs.img.type='file'
         this.inputs.img.accept='image/*'
+        this.anchors.rules.target='_blank'
+        this.anchors.rules.href='https://pkuhelper.pku.edu.cn/treehole_rules.html'
+        this.anchors.issures.target='_blank'
+        this.anchors.issures.href='https://github.com/ddu6/ph-view/issues'
         parent.classList.add('root')
-        this.forms.add.classList.add('hide')
         this.forms.login.classList.add('hole')
-        this.forms.messages.classList.add('hide')
-        this.forms.settings.classList.add('hide')
-        this.forms.view.classList.add('hide')
+        this.anchors.rules.classList.add('checkbox')
+        this.anchors.rules.classList.add('rules')
+        this.anchors.issures.classList.add('checkbox')
+        this.anchors.issures.classList.add('issures')
+        ;[
+            this.forms.add,
+            this.forms.messages,
+            this.forms.settings,
+            this.forms.view,
+            this.forms.about
+        ].forEach(val=>val.classList.add('hide'))
+        ;[
+            this.checkboxes.messages,
+            this.checkboxes.settings,
+            this.checkboxes.about,
+            this.checkboxes.view,
+            this.checkboxes.logout,
+            this.anchors.rules,
+            this.anchors.issures
+        ].forEach(val=>val.classList.add('left'))
 
         const params=new URLSearchParams(document.location.search)
         const fillter=params.get('fillter')
@@ -421,6 +463,9 @@ export class Main extends LRStruct{
             this.inputs.page.value='1'
             await this.start()
         })
+        this.checkboxes.search.addEventListener('click',async e=>{
+            await this.start()
+        })
         this.checkboxes.add.addEventListener('click',async e=>{
             const {classList}=this.checkboxes.add
             if(classList.contains('checked')){
@@ -455,7 +500,7 @@ export class Main extends LRStruct{
                     if(typeof content!=='string'){
                         content=''
                     }
-                    this.forms.messages.append(new CommonEle([])
+                    this.forms.messages.append(new CommonEle()
                         .append(new CommonEle(['index']).setText(indStr))
                         .append(new CommonEle(['text']).setHTML(prettyText(content))))
                 }
@@ -485,6 +530,10 @@ export class Main extends LRStruct{
                 this.textareas.view.value=''
                 this.forms.view.classList.add('hide')
             }
+        })
+        this.checkboxes.about.addEventListener('click',e=>{
+            this.checkboxes.about.classList.toggle('checked')
+            this.forms.about.classList.toggle('hide')
         })
         this.inputs.img.addEventListener('change',async e=>{
             const files=this.inputs.img.files
@@ -524,6 +573,7 @@ export class Main extends LRStruct{
     }
     async getAndRenderComments(hole:Hole){
         const {id,commentNum}=hole
+        if(commentNum===0)return []
         if(isNaN(id)||id===-1)return 500
         const result0=await this.fetchLock.get()
         if(result0===false)return 500

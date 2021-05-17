@@ -310,6 +310,10 @@ textarea {
     text-align: center;
 }
 
+.checkbox.left {
+    text-align: left;
+}
+
 .checkbox.checked {
     color: var(--color-variable);
 }
@@ -361,6 +365,22 @@ textarea {
 
 .checkbox.view::after {
     content: "\e90c  View Token";
+}
+
+.checkbox.about::after {
+    content: "\e90d  About";
+}
+
+.checkbox.search::after {
+    content: "\e90e  Search";
+}
+
+.checkbox.rules::after {
+    content: "\e90f  Rules";
+}
+
+.checkbox.issures::after {
+    content: "\eab0  Issures";
 }
 
 .button.delete::after {

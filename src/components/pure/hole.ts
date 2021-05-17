@@ -165,7 +165,7 @@ export class Hole extends Form{
         if(typeof name!=='string'){
             name=''
         }
-        const element=new CommonEle([])
+        const element=new CommonEle()
         const index=new CommonEle(['index'])
         const content=new CommonEle(['content'])
         const textEle=new CommonEle(['text'])

@@ -271,6 +271,7 @@ export async function getComment(cid:number|string,token:string,password:string)
     return result.data
 }
 export async function getComments(id:number|string,commentNum:number,token:string,password:string){
+    if(commentNum===0)return []
     let result:number|{
         data: CommentData[]
     }=404
