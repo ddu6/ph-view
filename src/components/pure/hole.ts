@@ -150,7 +150,7 @@ export class Hole extends Form{
         }
     }
     private appendComment(data:CommentData){
-        let {text,tag,timestamp}=data
+        let {text,tag,timestamp,cid}=data
         if(typeof text!=='string')text=''
         if(typeof tag!=='string')tag=''
         const spt=text.indexOf(']')
@@ -159,7 +159,7 @@ export class Hole extends Form{
         if(text.startsWith(' ')){
             text=text.slice(1)
         }
-        let indexStr=`${name} ${prettyDate(timestamp)}`
+        let indexStr=`${cid} ${prettyDate(timestamp)}`
         if(tag.length>0){
             indexStr+=` <span class="tag">${prettyText(tag)}</span>`
         }
@@ -187,13 +187,17 @@ export class Hole extends Form{
                 }
             }
         }
-        const element=document.createElement('div')
-        const index=document.createElement('div')
-        const content=document.createElement('div')
-        element.append(index)
-        element.append(content)
-        index.classList.add('index')
-        content.classList.add('text')
+        const element=new CommonEle([])
+        const index=new CommonEle(['index'])
+        const content=new CommonEle(['content'])
+        const textEle=new CommonEle(['text'])
+        const nameEle=new CommonEle(['name'])
+        this.commentsEle.append(element
+            .append(nameEle.setText(name+' '))
+            .append(content
+                .append(index.setText(indexStr))
+                .append(textEle.setHTML(prettyText(text)))))
+        
         index.addEventListener('click',e=>{
             if(!this.checkboxes.comment.classList.contains('checked'))return
             if(
@@ -206,9 +210,6 @@ export class Hole extends Form{
                 this.textareas.comment.value=''
             }
         })
-        index.textContent=indexStr
-        content.innerHTML=prettyText(text)
-        this.commentsEle.append(element)
         if(typeof timestamp==='string'){
             timestamp=Number(timestamp)
         }

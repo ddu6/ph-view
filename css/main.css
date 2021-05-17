@@ -561,6 +561,16 @@ textarea {
     height: 15em;
 }
 
+.comments>:not(.more) {
+    display: flex;
+}
+
+.comments>:not(.more)>.name {
+    flex-shrink: 0;
+    white-space: pre;
+    font-size: var(--length-font-log);
+}
+
 @media print {
     @page {
         color-adjust: exact;

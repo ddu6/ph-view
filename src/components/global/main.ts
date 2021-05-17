@@ -448,11 +448,10 @@ export class Main extends LRStruct{
                 }
                 for(let i=0;i<data.length;i++){
                     let {content,timestamp,title}=data[i]
-                    let indStr=''
+                    let indStr=prettyDate(timestamp)
                     if(typeof title==='string'&&title.length>0){
-                        indStr+=`${title} `
+                        indStr+=` ${title}`
                     }
-                    indStr+=prettyDate(timestamp)
                     if(typeof content!=='string'){
                         content=''
                     }
