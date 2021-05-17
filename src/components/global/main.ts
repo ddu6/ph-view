@@ -524,11 +524,11 @@ export class Main extends LRStruct{
         },500)
     }
     async getAndRenderComments(hole:Hole){
-        const {id}=hole
+        const {id,commentNum}=hole
         if(isNaN(id)||id===-1)return 500
         const result0=await this.fetchLock.get()
         if(result0===false)return 500
-        const result1=await get.getComments(id,this.token,this.password)
+        const result1=await get.getComments(id,commentNum,this.token,this.password)
         await this.fetchLock.release(result0)
         if(result1===503||result1===500){
             return result1

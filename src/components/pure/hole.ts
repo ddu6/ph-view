@@ -24,6 +24,7 @@ export class Hole extends Form{
     toNameRegExp=/^Re [\w\s]*: $/
     isRef=false
     id=-1
+    commentNum=0
     reverse=false
     maxETimestamp=0
     constructor(){
@@ -102,6 +103,7 @@ export class Hole extends Form{
             tag=''
         }
         this.id=Number(pid)
+        this.commentNum=Number(reply)
         let indexStr=`<span class="id">${pid}</span> ${prettyDate(timestamp)}`
         if(tag.length>0){
             indexStr+=` <span class="tag">${prettyText(tag)}</span>`

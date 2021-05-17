@@ -268,7 +268,7 @@ export async function getComment(cid:number|string,token:string,password:string)
     if(typeof result==='number')return 500
     return result.data
 }
-export async function getComments(id:number|string,token:string,password:string){
+export async function getComments(id:number|string,commentNum:number,token:string,password:string){
     let result:number|{
         data: CommentData[]
     }=404
@@ -287,17 +287,19 @@ export async function getComments(id:number|string,token:string,password:string)
                 weakPasswords.push(password)
             }
         }
-        const localResult=await remotelyGetLocalComments(id,token,password)
-        if(typeof localResult!=='number'){
-            const ids=data.map(val=>Number(val.cid))
-            const localData=localResult.data
-            for(let i=0;i<localData.length;i++){
-                const item=localData[i]
-                const id=Number(item.cid)
-                if(ids.includes(id))continue
-                data.push(item)
+        if(commentNum>data.length){
+            const localResult=await remotelyGetLocalComments(id,token,password)
+            if(typeof localResult!=='number'){
+                const ids=data.map(val=>Number(val.cid))
+                const localData=localResult.data
+                for(let i=0;i<localData.length;i++){
+                    const item=localData[i]
+                    const id=Number(item.cid)
+                    if(ids.includes(id))continue
+                    data.push(item)
+                }
+                data.sort((a,b)=>Number(a.cid)-Number(b.cid))
             }
-            data.sort((a,b)=>Number(a.cid)-Number(b.cid))
         }
     }
     if(result===404)return []
