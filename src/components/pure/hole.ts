@@ -196,10 +196,11 @@ export class Hole extends Form{
                 ||typeof name!=='string'
                 ||name.length===0)return
             nameEle.classList.add('checking')
+            const delta=element.element.getBoundingClientRect().top
             if(name===this.focusName){
-                this.unfocus(Number(cid))
+                this.unfocus(Number(cid),delta)
             }else{
-                this.focus(name,Number(cid))
+                this.focus(name,Number(cid),delta)
             }
             nameEle.classList.remove('checking')
         })
@@ -234,9 +235,9 @@ export class Hole extends Form{
         this.comments=data
         this.renderPartialComments(data)
     }
-    renderPartialComments(data:CommentData[],fix?:number){
+    renderPartialComments(data:CommentData[],fix=-1,delta=0){
         let limit=this.commentLimit
-        if(typeof fix==='number'){
+        if(fix!==-1){
             for(let i=0;i<data.length;i++){
                 if(Number(data[i].cid)===fix){
                     if(i>=limit){
@@ -268,7 +269,9 @@ export class Hole extends Form{
         }
         if(fixEle!==undefined){
             fixEle.element.scrollIntoView()
-            this.element.scrollIntoView()
+            window.scrollBy({top:-delta})
+            const tmp=fixEle.element.getBoundingClientRect().top
+            this.commentsEle.element.scrollBy({top:tmp-delta})
         }
     }
     private renderRestComments(){
@@ -286,13 +289,13 @@ export class Hole extends Form{
         }
         this.addMoreButton(this.restComments.length)
     }
-    focus(name:string,fix:number){
+    focus(name:string,fix:number,delta:number){
         this.focusName=name
-        this.renderPartialComments(this.comments.filter(val=>val.name===name||val.toName===name),fix)
+        this.renderPartialComments(this.comments.filter(val=>val.name===name||val.toName===name),fix,delta)
     }
-    unfocus(fix:number){
+    unfocus(fix:number,delta:number){
         this.focusName=''
-        this.renderPartialComments(this.comments,fix)
+        this.renderPartialComments(this.comments,fix,delta)
     }
     async handleStar(){
 

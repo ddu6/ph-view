@@ -563,7 +563,7 @@ export class Main extends LRStruct{
         setInterval(async()=>{
             if(!this.inited)return
             if(this.auto){
-                window.scrollBy({left:0,top:this.scrollSpeed,behavior:"smooth"})
+                window.scrollBy({top:this.scrollSpeed,behavior:"smooth"})
             }
         },1000)
         setInterval(async()=>{
