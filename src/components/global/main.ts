@@ -107,9 +107,9 @@ export class Main extends LRStruct{
     scrollSpeed=500
     appendThreshod=1000
     congestionSleep=1000
-    recaptchaSleep=15000
-    errLimit=5
-    errSleep=5000
+    recaptchaSleep=10000
+    errLimit=10
+    errSleep=2000
     dRegExp=/\.d\d{0,8}/g
     idsRegExp=/#\d{1,7}-\d{1,7}|#\d{1,4}\*\*\*|#\d{1,5}\*\*|#\d{1,6}\*|#\d{1,7}/g
     constructor(public parent:HTMLElement){
