@@ -81,12 +81,7 @@ export class Main extends LRStruct{
     page=0
     token=''
     password=''
-    colorScheme:'auto'|'dark'|'light'='auto'
-    fontSize:'small'|'medium'|'large'='small'
     refMode:'direct'|'recur'='direct'
-    foldText:'true'|'false'='false'
-    foldImg:'true'|'false'='false'
-    foldComments:'true'|'false'='true'
     refLimit=3
     
     stars:number[]=[]
@@ -222,16 +217,6 @@ export class Main extends LRStruct{
         if(stars!==null){
             this.stars=stars.split(',').map(val=>Number(val))
         }
-        const colorScheme=window.localStorage.getItem('ph-color-scheme')
-        if(colorScheme==='auto'||colorScheme==='dark'||colorScheme==='light'){
-            this.colorScheme=colorScheme
-        }
-        this.parent.dataset.colorScheme=this.colorScheme
-        const fontSize=window.localStorage.getItem('ph-font-size')
-        if(fontSize==='small'||fontSize==='medium'||fontSize==='large'){
-            this.fontSize=fontSize
-        }
-        this.parent.dataset.fontSize=this.fontSize
         const refMode=window.localStorage.getItem('ph-ref-mode')
         if(refMode==='direct'||refMode==='recur'){
             this.refMode=refMode
@@ -243,21 +228,31 @@ export class Main extends LRStruct{
                 this.refLimit=refLimit
             }
         }
+        const colorScheme=window.localStorage.getItem('ph-color-scheme')
+        if(colorScheme==='auto'||colorScheme==='dark'||colorScheme==='light'){
+            this.parent.dataset.colorScheme=colorScheme
+            this.selects.colorScheme.value=colorScheme
+        }
+        const fontSize=window.localStorage.getItem('ph-font-size')
+        if(fontSize==='small'||fontSize==='medium'||fontSize==='large'){
+            this.parent.dataset.fontSize=fontSize
+            this.selects.fontSize.value=fontSize
+        }
         const foldText=window.localStorage.getItem('ph-fold-text')
         if(foldText==='true'||foldText==='false'){
-            this.foldText=foldText
+            this.parent.dataset.foldText=foldText
+            this.selects.foldText.value=foldText
         }
-        this.parent.dataset.foldText=this.foldText
         const foldImg=window.localStorage.getItem('ph-fold-img')
         if(foldImg==='true'||foldImg==='false'){
-            this.foldImg=foldImg
+            this.parent.dataset.foldImg=foldImg
+            this.selects.foldImg.value=foldImg
         }
-        this.parent.dataset.foldImg=this.foldImg
         const foldComments=window.localStorage.getItem('ph-fold-comments')
         if(foldComments==='true'||foldComments==='false'){
-            this.foldComments=foldComments
+            this.parent.dataset.foldComments=foldComments
+            this.selects.foldComments.value=foldComments
         }
-        this.parent.dataset.foldComments=this.foldComments
 
         this.inputs.fillter.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
@@ -299,7 +294,6 @@ export class Main extends LRStruct{
         this.selects.colorScheme.addEventListener('input',e=>{
             const val=this.selects.colorScheme.value
             if(val==='auto'||val==='dark'||val==='light'){
-                this.colorScheme=val
                 window.localStorage.setItem('ph-color-scheme',val)
                 this.parent.dataset.colorScheme=val
             }
@@ -307,7 +301,6 @@ export class Main extends LRStruct{
         this.selects.fontSize.addEventListener('input',e=>{
             const val=this.selects.fontSize.value
             if(val==='small'||val==='medium'||val==='large'){
-                this.fontSize=val
                 window.localStorage.setItem('ph-font-size',val)
                 this.parent.dataset.fontSize=val
             }
@@ -315,7 +308,6 @@ export class Main extends LRStruct{
         this.selects.foldText.addEventListener('input',async e=>{
             const val=this.selects.foldText.value
             if(val==='true'||val==='false'){
-                this.foldText=val
                 window.localStorage.setItem('ph-fold-text',val)
                 this.parent.dataset.foldText=val
             }
@@ -323,7 +315,6 @@ export class Main extends LRStruct{
         this.selects.foldImg.addEventListener('input',async e=>{
             const val=this.selects.foldImg.value
             if(val==='true'||val==='false'){
-                this.foldImg=val
                 window.localStorage.setItem('ph-fold-img',val)
                 this.parent.dataset.foldImg=val
             }
@@ -331,7 +322,6 @@ export class Main extends LRStruct{
         this.selects.foldComments.addEventListener('input',async e=>{
             const val=this.selects.foldComments.value
             if(val==='true'||val==='false'){
-                this.foldComments=val
                 window.localStorage.setItem('ph-fold-comments',val)
                 this.parent.dataset.foldComments=val
             }
@@ -998,12 +988,7 @@ export class Main extends LRStruct{
         }
         this.flow.element.innerHTML=''
         this.selects.order.value=this.order
-        this.selects.colorScheme.value=this.colorScheme
-        this.selects.fontSize.value=this.fontSize
         this.selects.refMode.value=this.refMode
-        this.selects.foldText.value=this.foldText
-        this.selects.foldImg.value=this.foldImg
-        this.selects.foldComments.value=this.foldComments
         this.inputs.fillter.value=this.fillter
         this.inputs.page.value=this.page.toString()
         this.inputs.refLimit.value=this.refLimit.toString()
