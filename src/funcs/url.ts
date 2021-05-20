@@ -12,6 +12,14 @@ export function getVersion(){
             if(tmp!==null){
                 version=tmp[0]
             }
+        }else{
+            const script=document.querySelector('script[src]')
+            if(script instanceof HTMLScriptElement){
+                const tmp=script.src.match(/\d+\.\d+\.\d+/)
+                if(tmp!==null){
+                    version=tmp[0]
+                }
+            }
         }
     }
     return version
