@@ -4,7 +4,7 @@ import {KillableLock} from '../../wheels/lock'
 import * as get from '../../funcs/get'
 import * as css from '../../lib/css'
 import * as fonts from '../../lib/fonts'
-import { Button, Checkbox, CommonEle, Form, FormLine } from '../pure/common'
+import { Button, Checkbox, Div, Form, FormLine,NamedAnchor } from '../pure/common'
 import { compress } from '../../funcs/img'
 type AppendData={
     data:get.HoleData
@@ -17,7 +17,7 @@ type AppendData={
     comment?:get.CommentData
 }
 export class Main extends LRStruct{
-    flow=new CommonEle(['flow'])
+    flow=new Div(['flow'])
     panel=new Form('panel')
     styleEle=document.createElement('style')
     fetchLock=new KillableLock()
@@ -48,31 +48,31 @@ export class Main extends LRStruct{
     checkboxes={
         add:new Checkbox('add'),
         star:new Checkbox('star'),
-        logout:new Checkbox('logout'),
-        login:new Checkbox('login'),
-        send:new Checkbox('send'),
         refresh:new Checkbox('refresh'),
-        settings:new Checkbox('settings'),
-        messages:new Checkbox('messages'),
-        img:new Checkbox('img'),
-        view:new Checkbox('view'),
-        about:new Checkbox('about'),
-        search:new Checkbox('search')
+        logout:new Checkbox('logout',['show name','left']),
+        login:new Checkbox('login',['show name']),
+        send:new Checkbox('send',['show name']),
+        settings:new Checkbox('settings',['show name','left']),
+        messages:new Checkbox('messages',['show name','left']),
+        img:new Checkbox('add img',['show name','img']),
+        view:new Checkbox('view token',['show name','view','left']),
+        about:new Checkbox('about',['show name','left']),
+        search:new Checkbox('search',['show name'])
     }
     forms={
-        add:new Form('add'),
-        login:new Form('login'),
-        settings:new Form('settings'),
-        messages:new Form('messages'),
-        view:new Form('view'),
-        about:new Form('about')
+        add:new Form('add',['hide']),
+        login:new Form('login',['hole']),
+        settings:new Form('settings',['hide']),
+        messages:new Form('messages',['hide']),
+        view:new Form('view',['hide']),
+        about:new Form('about',['hide'])
     }
     buttons={
         delete:new Button('delete')
     }
     anchors={
-        rules:document.createElement('a'),
-        issures:document.createElement('a')
+        rules:new NamedAnchor('https://pkuhelper.pku.edu.cn/treehole_rules.html','rules','checkbox',['icomoon','show name','left']),
+        issures:new NamedAnchor('https://github.com/ddu6/ph-view/issues','issures','checkbox',['icomoon','show name','left'])
     }
     auto=false
     star=false
@@ -125,7 +125,7 @@ export class Main extends LRStruct{
         parent.append(this.element)
         parent.append(this.styleEle)
         this.sideContent.append(this.panel
-            .append(new CommonEle(['tools'])
+            .append(new Div(['tools'])
                 .append(this.checkboxes.add)
                 .append(this.checkboxes.star)
                 .append(this.checkboxes.refresh))
@@ -133,7 +133,7 @@ export class Main extends LRStruct{
                 .append(this.textareas.text)
                 .append(this.checkboxes.img
                     .append(this.inputs.img))
-                .append(new CommonEle(['attachment'])
+                .append(new Div(['attachment'])
                     .append(this.buttons.delete))
                 .append(this.checkboxes.send))
             .append(new FormLine('order')
@@ -200,34 +200,7 @@ export class Main extends LRStruct{
         this.inputs.e.type='date'
         this.inputs.img.type='file'
         this.inputs.img.accept='image/*'
-        this.anchors.rules.target='_blank'
-        this.anchors.rules.href='https://pkuhelper.pku.edu.cn/treehole_rules.html'
-        this.anchors.issures.target='_blank'
-        this.anchors.issures.href='https://github.com/ddu6/ph-view/issues'
         parent.classList.add('root')
-        this.forms.login.classList.add('hole')
-        this.anchors.rules.classList.add('checkbox')
-        this.anchors.rules.classList.add('icomoon')
-        this.anchors.rules.classList.add('rules')
-        this.anchors.issures.classList.add('checkbox')
-        this.anchors.issures.classList.add('icomoon')
-        this.anchors.issures.classList.add('issures')
-        ;[
-            this.forms.add,
-            this.forms.messages,
-            this.forms.settings,
-            this.forms.view,
-            this.forms.about
-        ].forEach(val=>val.classList.add('hide'))
-        ;[
-            this.checkboxes.messages,
-            this.checkboxes.settings,
-            this.checkboxes.about,
-            this.checkboxes.view,
-            this.checkboxes.logout,
-            this.anchors.rules,
-            this.anchors.issures
-        ].forEach(val=>val.classList.add('left'))
 
         const params=new URLSearchParams(document.location.search)
         const fillter=params.get('fillter')
@@ -416,11 +389,14 @@ export class Main extends LRStruct{
             if(this.token.length===0)return
             let src=''
             if(this.forms.add.classList.contains('img')){
-                const img=this.buttons.delete.element.previousElementSibling
-                if(img!==null&&img instanceof HTMLImageElement){
-                    const tmp=img.src
-                    if(tmp.startsWith('data:image/jpeg;base64,')){
-                        src=tmp.slice(23)
+                const parent=this.buttons.delete.element.parentElement
+                if(parent!==null){
+                    const img=parent.querySelector('img')
+                    if(img!==null){
+                        const tmp=img.src
+                        if(tmp.startsWith('data:image/jpeg;base64,')){
+                            src=tmp.slice(23)
+                        }
                     }
                 }
             }
@@ -502,9 +478,9 @@ export class Main extends LRStruct{
                     if(typeof content!=='string'){
                         content=''
                     }
-                    this.forms.messages.append(new CommonEle()
-                        .append(new CommonEle(['index']).setText(indStr))
-                        .append(new CommonEle(['text']).setHTML(prettyText(content))))
+                    this.forms.messages.append(new Div()
+                        .append(new Div(['index']).setText(indStr))
+                        .append(new Div(['text']).setHTML(prettyText(content))))
                 }
                 if(data.length===0){
                     this.forms.messages.element.innerHTML='empty'

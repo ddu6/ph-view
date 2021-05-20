@@ -1,13 +1,13 @@
 import { SimpleTouch } from "../../funcs/touch"
-import { Button, CommonEle } from "./common"
+import { Button, Div } from "./common"
 
-export class LRStruct extends CommonEle{
-    readonly side=new CommonEle(['side'])
+export class LRStruct extends Div{
+    readonly side=new Div(['side'])
     readonly button=new Button('menu')
-    readonly sideContent=new CommonEle(['content'])
-    readonly main=new CommonEle(['main'])
-    readonly sash=new CommonEle(['sash'])
-    readonly cover=new CommonEle(['cover'])
+    readonly sideContent=new Div(['content'])
+    readonly main=new Div(['main'])
+    readonly sash=new Div(['sash'])
+    readonly cover=new Div(['cover'])
     sashing=false
     sashX=0
     sideWidth:number

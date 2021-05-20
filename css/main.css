@@ -328,72 +328,101 @@ textarea {
     background-color: var(--color-slice);
 }
 
-.icomoon.star::after {
+.button[data-name].show-name::after,
+.checkbox[data-name].show-name::after {
+    content: attr(data-name);
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+.button.icomoon.show-name::after,
+.checkbox.icomoon.show-name::after {
+    padding-left: var(--length-space);
+}
+
+.icomoon.star::before {
     content: "\e905";
+    display: inline-block;
 }
 
-.icomoon.refresh::after {
+.icomoon.refresh::before {
     content: "\e904";
+    display: inline-block;
 }
 
-.icomoon.comment::after {
+.icomoon.comment::before {
     content: "\e900";
+    display: inline-block;
 }
 
-.icomoon.send::after {
-    content: "\e902  Send";
+.icomoon.send::before {
+    content: "\e902";
+    display: inline-block;
 }
 
-.icomoon.logout::after {
-    content: "\e907  Logout";
+.icomoon.logout::before {
+    content: "\e907";
+    display: inline-block;
 }
 
-.icomoon.login::after {
-    content: "\e908  Login";
+.icomoon.login::before {
+    content: "\e908";
+    display: inline-block;
 }
 
-.icomoon.add::after {
+.icomoon.add::before {
     content: "\e901";
+    display: inline-block;
 }
 
-.icomoon.settings::after {
-    content: "\e906  Settings";
+.icomoon.settings::before {
+    content: "\e906";
+    display: inline-block;
 }
 
-.icomoon.messages::after {
-    content: "\e909  Messages";
+.icomoon.messages::before {
+    content: "\e909";
+    display: inline-block;
 }
 
-.icomoon.img::after {
-    content: "\e90a  Add Image";
+.icomoon.img::before {
+    content: "\e90a";
+    display: inline-block;
 }
 
-.icomoon.view::after {
-    content: "\e90c  View Token";
+.icomoon.view::before {
+    content: "\e90c";
+    display: inline-block;
 }
 
-.icomoon.about::after {
-    content: "\e90d  About";
+.icomoon.about::before {
+    content: "\e90d";
+    display: inline-block;
 }
 
-.icomoon.search::after {
-    content: "\e90e  Search";
+.icomoon.search::before {
+    content: "\e90e";
+    display: inline-block;
 }
 
-.icomoon.rules::after {
-    content: "\e90f  Rules";
+.icomoon.rules::before {
+    content: "\e90f";
+    display: inline-block;
 }
 
-.icomoon.issures::after {
-    content: "\eab0  Issures";
+.icomoon.issures::before {
+    content: "\eab0";
+    display: inline-block;
 }
 
-.icomoon.delete::after {
+.icomoon.delete::before {
     content: "\e90b";
+    display: inline-block;
 }
 
-.icomoon.menu::after {
+.icomoon.menu::before {
     content: "\e903";
+    display: inline-block;
 }
 
 .tools {

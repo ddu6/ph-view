@@ -1,15 +1,15 @@
 import {HoleData,CommentData,domain} from '../../funcs/get'
-import { Checkbox, CommonEle, Form } from './common'
+import { Checkbox, Div, Form } from './common'
 export class Hole extends Form{
-    index=new CommonEle(['index'])
-    text=new CommonEle(['text'])
-    attachment=new CommonEle(['attachment'])
+    index=new Div(['index'])
+    text=new Div(['text'])
+    attachment=new Div(['attachment'])
     commentsEle=new Form('comments')
     checkboxes={
         comment:new Checkbox('comment'),
         star:new Checkbox('star'),
         refresh:new Checkbox('refresh'),
-        send:new Checkbox('send')
+        send:new Checkbox('send',['show name'])
     }
     textareas={
         comment:document.createElement('textarea')
@@ -33,7 +33,7 @@ export class Hole extends Form{
         this.append(this.index)
         .append(this.text)
         .append(this.attachment)
-        .append(new CommonEle(['tools'])
+        .append(new Div(['tools'])
             .append(this.checkboxes.comment)
             .append(this.checkboxes.star)
             .append(this.checkboxes.refresh))
@@ -165,11 +165,11 @@ export class Hole extends Form{
         if(typeof name!=='string'){
             name=''
         }
-        const element=new CommonEle()
-        const index=new CommonEle(['index'])
-        const content=new CommonEle(['content'])
-        const textEle=new CommonEle(['text'])
-        const nameEle=new CommonEle(['name'])
+        const element=new Div()
+        const index=new Div(['index'])
+        const content=new Div(['content'])
+        const textEle=new Div(['text'])
+        const nameEle=new Div(['name'])
         this.commentsEle.append(element
             .append(nameEle.setText(name+' '))
             .append(content
@@ -247,7 +247,7 @@ export class Hole extends Form{
                 }
             }
         }
-        let fixEle:CommonEle|undefined
+        let fixEle:Div|undefined
         this.commentsEle.element.innerHTML=''
         this.restComments=[]
         if(data.length<2*this.commentLimit){
