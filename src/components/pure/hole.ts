@@ -268,7 +268,7 @@ export class Hole extends Form{
             this.addMoreButton(this.restComments.length)
         }
         if(fixEle!==undefined){
-            fixEle.element.scrollIntoView()
+            fixEle.scrollIntoView()
             window.scrollBy({top:-delta})
             const tmp=fixEle.element.getBoundingClientRect().top
             this.commentsEle.element.scrollBy({top:tmp-delta})

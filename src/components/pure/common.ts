@@ -58,6 +58,10 @@ class CommonEle<K extends keyof HTMLElementTagNameMap>{
         this.element.scrollBy(options)
         return this
     }
+    scrollIntoView(arg?: boolean | ScrollIntoViewOptions){
+        this.element.scrollIntoView(arg)
+        return this
+    }
 }
 export class Div extends CommonEle<'div'>{
     constructor(classes:string[]=[]){
