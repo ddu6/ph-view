@@ -19,7 +19,7 @@
     --color-span: rgba(27, 31, 35, .05);
     --font: icomoon, "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", "STHeiti Light", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --length-width: calc(210mm - .8in);
-    --length-width-side: 21em;
+    --length-width-side: 336px;
     --length-tab: 2em;
     --length-padding: 1em;
     --length-gap: .5em;
@@ -422,11 +422,19 @@ textarea {
 
 .root[data-fold-text=true] .hole>.text,
 .root[data-fold-img=true] .attachment,
-.panel .attachment,
 .root[data-fold-comments=true] .comments,
 .form.messages {
     max-height: 30em;
     overflow-y: auto;
+}
+
+.panel .attachment {
+    max-height: 15em;
+    overflow-y: auto;
+}
+
+.form.add>textarea {
+    height: 15em;
 }
 
 .hide {
@@ -576,10 +584,6 @@ textarea {
     position: absolute;
     right: 0;
     top: 0;
-}
-
-.form.add>textarea {
-    height: 15em;
 }
 
 .comments>:not(.more) {
