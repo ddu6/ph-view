@@ -17,7 +17,8 @@
     --color-slice: rgba(211, 211, 211, 0.5);
     --color-selection: rgba(135, 206, 235, 0.5);
     --color-span: rgba(27, 31, 35, .05);
-    --font: icomoon, "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", "STHeiti Light", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --font: "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", "STHeiti Light", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-icomoon: icomoon, "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", "STHeiti Light", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --length-width: calc(210mm - .8in);
     --length-width-side: 336px;
     --length-tab: 2em;
@@ -45,6 +46,10 @@
 
 .root[data-font-size=large] {
     font-size: 18px
+}
+
+.icomoon {
+    font-family: var(--font-icomoon) !important;
 }
 
 @media screen and (max-width:600px) {
@@ -323,71 +328,71 @@ textarea {
     background-color: var(--color-slice);
 }
 
-.checkbox.star::after {
+.icomoon.star::after {
     content: "\e905";
 }
 
-.checkbox.refresh::after {
+.icomoon.refresh::after {
     content: "\e904";
 }
 
-.checkbox.comment::after {
+.icomoon.comment::after {
     content: "\e900";
 }
 
-.checkbox.send::after {
+.icomoon.send::after {
     content: "\e902  Send";
 }
 
-.checkbox.logout::after {
+.icomoon.logout::after {
     content: "\e907  Logout";
 }
 
-.checkbox.login::after {
+.icomoon.login::after {
     content: "\e908  Login";
 }
 
-.checkbox.add::after {
+.icomoon.add::after {
     content: "\e901";
 }
 
-.checkbox.settings::after {
+.icomoon.settings::after {
     content: "\e906  Settings";
 }
 
-.checkbox.messages::after {
+.icomoon.messages::after {
     content: "\e909  Messages";
 }
 
-.checkbox.img::after {
+.icomoon.img::after {
     content: "\e90a  Add Image";
 }
 
-.checkbox.view::after {
+.icomoon.view::after {
     content: "\e90c  View Token";
 }
 
-.checkbox.about::after {
+.icomoon.about::after {
     content: "\e90d  About";
 }
 
-.checkbox.search::after {
+.icomoon.search::after {
     content: "\e90e  Search";
 }
 
-.checkbox.rules::after {
+.icomoon.rules::after {
     content: "\e90f  Rules";
 }
 
-.checkbox.issures::after {
+.icomoon.issures::after {
     content: "\eab0  Issures";
 }
 
-.button.delete::after {
+.icomoon.delete::after {
     content: "\e90b";
 }
 
-.button.menu::after {
+.icomoon.menu::after {
     content: "\e903";
 }
 

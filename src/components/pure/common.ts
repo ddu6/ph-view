@@ -70,12 +70,13 @@ export class NamedEle extends CommonEle{
 export class Checkbox extends NamedEle{
     constructor(name:string){
         super(name,'checkbox')
+        this.element.classList.add('icomoon')
     }
 }
-
 export class Button extends NamedEle{
     constructor(name:string){
         super(name,'button')
+        this.element.classList.add('icomoon')
     }
 }
 export class FormLine extends NamedEle{

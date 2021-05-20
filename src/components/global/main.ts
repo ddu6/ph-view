@@ -207,8 +207,10 @@ export class Main extends LRStruct{
         parent.classList.add('root')
         this.forms.login.classList.add('hole')
         this.anchors.rules.classList.add('checkbox')
+        this.anchors.rules.classList.add('icomoon')
         this.anchors.rules.classList.add('rules')
         this.anchors.issures.classList.add('checkbox')
+        this.anchors.issures.classList.add('icomoon')
         this.anchors.issures.classList.add('issures')
         ;[
             this.forms.add,

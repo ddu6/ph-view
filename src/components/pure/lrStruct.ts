@@ -20,11 +20,10 @@ export class LRStruct extends CommonEle{
         this.element.append(this.button.element)
         this.element.append(this.side.element)
         this.sideWidth=this.side.element.offsetWidth
-        this.button.addEventListener('mousedown',e=>{
-            e.preventDefault()
+        this.button.addEventListener('click',e=>{
             this.side.classList.add('active')
         })
-        this.main.addEventListener('mousedown',e=>{
+        this.main.addEventListener('click',e=>{
             this.side.classList.remove('active')
         })
         this.sash.addEventListener('mousedown',e=>{
