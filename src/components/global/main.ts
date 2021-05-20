@@ -71,7 +71,7 @@ export class Main extends LRStruct{
         delete:new Button('delete')
     }
     anchors={
-        rules:new NamedAnchor('https://pkuhelper.pku.edu.cn/treehole_rules.html','rules','checkbox',['icomoon','show name','left']),
+        rules:new NamedAnchor('https://pkuhelper.pku.edu.cn/treehole_rules.html','rules','checkbox',['doc','icomoon','show name','left']),
         issures:new NamedAnchor('https://github.com/ddu6/ph-view/issues','issures','checkbox',['icomoon','show name','left'])
     }
     auto=false

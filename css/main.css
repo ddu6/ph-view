@@ -405,7 +405,7 @@ textarea {
     display: inline-block;
 }
 
-.icomoon.rules::before {
+.icomoon.doc::before {
     content: "\e90f";
     display: inline-block;
 }
