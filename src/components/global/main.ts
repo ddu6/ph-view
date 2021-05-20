@@ -1,4 +1,6 @@
-import {Hole,prettyDate, prettyText} from '../pure/hole'
+import {Hole} from '../pure/hole'
+import {prettyDate,prettyText} from '../../funcs/pretty'
+
 import {LRStruct} from '../pure/lrStruct'
 import {KillableLock} from '../../wheels/lock'
 import * as get from '../../funcs/get'
@@ -6,6 +8,7 @@ import * as css from '../../lib/css'
 import * as fonts from '../../lib/fonts'
 import { Button, Checkbox, Div, Form, FormLine,NamedAnchor } from '../pure/common'
 import { compress } from '../../funcs/img'
+import { getVersion } from '../../funcs/url'
 type AppendData={
     data:get.HoleData
     isRef:boolean
@@ -109,14 +112,8 @@ export class Main extends LRStruct{
     idsRegExp=/#\d{1,7}-\d{1,7}|#\d{1,4}\*\*\*|#\d{1,5}\*\*|#\d{1,6}\*|#\d{1,7}/g
     constructor(public parent:HTMLElement){
         super()
-        let version='0.1.0'
-        const script=document.querySelector('script')
-        if(script!==null){
-            const result=script.src.match(/\d+\.\d+\.\d+/)
-            if(result!==null&&result.length>0){
-                version=result[0]
-            }
-        }
+        const version=getVersion()
+        
         parent.append(this.element)
         parent.append(this.styleEle)
         this.sideContent.append(this.forms.panel
