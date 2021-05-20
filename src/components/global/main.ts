@@ -18,7 +18,6 @@ type AppendData={
 }
 export class Main extends LRStruct{
     flow=new Div(['flow'])
-    panel=new Form('panel')
     styleEle=document.createElement('style')
     fetchLock=new KillableLock()
     appendLock=new KillableLock()
@@ -60,6 +59,7 @@ export class Main extends LRStruct{
         search:new Checkbox('search',['show name'])
     }
     forms={
+        panel:new Form('panel'),
         add:new Form('add',['hide']),
         login:new Form('login',['hole']),
         settings:new Form('settings',['hide']),
@@ -124,7 +124,7 @@ export class Main extends LRStruct{
         }
         parent.append(this.element)
         parent.append(this.styleEle)
-        this.sideContent.append(this.panel
+        this.sideContent.append(this.forms.panel
             .append(new Div(['tools'])
                 .append(this.checkboxes.add)
                 .append(this.checkboxes.star)

@@ -2,10 +2,12 @@ class CommonEle<K extends keyof HTMLElementTagNameMap>{
     readonly element:HTMLElementTagNameMap[K]
     readonly classList:DOMTokenList
     readonly style:CSSStyleDeclaration
+    readonly dataset:DOMStringMap
     constructor(classes:string[]=[],tag:K){
         this.element=document.createElement(tag)
         this.classList=this.element.classList
         this.style=this.element.style
+        this.dataset=this.element.dataset
         for(let i=0;i<classes.length;i++){
             const className=classes[i].replace(/\s/g,'-')
             if(className==='')continue
@@ -70,7 +72,7 @@ export class NamedDiv extends Div{
     constructor(public readonly name:string,public readonly type:string,otherClasses:string[]=[]){
         super([name,type].concat(otherClasses))
         try{
-            this.element.dataset.name=name
+            this.dataset.name=name
         }catch(err){
             console.log(err)
         }
@@ -117,7 +119,7 @@ export class NamedAnchor extends Anchor{
     constructor(href:string,public readonly name:string,public readonly type:string,otherClasses:string[]=[],target='_blank'){
         super(href,[name,type].concat(otherClasses),target)
         try{
-            this.element.dataset.name=name
+            this.dataset.name=name
         }catch(err){
             console.log(err)
         }
