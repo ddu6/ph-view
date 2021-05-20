@@ -1,6 +1,5 @@
 {
     "background_color": "black",
-    "description": "PKU Hole.",
     "display": "fullscreen",
     "icons": [
         {
@@ -10,6 +9,6 @@
         }
     ],
     "name": "PKU Hole",
-    "short_name": "PKU Hole",
+    "short_name": "PH",
     "start_url": "./index.html"
 }
