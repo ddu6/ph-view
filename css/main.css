@@ -122,7 +122,7 @@ input[type=submit],
     font: inherit;
     color: var(--color-text);
     border-radius: var(--length-padding-span);
-    padding: var(--length-padding-circle) var(--length-padding);
+    padding: var(--length-space) var(--length-padding);
     background-color: var(--color-slice);
     border: none;
     outline: none;
