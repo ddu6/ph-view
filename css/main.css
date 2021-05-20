@@ -192,7 +192,7 @@ input[type=date] {
     height: auto;
     width: auto;
     vertical-align: middle;
-    height: 1.5em;
+    height: calc(var(--number-ratio-line) * 1em);
 }
 
 input[type=number]::-webkit-inner-spin-button,
@@ -213,7 +213,7 @@ option,
 
 textarea {
     resize: none;
-    height: 7.5em;
+    height: calc(var(--number-ratio-line) * 5em);
 }
 
 .lr-struct {
@@ -424,17 +424,17 @@ textarea {
 .root[data-fold-img=true] .attachment,
 .root[data-fold-comments=true] .comments,
 .form.messages {
-    max-height: 30em;
+    max-height: calc(var(--number-ratio-line) * 20em);
     overflow-y: auto;
 }
 
 .panel .attachment {
-    max-height: 15em;
+    max-height: calc(var(--number-ratio-line) * 10em);
     overflow-y: auto;
 }
 
 .form.add>textarea {
-    height: 15em;
+    height: calc(var(--number-ratio-line) * 10em);
 }
 
 .hide {
@@ -555,7 +555,7 @@ textarea {
     display: block;
     text-align: center;
     padding: var(--length-gap);
-    margin-bottom: 5em;
+    margin-bottom: var(--length-tab);
     color: var(--color-light);
     font-size: var(--length-font-log);
 }
