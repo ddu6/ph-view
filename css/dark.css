@@ -19,11 +19,11 @@
     --color-span: rgba(58, 61, 65, 0.5);
 }
 
-.root.dark .dark{
+.root[data-color-scheme=dark] .dark{
     filter: brightness(.5);
 }
 
-.root.dark .invert{
+.root[data-color-scheme=dark] .invert{
     filter: invert(.9147982) brightness(.8745098);
 }
 
