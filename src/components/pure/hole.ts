@@ -27,8 +27,8 @@ export class Hole extends Form{
     id=-1
     commentNum=0
     reverse=false
-    maxETimestamp=0
-    focusName=''
+    maxETime=0
+    focusNames:string[]=[]
     constructor(){
         super('hole')
         this.append(this.index)
@@ -86,7 +86,7 @@ export class Hole extends Form{
     }
     render(data:HoleData,local:boolean,isRef:boolean,starred:boolean,maxId:number,maxETimestamp:number){
         this.isRef=isRef
-        this.maxETimestamp=maxETimestamp
+        this.maxETime=maxETimestamp
         if(isRef){
             this.element.classList.add('ref')
         }else{
@@ -108,7 +108,7 @@ export class Hole extends Form{
         this.commentNum=Number(reply)
         let indexStr=`<span class="id">${pid}</span> ${prettyDate(timestamp)}`
         if(tag.length>0){
-            indexStr+=` <span class="tag">${prettyText(tag)}</span>`
+            indexStr+=` ${prettyText(tag)}`
         }
         this.index.element.innerHTML=indexStr
         if(Number(reply)!==0){
@@ -153,32 +153,28 @@ export class Hole extends Form{
     }
     private appendComment(data:CommentData){
         let {pureText,tag,timestamp,cid,name,toName}=data
+        pureText=pureText??''
+        name=name??''
+        toName=toName??''
         let indexStr=`${cid} ${prettyDate(timestamp)}`
+        let nameStr=`${name} `
         if(typeof tag==='string'&&tag.length>0){
-            indexStr+=` <span class="tag">${prettyText(tag)}</span>`
+            indexStr+=` ${prettyText(tag)}`
         }
         if(typeof toName==='string'&&toName!==''){
-            indexStr+=` to ${toName}`
-        }
-        if(typeof pureText!=='string'){
-            pureText=''
-        }
-        if(typeof name!=='string'){
-            name=''
+            nameStr+=`to ${toName} `
         }
         const element=new Div()
         const index=new Div(['index'])
-        const content=new Div(['content'])
         const textEle=new Div(['text'])
-        const nameEle=new Div(['name'])
+        const nameEle=new Div(['name','checkbox'])
         this.commentsEle.append(element
-            .append(nameEle.setText(name+' '))
-            .append(content
-                .append(index.setText(indexStr))
-                .append(textEle.setHTML(prettyText(pureText)))))
+            .append(index.setText(indexStr))
+            .append(textEle.setHTML(prettyText(pureText))
+                .prepend(nameEle.setText(nameStr))))
         
-        if(name===this.focusName){
-            element.classList.add('focus')
+        if(this.focusNames.includes(name)||this.focusNames.includes(toName)){
+            nameEle.classList.add('checked')
         }
         element.addEventListener('click',e=>{
             if(!this.checkboxes.comment.classList.contains('checked'))return
@@ -198,20 +194,22 @@ export class Hole extends Form{
                 ||name.length===0)return
             nameEle.classList.add('checking')
             const delta=element.element.getBoundingClientRect().top
-            if(name===this.focusName){
+            if(nameEle.classList.contains('checked')){
                 this.unfocus(Number(cid),delta)
             }else{
-                this.focus(name,Number(cid),delta)
+                const names=[name]
+                if(typeof toName==='string'&&toName.length>0){
+                    names.push(toName)
+                }
+                this.focus(names,Number(cid),delta)
             }
             nameEle.classList.remove('checking')
         })
         if(typeof timestamp==='string'){
             timestamp=Number(timestamp)
         }
-        if(typeof timestamp==='number'){
-            if(timestamp>this.maxETimestamp){
-                this.element.classList.add('new-comment')
-            }
+        if(timestamp>this.maxETime){
+            this.element.classList.add('new-comment')
         }
         return element
     }
@@ -290,12 +288,12 @@ export class Hole extends Form{
         }
         this.addMoreButton(this.restComments.length)
     }
-    focus(name:string,fix:number,delta:number){
-        this.focusName=name
-        this.renderPartialComments(this.comments.filter(val=>val.name===name||val.toName===name),fix,delta)
+    focus(names:string[],fix:number,delta:number){
+        this.focusNames=names
+        this.renderPartialComments(this.comments.filter(val=>names.includes(val.name??'')||names.includes(val.toName??'')),fix,delta)
     }
     unfocus(fix:number,delta:number){
-        this.focusName=''
+        this.focusNames=[]
         this.renderPartialComments(this.comments,fix,delta)
     }
     async handleStar(){

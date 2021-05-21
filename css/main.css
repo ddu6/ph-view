@@ -625,23 +625,10 @@ textarea {
     top: 0;
 }
 
-.comments>:not(.more) {
-    display: flex;
-}
-
-.comments>:not(.more)>.name {
-    flex-shrink: 0;
-    white-space: pre;
-    font-size: var(--length-font-log);
-}
-
-.comments>:not(.more).focus>.name {
-    color: var(--color-variable);
-}
-
-.comments>:not(.more)>.name:hover,
-.comments>:not(.more)>.name.checking {
-    background-color: var(--color-slice);
+.comments .name.checkbox {
+    line-height: inherit;
+    padding: 0;
+    border-radius: 0;
 }
 
 @media print {

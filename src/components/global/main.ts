@@ -56,7 +56,7 @@ export class Main extends LRStruct{
         send:new Checkbox('send',['show name']),
         settings:new Checkbox('settings',['show name','left']),
         messages:new Checkbox('messages',['show name','left']),
-        img:new Checkbox('add img',['show name','img']),
+        img:new Checkbox('add image',['show name','img']),
         view:new Checkbox('view token',['show name','view','left']),
         about:new Checkbox('about',['show name','left']),
         search:new Checkbox('search',['show name'])
@@ -99,7 +99,7 @@ export class Main extends LRStruct{
     inited=false
     errCount=0
     maxId=-1
-    maxETimestamp=0
+    maxETime=0
     
     local=false
     scrollSpeed=500
@@ -360,7 +360,7 @@ export class Main extends LRStruct{
             this.password=''
             this.stars=[]
             this.maxId=-1
-            this.maxETimestamp=0
+            this.maxETime=0
             window.localStorage.removeItem('ph-token')
             window.localStorage.removeItem('ph-password')
             window.localStorage.removeItem('ph-stars')
@@ -702,7 +702,7 @@ export class Main extends LRStruct{
             }
             else data1=item.data
             const hole=new Hole()
-            hole.render(data1,this.local,item.isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
+            hole.render(data1,this.local,item.isRef,this.stars.includes(id),this.maxId,this.maxETime)
             hole.handleStar=async ()=>{
                 if(this.token.length===0)return
                 const {classList}=hole.checkboxes.star
@@ -1019,7 +1019,7 @@ export class Main extends LRStruct{
         const oldEStr=storage.getItem('ph-max-etimestamp')
         if(oldEStr!==null){
             const oldE=Number(oldEStr)
-            if(!isNaN(oldE))this.maxETimestamp=oldE
+            if(!isNaN(oldE))this.maxETime=oldE
         }
         await this.fetchLock.revive()
         await this.appendLock.revive()
@@ -1093,7 +1093,7 @@ export class Main extends LRStruct{
             break
         }
         if(typeof data1==='number')return data1
-        hole.render(data1,this.local,hole.isRef,this.stars.includes(id),this.maxId,this.maxETimestamp)
+        hole.render(data1,this.local,hole.isRef,this.stars.includes(id),this.maxId,this.maxETime)
         while(true){
             const result1=await this.getAndRenderComments(hole)
             if(result1===500){
