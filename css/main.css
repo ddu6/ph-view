@@ -320,7 +320,7 @@ textarea {
 }
 
 .checkbox.checked {
-    color: var(--color-variable);
+    color: var(--color-variable) !important;
 }
 
 .checkbox:hover,
@@ -629,6 +629,7 @@ textarea {
     line-height: inherit;
     padding: 0;
     border-radius: 0;
+    color: var(--color-text);
 }
 
 @media print {

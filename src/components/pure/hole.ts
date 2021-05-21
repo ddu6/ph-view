@@ -157,13 +157,14 @@ export class Hole extends Form{
         name=name??''
         toName=toName??''
         let indexStr=`${cid} ${prettyDate(timestamp)}`
-        let nameStr=`${name} `
+        let nameStr=`${name}`
         if(typeof tag==='string'&&tag.length>0){
             indexStr+=` ${prettyText(tag)}`
         }
         if(typeof toName==='string'&&toName!==''){
-            nameStr+=`to ${toName} `
+            nameStr+=` to ${toName}`
         }
+        nameStr+=': '
         const element=new Div()
         const index=new Div(['index'])
         const textEle=new Div(['text'])
