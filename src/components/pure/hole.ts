@@ -340,16 +340,11 @@ function fixComments(data:CommentData[]){
                 if(text.startsWith(' ')){
                     text=text.slice(1)
                 }
+                if(item.toName.startsWith('#')){
+                    item.toName=cidToName[Number(item.toName.slice(1))]??''
+                }
                 if(item.toName===item.name||item.toName==='洞主'){
                     item.toName=''
-                }else if(item.toName.startsWith('#')){
-                    item.toName=item.toName.slice(1)
-                    const tmp=cidToName[Number(item.toName)]
-                    if(tmp===item.name||tmp==='洞主'){
-                        item.toName=''
-                    }else if(tmp!==undefined){
-                        item.toName=tmp+' '+item.toName
-                    }
                 }
             }
         }
