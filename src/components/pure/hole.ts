@@ -115,7 +115,7 @@ export class Hole extends Form{
             this.checkboxes.comment.element.textContent=reply.toString()+' '
         }
         if(Number(likenum)!==0){
-            this.checkboxes.star.element.textContent=likenum.toString()+' '
+            this.checkboxes.star.setText(likenum)
         }
         if(starred){
             this.checkboxes.star.classList.add('checked')
@@ -227,7 +227,7 @@ export class Hole extends Form{
     }
     renderComments(data:CommentData[]){
         if(data.length>Number(this.checkboxes.comment.element.textContent)){
-            this.checkboxes.comment.element.textContent=data.length.toString()+' '
+            this.checkboxes.comment.setText(data.length)
         }
         fixComments(data)
         if(data.length>=2&&this.reverse){

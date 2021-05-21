@@ -46,8 +46,8 @@ class CommonEle<K extends keyof HTMLElementTagNameMap>{
         }))
         return this
     }
-    setText(string:string){
-        this.element.textContent=string
+    setText(string:string|number){
+        this.element.textContent=string.toString()
         return this
     }
     setHTML(string:string){

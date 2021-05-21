@@ -340,6 +340,11 @@ textarea {
     padding-left: var(--length-space);
 }
 
+.button.icomoon:not(:empty)::before,
+.checkbox.icomoon:not(:empty)::before {
+    padding-right: var(--length-space);
+}
+
 .icomoon.star::before {
     content: "\e905";
     display: inline-block;
