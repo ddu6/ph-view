@@ -175,7 +175,7 @@ export class Main extends LRStruct{
         .append(this.checkboxes.login)
 
         this.styleEle.textContent=fonts.icomoon+css.main+css.dark
-        this.selects.order.innerHTML='<option>id</option><option>active</option><option>hot</option>'
+        this.selects.order.innerHTML='<option>id</option><option>liveness</option><option>heat</option><option>span</option>'
         this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
         this.selects.fontSize.innerHTML='<option>small</option><option>medium</option><option>large</option>'
         this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
@@ -325,7 +325,7 @@ export class Main extends LRStruct{
         })
         this.selects.order.addEventListener('input',async e=>{
             this.inputs.page.value='1'
-            if(this.selects.order.value==='hot'){
+            if(this.selects.order.value==='heat'||this.selects.order.value==='span'){
                 this.inputs.fillter.value='.d '+this.inputs.fillter.value
             }
             if(this.selects.order.value!=='id'){
@@ -1031,9 +1031,9 @@ export class Main extends LRStruct{
             this.page=p1-1
         }
         const order=this.selects.order.value
-        if(order==='id')this.order='id'
-        else if(order==='active')this.order='active'
-        else if(order==='hot')this.order='hot'
+        if(order==='id'||order==='liveness'||order==='heat'||order==='span'){
+            this.order=order
+        }
         this.star=this.checkboxes.star.classList.contains('checked')
         let dateStr=this.inputs.s.value
         if(dateStr===''){

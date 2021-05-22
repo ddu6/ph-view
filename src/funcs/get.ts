@@ -35,7 +35,7 @@ export interface MsgData{
     timestamp:number|string
     title:string|null|undefined
 }
-export type Order='id'|'active'|'hot'
+export type Order='id'|'liveness'|'heat'|'span'
 async function basicallyGet(url:string,params:Record<string,string>={},form:Record<string,string>={},cookie='',referer=''){
     let paramsStr=new URL(url).searchParams.toString()
     if(paramsStr.length>0){
@@ -421,7 +421,7 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
         if(result===503)return 503
         if(typeof result==='number')return 500
         const data=result.data
-        if(order==='active'&&data.length>0){
+        if(order==='liveness'&&data.length>0){
             let {etimestamp}=data[0]
             if(typeof etimestamp==='string'){
                 etimestamp=Number(etimestamp)
