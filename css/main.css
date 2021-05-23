@@ -200,6 +200,7 @@ input[type=date] {
     height: calc(var(--number-ratio-line) * 1em);
 }
 
+input[type=search]::-webkit-search-cancel-button,
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button,
 input[type=date]::-webkit-calendar-picker-indicator,
@@ -298,6 +299,7 @@ textarea {
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow: auto;
 }
 
 .lr-struct>.side>.content.vanished {
@@ -515,7 +517,6 @@ textarea {
 .panel {
     padding: var(--length-padding);
     padding-bottom: var(--length-tab);
-    overflow: auto;
 }
 
 .hole {

@@ -59,7 +59,6 @@ export class Main extends LRStruct{
         img:new Checkbox('add image',['show name','img']),
         view:new Checkbox('view token',['show name','view','left']),
         about:new Checkbox('about',['show name','left']),
-        search:new Checkbox('search',['show name'])
     }
     forms={
         panel:new Form('panel'),
@@ -68,7 +67,7 @@ export class Main extends LRStruct{
         settings:new Form('settings',['hide']),
         messages:new Form('messages',['hide']),
         view:new Form('view',['hide']),
-        about:new Form('about',['hide'])
+        about:new Form('about',['hide']),
     }
     buttons={
         delete:new Button('delete')
@@ -138,7 +137,7 @@ export class Main extends LRStruct{
                 .append(this.inputs.e))
             .append(new FormLine('page')
                 .append(this.inputs.page))
-            .append(this.checkboxes.search)
+            .append(new Div())
             .append(this.checkboxes.messages)
             .append(this.forms.messages)
             .append(this.anchors.rules)
@@ -167,6 +166,7 @@ export class Main extends LRStruct{
             .append(this.forms.view
                 .append(this.textareas.view))
             .append(this.checkboxes.logout))
+            
         this.main.append(this.flow)
         this.forms.login.append(new FormLine('token')
             .append(this.inputs.token))
@@ -182,6 +182,7 @@ export class Main extends LRStruct{
         this.selects.foldText.innerHTML='<option>false</option><option>true</option>'
         this.selects.foldImg.innerHTML='<option>false</option><option>true</option>'
         this.selects.foldComments.innerHTML='<option>false</option><option>true</option>'
+        this.inputs.fillter.type='search'
         this.inputs.page.type='number'
         this.inputs.page.min='1'
         this.inputs.refLimit.type='number'
@@ -426,9 +427,7 @@ export class Main extends LRStruct{
         })
         this.checkboxes.refresh.addEventListener('click',async e=>{
             this.inputs.page.value='1'
-            await this.start()
-        })
-        this.checkboxes.search.addEventListener('click',async e=>{
+            this.inputs.fillter.value=''
             await this.start()
         })
         this.checkboxes.add.addEventListener('click',async e=>{
