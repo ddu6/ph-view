@@ -176,12 +176,17 @@ export class Main extends LRStruct{
 
         this.styleEle.textContent=fonts.icomoon+css.main+css.dark
         this.selects.order.innerHTML='<option>id</option><option>liveness</option><option>heat</option><option>span</option>'
+        this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
         this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
         this.selects.fontSize.innerHTML='<option>small</option><option>medium</option><option>large</option>'
-        this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
         this.selects.foldText.innerHTML='<option>false</option><option>true</option>'
         this.selects.foldImg.innerHTML='<option>false</option><option>true</option>'
         this.selects.foldComments.innerHTML='<option>false</option><option>true</option>'
+        this.selects.colorScheme.value=this.parent.dataset.colorScheme??'auto'
+        this.selects.fontSize.value=this.parent.dataset.fontSize??'small'
+        this.selects.foldText.value=this.parent.dataset.foldText??'false'
+        this.selects.foldImg.value=this.parent.dataset.foldImg??'false'
+        this.selects.foldComments.value=this.parent.dataset.foldComments??'false'
         this.inputs.fillter.type='search'
         this.inputs.page.type='number'
         this.inputs.page.min='1'
