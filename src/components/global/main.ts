@@ -5,7 +5,7 @@ import {LRStruct} from '../pure/lrStruct'
 import {KillableLock} from '../../wheels/lock'
 import * as get from '../../funcs/get'
 import * as css from '../../lib/css'
-import * as fonts from '../../lib/fonts'
+import {fonts} from '../../lib/fonts'
 import { Button, Checkbox, Div, Form, FormLine,NamedAnchor } from '../pure/common'
 import { compress } from '../../funcs/img'
 import { getVersion } from '../../funcs/url'
@@ -174,7 +174,7 @@ export class Main extends LRStruct{
             .append(this.inputs.password))
         .append(this.checkboxes.login)
 
-        this.styleEle.textContent=fonts.icomoon+css.main+css.dark
+        this.styleEle.textContent=fonts+css.main+css.dark
         this.selects.order.innerHTML='<option>id</option><option>liveness</option><option>heat</option><option>span</option>'
         this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
         this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
