@@ -1,21 +1,8 @@
 {
-  "name": "ph-view",
   "version": "0.22.6",
-  "description": "",
-  "private": true,
   "scripts": {
     "build": "node scripts/pkg-fonts.js & node scripts/pkg-css.js && webpack"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ddu6/ph-view.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ddu6/ph-view/issues"
-  },
-  "homepage": "https://github.com/ddu6/ph-view#readme",
   "devDependencies": {
     "ts-loader": "^8.0.11",
     "typescript": "^4.2.2",
