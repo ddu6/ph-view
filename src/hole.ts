@@ -1,6 +1,6 @@
-import {HoleData,CommentData,domain} from '../../funcs/get'
-import { Checkbox, Div, Form } from './common'
-import {prettyDate,prettyText} from '../../funcs/pretty'
+import {HoleData,CommentData,domain} from './get'
+import { Checkbox, Div, Form } from '@ddu6/stui'
+import {prettyDate,prettyText} from './common'
 export class Hole extends Form{
     index=new Div(['index'])
     text=new Div(['text'])
@@ -31,57 +31,60 @@ export class Hole extends Form{
     focusNames:string[]=[]
     constructor(){
         super('hole')
-        this.append(this.index)
+        this
+        .append(this.index)
         .append(this.text)
         .append(this.attachment)
-        .append(new Div(['tools'])
+        .append(
+            new Div(['tools'])
             .append(this.checkboxes.comment)
             .append(this.checkboxes.star)
-            .append(this.checkboxes.refresh))
-        .append(this.forms.comment
+            .append(this.checkboxes.refresh)
+        )
+        .append(
+            this.forms.comment
             .append(this.textareas.comment)
-            .append(this.checkboxes.send))
+            .append(this.checkboxes.send)
+        )
         .append(this.commentsEle)
 
         this.forms.comment.classList.add('hide')
         
-        this.checkboxes.comment.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.comment
-            if(classList.contains('checked')){
-                this.forms.comment.classList.add('hide')
-                classList.remove('checked')
-            }else{
+        this.checkboxes.comment.addEventListener('click',async ()=>{
+            if(this.checkboxes.comment.classList.toggle('checked')){
                 this.forms.comment.classList.remove('hide')
-                classList.add('checked')
+            }else{
+                this.forms.comment.classList.add('hide')
             }
         })
-        this.checkboxes.star.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.star
-            if(classList.contains('checking'))return
-            classList.add('checking')
+        this.checkboxes.star.addEventListener('click',async ()=>{
+            if(this.checkboxes.star.classList.contains('checking')){
+                return
+            }
+            this.checkboxes.star.classList.add('checking')
             await this.handleStar()
-            classList.remove('checking')
+            this.checkboxes.star.classList.remove('checking')
         })
-        this.checkboxes.refresh.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.refresh
-            if(classList.contains('checking'))return
-            const {classList:bigClassList}=this.element
+        this.checkboxes.refresh.addEventListener('click',async ()=>{
+            if(this.checkboxes.refresh.classList.contains('checking')){
+                return}
+
             this.reverse=!this.reverse
-            classList.add('checking')
-            bigClassList.add('refreshing')
+            this.checkboxes.refresh.classList.add('checking')
+            this.element.classList.add('refreshing')
             await this.handleRefresh()
-            bigClassList.remove('refreshing')
-            classList.remove('checking')
+            this.element.classList.remove('refreshing')
+            this.checkboxes.refresh.classList.remove('checking')
         })
-        this.checkboxes.send.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.send
-            if(classList.contains('checking'))return
-            const {classList:bigClassList}=this.element
-            classList.add('checking')
-            bigClassList.add('refreshing')
+        this.checkboxes.send.addEventListener('click',async ()=>{
+            if(this.checkboxes.send.classList.contains('checking')){
+                return
+            }
+            this.checkboxes.send.classList.add('checking')
+            this.element.classList.add('refreshing')
             await this.handleSend()
-            bigClassList.remove('refreshing')
-            classList.remove('checking')
+            this.element.classList.remove('refreshing')
+            this.checkboxes.send.classList.remove('checking')
         })
     }
     render(data:HoleData,local:boolean,isRef:boolean,starred:boolean,maxId:number,maxETimestamp:number){
@@ -115,7 +118,7 @@ export class Hole extends Form{
             this.checkboxes.comment.element.textContent=reply.toString()+' '
         }
         if(Number(likenum)!==0){
-            this.checkboxes.star.setText(likenum)
+            this.checkboxes.star.setText(likenum.toString())
         }
         if(starred){
             this.checkboxes.star.classList.add('checked')
@@ -140,8 +143,12 @@ export class Hole extends Form{
                 this.text.append(a)
             }
         }
-        if(typeof pid==='string')pid=Number(pid)
-        if(pid>maxId)this.element.classList.add('new-hole')
+        if(typeof pid==='string'){
+            pid=Number(pid)
+        }
+        if(pid>maxId){
+            this.element.classList.add('new-hole')
+        }
         if(typeof etimestamp==='string'){
             etimestamp=Number(etimestamp)
         }
@@ -165,34 +172,46 @@ export class Hole extends Form{
             nameStr+=` to ${toName}`
         }
         nameStr+=': '
-        const element=new Div()
-        const index=new Div(['index'])
-        const textEle=new Div(['text'])
         const nameEle=new Div(['name','checkbox'])
-        this.commentsEle.append(element
+        const textEle=new Div(['text'])
+        const index=new Div(['index'])
+        const element=new Div()
+        this.commentsEle.append(
+            element
             .append(index.setText(indexStr))
-            .append(textEle.setHTML(prettyText(pureText))
-                .prepend(nameEle.setText(nameStr))))
+            .append(
+                textEle.setHTML(prettyText(pureText))
+                .prepend(nameEle.setText(nameStr))
+            )
+        )
         
         if(this.focusNames.includes(name)||this.focusNames.includes(toName)){
             nameEle.classList.add('checked')
         }
-        element.addEventListener('click',e=>{
-            if(!this.checkboxes.comment.classList.contains('checked'))return
+        element.addEventListener('click',()=>{
+            if(!this.checkboxes.comment.classList.contains('checked')){
+                return
+            }
             if(
                 this.textareas.comment.value.length>0
                 &&this.textareas.comment.value.match(this.toNameRegExp)===null
-            )return
+            ){
+                return
+            }
             if(name!==''&&name!=='洞主'){
                 this.textareas.comment.value=`Re ${name}: `
             }else{
                 this.textareas.comment.value=''
             }
         })
-        nameEle.addEventListener('click',e=>{
-            if(nameEle.classList.contains('checking')
+        nameEle.addEventListener('click',()=>{
+            if(
+                nameEle.classList.contains('checking')
                 ||typeof name!=='string'
-                ||name.length===0)return
+                ||name.length===0
+            ){
+                return
+            }
             nameEle.classList.add('checking')
             const delta=element.element.getBoundingClientRect().top
             if(nameEle.classList.contains('checked')){
@@ -215,20 +234,19 @@ export class Hole extends Form{
         return element
     }
     private addMoreButton(restLength:number){
-        const element=document.createElement('div')
+        const element=new Div(['more'])
+        .setText(`${restLength} more`)
         this.commentsEle.append(element)
-        element.textContent=`${restLength} more`
-        element.classList.add('more')
-        element.addEventListener('click',e=>{
-            element.remove()
+        element.addEventListener('click',()=>{
+            element.element.remove()
             this.renderRestComments()
         })
     }
     renderComments(data:CommentData[]){
         if(data.length>Number(this.checkboxes.comment.element.textContent)){
-            this.checkboxes.comment.setText(data.length)
+            this.checkboxes.comment.setText(data.length.toString())
         }
-        fixComments(data)
+        Hole.fixComments(data)
         if(data.length>=2&&this.reverse){
             data.reverse()
         }
@@ -291,7 +309,9 @@ export class Hole extends Form{
     }
     focus(names:string[],fix:number,delta:number){
         this.focusNames=names
-        this.renderPartialComments(this.comments.filter(val=>names.includes(val.name??'')||names.includes(val.toName??'')),fix,delta)
+        this.renderPartialComments(this.comments.filter(
+            val=>names.includes(val.name??'')||names.includes(val.toName??'')
+        ),fix,delta)
     }
     unfocus(fix:number,delta:number){
         this.focusNames=[]
@@ -306,48 +326,48 @@ export class Hole extends Form{
     async handleSend(){
 
     }
-}
-function fixComments(data:CommentData[]){
-    if(data.length>=2){
-        if(Number(data[0].cid)>Number(data[1].cid)){
-            data.reverse()
-        }
-    }
-    const cidToName:Record<number,string|undefined>={}
-    for(let i=0;i<data.length;i++){
-        const item=data[i]
-        if(typeof item.toName==='string')continue
-        item.toName=''
-        let {text,cid}=item
-        if(typeof text!=='string'){
-            text=''
-        }
-        cid=Number(cid)
-        const spt=text.indexOf(']')
-        if(typeof item.name!=='string'||item.name.length===0){
-            item.name=text.slice(1,spt)
-        }
-        cidToName[cid]=item.name
-        text=text.slice(spt+1)
-        if(text.startsWith(' ')){
-            text=text.slice(1)
-        }
-        if(text.startsWith('Re ')){
-            const spt=text.indexOf(':')
-            if(spt!==-1&&spt<30){
-                item.toName=text.slice(3,spt)
-                text=text.slice(spt+1)
-                if(text.startsWith(' ')){
-                    text=text.slice(1)
-                }
-                if(item.toName.startsWith('#')){
-                    item.toName=cidToName[Number(item.toName.slice(1))]??''
-                }
-                if(item.toName===item.name||item.toName==='洞主'){
-                    item.toName=''
-                }
+    static fixComments(data:CommentData[]){
+        if(data.length>=2){
+            if(Number(data[0].cid)>Number(data[1].cid)){
+                data.reverse()
             }
         }
-        item.pureText=text
+        const cidToName:Record<number,string|undefined>={}
+        for(let i=0;i<data.length;i++){
+            const item=data[i]
+            if(typeof item.toName==='string')continue
+            item.toName=''
+            let {text,cid}=item
+            if(typeof text!=='string'){
+                text=''
+            }
+            cid=Number(cid)
+            const spt=text.indexOf(']')
+            if(typeof item.name!=='string'||item.name.length===0){
+                item.name=text.slice(1,spt)
+            }
+            cidToName[cid]=item.name
+            text=text.slice(spt+1)
+            if(text.startsWith(' ')){
+                text=text.slice(1)
+            }
+            if(text.startsWith('Re ')){
+                const spt=text.indexOf(':')
+                if(spt!==-1&&spt<30){
+                    item.toName=text.slice(3,spt)
+                    text=text.slice(spt+1)
+                    if(text.startsWith(' ')){
+                        text=text.slice(1)
+                    }
+                    if(item.toName.startsWith('#')){
+                        item.toName=cidToName[Number(item.toName.slice(1))]??''
+                    }
+                    if(item.toName===item.name||item.toName==='洞主'){
+                        item.toName=''
+                    }
+                }
+            }
+            item.pureText=text
+        }
     }
 }

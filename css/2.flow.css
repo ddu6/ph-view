@@ -1,0 +1,34 @@
+.main>.flow {
+    padding: 0 var(--length-padding);
+    max-width: var(--length-width);
+    margin: 0 auto;
+}
+
+.main>.flow:empty::before {
+    content: "loading...";
+}
+
+@media print {
+    .main>.flow {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.sep {
+    height: 1em;
+}
+
+.sep+.sep{
+    height: 0;
+}
+
+.end::before {
+    content: "- end -";
+    display: block;
+    text-align: center;
+    padding: var(--length-gap);
+    margin-bottom: var(--length-tab);
+    color: var(--color-light);
+    font-size: var(--length-font-log);
+}

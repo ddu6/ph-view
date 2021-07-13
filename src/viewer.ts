@@ -1,14 +1,11 @@
-import {Hole} from '../pure/hole'
-import {prettyDate,prettyText} from '../../funcs/pretty'
+import {Hole} from './hole'
+import {prettyDate,prettyText} from './common'
 
-import {LRStruct} from '../pure/lrStruct'
-import {KillableLock} from '../../wheels/lock'
-import * as get from '../../funcs/get'
-import * as css from '../../lib/css'
-import {fonts} from '../../lib/fonts'
-import { Button, Checkbox, Div, Form, FormLine,NamedAnchor } from '../pure/common'
-import { compress } from '../../funcs/img'
-import { getVersion } from '../../funcs/url'
+import {Button,Checkbox,Div,Form,FormLine,NamedAnchor,LRStruct} from '@ddu6/stui'
+import {KillableLock} from './lock'
+import * as get from './get'
+import {all} from './lib/css'
+import { compress } from './compress'
 type AppendData={
     data:get.HoleData
     isRef:boolean
@@ -19,7 +16,7 @@ type AppendData={
     idOnly:true
     comment?:get.CommentData
 }
-export class Main extends LRStruct{
+export class Viewer extends LRStruct{
     flow=new Div(['flow'])
     styleEle=document.createElement('style')
     fetchLock=new KillableLock()
@@ -45,7 +42,6 @@ export class Main extends LRStruct{
     }
     textareas={
         text:document.createElement('textarea'),
-        view:document.createElement('textarea')
     }
     checkboxes={
         add:new Checkbox('add'),
@@ -57,8 +53,6 @@ export class Main extends LRStruct{
         settings:new Checkbox('settings',['show name','left']),
         messages:new Checkbox('messages',['show name','left']),
         img:new Checkbox('add image',['show name','img']),
-        view:new Checkbox('view token',['show name','view','left']),
-        about:new Checkbox('about',['show name','left']),
     }
     forms={
         panel:new Form('panel'),
@@ -66,17 +60,13 @@ export class Main extends LRStruct{
         login:new Form('login',['hole']),
         settings:new Form('settings',['hide']),
         messages:new Form('messages',['hide']),
-        view:new Form('view',['hide']),
-        about:new Form('about',['hide']),
     }
     buttons={
         delete:new Button('delete')
     }
     anchors={
-        rules:new NamedAnchor('https://pkuhelper.pku.edu.cn/treehole_rules.html','rules','checkbox',['doc','icomoon','show name','left']),
-        issures:new NamedAnchor('https://github.com/ddu6/ph-view/issues','issures','checkbox',['icomoon','show name','left'])
+        rules:new NamedAnchor('https://pkuhelper.pku.edu.cn/treehole_rules.html','rules','checkbox',['doc','icomoon','show name','left'])
     }
-    auto=false
     star=false
     order:get.Order='id'
     fillter=''
@@ -90,18 +80,15 @@ export class Main extends LRStruct{
     s=0
     e=0
     ids:number[]=[]
-    keys:string[]=[]
     key=''
     end=false
     appendedIds:number[]=[]
     lastAppend=Date.now()
-    inited=false
     errCount=0
     maxId=-1
     maxETime=0
     
     local=false
-    scrollSpeed=500
     appendThreshod=1000
     congestionSleep=1000
     recaptchaSleep=10000
@@ -109,84 +96,135 @@ export class Main extends LRStruct{
     errSleep=2000
     dRegExp=/\.d\d{0,8}/g
     idsRegExp=/#\d{1,7}-\d{1,7}|#\d{1,4}\*\*\*|#\d{1,5}\*\*|#\d{1,6}\*|#\d{1,7}/g
-    constructor(public parent:HTMLElement){
-        super()
-        const version=getVersion()
-        
-        parent.append(this.element)
-        parent.append(this.styleEle)
-        this.sideContent.append(this.forms.panel
-            .append(new Div(['tools'])
+    constructor(){
+        super('PKU Hole','https://ddu6.github.io/imgs/ph.png',all)
+        this.sideContent
+        .append(
+            this.forms.panel
+            .append(
+                new Div(['tools'])
                 .append(this.checkboxes.add)
                 .append(this.checkboxes.star)
-                .append(this.checkboxes.refresh))
-            .append(this.forms.add
+                .append(this.checkboxes.refresh)
+            )
+            .append(
+                this.forms.add
                 .append(this.textareas.text)
-                .append(this.checkboxes.img
-                    .append(this.inputs.img))
-                .append(new Div(['attachment'])
-                    .append(this.buttons.delete))
-                .append(this.checkboxes.send))
-            .append(new FormLine('order')
-                .append(this.selects.order))
-            .append(new FormLine('fillter')
-                .append(this.inputs.fillter))
-            .append(new FormLine('start date')
-                .append(this.inputs.s))
-            .append(new FormLine('end date')
-                .append(this.inputs.e))
-            .append(new FormLine('page')
-                .append(this.inputs.page))
+                .append(
+                    this.checkboxes.img
+                    .append(this.inputs.img)
+                )
+                .append(
+                    new Div(['attachment'])
+                    .append(this.buttons.delete)
+                )
+                .append(this.checkboxes.send)
+            )
+            .append(
+                new FormLine('order')
+                .append(this.selects.order)
+            )
+            .append(
+                new FormLine('fillter')
+                .append(this.inputs.fillter)
+            )
+            .append(
+                new FormLine('start date')
+                .append(this.inputs.s)
+            )
+            .append(
+                new FormLine('end date')
+                .append(this.inputs.e)
+            )
+            .append(
+                new FormLine('page')
+                .append(this.inputs.page)
+            )
             .append(new Div())
             .append(this.checkboxes.messages)
             .append(this.forms.messages)
             .append(this.anchors.rules)
             .append(this.checkboxes.settings)
-            .append(this.forms.settings
-                .append(new FormLine('color scheme')
-                    .append(this.selects.colorScheme))
-                .append(new FormLine('font size')
-                    .append(this.selects.fontSize))
-                .append(new FormLine('ref mode')
-                    .append(this.selects.refMode))
-                .append(new FormLine('ref limit')
-                    .append(this.inputs.refLimit))
-                .append(new FormLine('fold long text')
-                    .append(this.selects.foldText))
-                .append(new FormLine('fold long image')
-                    .append(this.selects.foldImg))
-                .append(new FormLine('fold long comments')
-                    .append(this.selects.foldComments)))
-            .append(this.anchors.issures)
-            .append(this.checkboxes.about)
-            .append(this.forms.about
-                .append(new FormLine('version').setText(version))
-                .append(new FormLine('contact').setText('ddu6@protonmail.com')))
-            .append(this.checkboxes.view)
-            .append(this.forms.view
-                .append(this.textareas.view))
-            .append(this.checkboxes.logout))
+            .append(
+                this.forms.settings
+                .append(
+                    new FormLine('color scheme')
+                    .append(this.selects.colorScheme)
+                )
+                .append(
+                    new FormLine('font size')
+                    .append(this.selects.fontSize)
+                )
+                .append(
+                    new FormLine('ref mode')
+                    .append(this.selects.refMode)
+                )
+                .append(
+                    new FormLine('ref limit')
+                    .append(this.inputs.refLimit)
+                )
+                .append(
+                    new FormLine('fold long text')
+                    .append(this.selects.foldText)
+                )
+                .append(
+                    new FormLine('fold long image')
+                    .append(this.selects.foldImg)
+                )
+                .append(
+                    new FormLine('fold long comments')
+                    .append(this.selects.foldComments)
+                )
+            )
+            .append(this.checkboxes.logout)
+        )
             
         this.main.append(this.flow)
-        this.forms.login.append(new FormLine('token')
-            .append(this.inputs.token))
-        .append(new FormLine('password')
-            .append(this.inputs.password))
+        this.forms.login
+        .append(
+            new FormLine('token')
+            .append(this.inputs.token)
+        )
+        .append(
+            new FormLine('password')
+            .append(this.inputs.password)
+        )
         .append(this.checkboxes.login)
 
-        this.styleEle.textContent=fonts+css.main+css.dark
         this.selects.order.innerHTML='<option>id</option><option>liveness</option><option>heat</option><option>span</option>'
         this.selects.refMode.innerHTML='<option>direct</option><option>recur</option>'
+
         this.selects.colorScheme.innerHTML='<option>auto</option><option>dark</option><option>light</option>'
         this.selects.fontSize.innerHTML='<option>small</option><option>medium</option><option>large</option>'
         this.selects.foldText.innerHTML='<option>false</option><option>true</option>'
         this.selects.foldImg.innerHTML='<option>false</option><option>true</option>'
         this.selects.foldComments.innerHTML='<option>false</option><option>true</option>'
-        this.selects.colorScheme.value=this.parent.dataset.colorScheme??'auto'
-        this.selects.fontSize.value=this.parent.dataset.fontSize??'small'
-        this.selects.foldText.value=this.parent.dataset.foldText??'false'
-        this.selects.foldImg.value=this.parent.dataset.foldImg??'false'
-        this.selects.foldComments.value=this.parent.dataset.foldComments??'false'
+        document.body.dataset.colorScheme
+        =this.selects.colorScheme.value
+        =window.localStorage.getItem('ph-color-scheme')
+        ??document.body.dataset.colorScheme
+        ??'auto'
+        document.body.dataset.fontSize
+        =this.selects.fontSize.value
+        =window.localStorage.getItem('ph-font-size')
+        ??document.body.dataset.fontSize
+        ??'small'
+        document.body.dataset.foldText
+        =this.selects.foldText.value
+        =window.localStorage.getItem('ph-fold-text')
+        ??document.body.dataset.foldText
+        ??'false'
+        document.body.dataset.foldImg
+        =this.selects.foldImg.value
+        =window.localStorage.getItem('ph-fold-img')
+        ??document.body.dataset.foldImg
+        ??'false'
+        document.body.dataset.foldComments
+        =this.selects.foldComments.value
+        =window.localStorage.getItem('ph-fold-comments')
+        ??document.body.dataset.foldComments
+        ??'false'
+
         this.inputs.fillter.type='search'
         this.inputs.page.type='number'
         this.inputs.page.min='1'
@@ -198,7 +236,6 @@ export class Main extends LRStruct{
         this.inputs.e.type='date'
         this.inputs.img.type='file'
         this.inputs.img.accept='image/*'
-        parent.classList.add('root')
 
         const params=new URLSearchParams(document.location.search)
         const fillter=params.get('fillter')
@@ -224,38 +261,41 @@ export class Main extends LRStruct{
         if(refMode==='direct'||refMode==='recur'){
             this.refMode=refMode
         }
-        const tmp=window.localStorage.getItem('ph-ref-limit')
-        if(tmp!==null){
-            const refLimit=Number(tmp)
-            if(refLimit>=0){
-                this.refLimit=refLimit
-            }
+        const refLimit=Number(window.localStorage.getItem('ph-ref-limit')??this.refLimit)
+        if(isFinite(refLimit)&&refLimit>=0){
+            this.refLimit=refLimit
         }
-        const colorScheme=window.localStorage.getItem('ph-color-scheme')
-        if(colorScheme==='auto'||colorScheme==='dark'||colorScheme==='light'){
-            this.parent.dataset.colorScheme=colorScheme
-            this.selects.colorScheme.value=colorScheme
-        }
-        const fontSize=window.localStorage.getItem('ph-font-size')
-        if(fontSize==='small'||fontSize==='medium'||fontSize==='large'){
-            this.parent.dataset.fontSize=fontSize
-            this.selects.fontSize.value=fontSize
-        }
-        const foldText=window.localStorage.getItem('ph-fold-text')
-        if(foldText==='true'||foldText==='false'){
-            this.parent.dataset.foldText=foldText
-            this.selects.foldText.value=foldText
-        }
-        const foldImg=window.localStorage.getItem('ph-fold-img')
-        if(foldImg==='true'||foldImg==='false'){
-            this.parent.dataset.foldImg=foldImg
-            this.selects.foldImg.value=foldImg
-        }
-        const foldComments=window.localStorage.getItem('ph-fold-comments')
-        if(foldComments==='true'||foldComments==='false'){
-            this.parent.dataset.foldComments=foldComments
-            this.selects.foldComments.value=foldComments
-        }
+        
+        this.selects.colorScheme.addEventListener('input',()=>{
+            window.localStorage.setItem(
+                'ph-color-scheme',
+                document.body.dataset.colorScheme=this.selects.colorScheme.value
+            )
+        })
+        this.selects.fontSize.addEventListener('input',()=>{
+            window.localStorage.setItem(
+                'ph-font-size',
+                document.body.dataset.fontSize=this.selects.fontSize.value
+            )
+        })
+        this.selects.foldText.addEventListener('input',()=>{
+            window.localStorage.setItem(
+                'ph-fold-text',
+                document.body.dataset.foldText=this.selects.foldText.value
+            )
+        })
+        this.selects.foldImg.addEventListener('input',()=>{
+            window.localStorage.setItem(
+                'ph-fold-img',
+                document.body.dataset.foldImg=this.selects.foldImg.value
+            )
+        })
+        this.selects.foldComments.addEventListener('input',()=>{
+            window.localStorage.setItem(
+                'ph-fold-comments',
+                document.body.dataset.foldComments=this.selects.foldComments.value
+            )
+        })
 
         this.inputs.fillter.addEventListener('keydown',async e=>{
             if(e.key==='Enter'){
@@ -280,56 +320,19 @@ export class Main extends LRStruct{
                 await this.start()
             }
         })
-        this.inputs.refLimit.addEventListener('blur',async e=>{
-            const refLimit=Number(this.inputs.refLimit.value)
-            if(refLimit>=0){
-                this.refLimit=refLimit
-                window.localStorage.setItem('ph-ref-limit',refLimit.toString())
-            }
-        })
-        this.selects.refMode.addEventListener('input',async e=>{
+        this.selects.refMode.addEventListener('input',async ()=>{
             const refMode=this.selects.refMode.value
             if(refMode==='direct'||refMode==='recur'){
-                this.refMode=refMode
-                window.localStorage.setItem('ph-ref-mode',refMode)
+                window.localStorage.setItem('ph-ref-mode',this.refMode=refMode)
             }
         })
-        this.selects.colorScheme.addEventListener('input',e=>{
-            const val=this.selects.colorScheme.value
-            if(val==='auto'||val==='dark'||val==='light'){
-                window.localStorage.setItem('ph-color-scheme',val)
-                this.parent.dataset.colorScheme=val
+        this.inputs.refLimit.addEventListener('blur',async ()=>{
+            const refLimit=Number(this.inputs.refLimit.value)
+            if(isFinite(refLimit)&&refLimit>=0){
+                window.localStorage.setItem('ph-ref-limit',(this.refLimit=refLimit).toString())
             }
         })
-        this.selects.fontSize.addEventListener('input',e=>{
-            const val=this.selects.fontSize.value
-            if(val==='small'||val==='medium'||val==='large'){
-                window.localStorage.setItem('ph-font-size',val)
-                this.parent.dataset.fontSize=val
-            }
-        })
-        this.selects.foldText.addEventListener('input',async e=>{
-            const val=this.selects.foldText.value
-            if(val==='true'||val==='false'){
-                window.localStorage.setItem('ph-fold-text',val)
-                this.parent.dataset.foldText=val
-            }
-        })
-        this.selects.foldImg.addEventListener('input',async e=>{
-            const val=this.selects.foldImg.value
-            if(val==='true'||val==='false'){
-                window.localStorage.setItem('ph-fold-img',val)
-                this.parent.dataset.foldImg=val
-            }
-        })
-        this.selects.foldComments.addEventListener('input',async e=>{
-            const val=this.selects.foldComments.value
-            if(val==='true'||val==='false'){
-                window.localStorage.setItem('ph-fold-comments',val)
-                this.parent.dataset.foldComments=val
-            }
-        })
-        this.selects.order.addEventListener('input',async e=>{
+        this.selects.order.addEventListener('input',async ()=>{
             this.inputs.page.value='1'
             if(this.selects.order.value==='heat'||this.selects.order.value==='span'){
                 this.inputs.fillter.value='.d '+this.inputs.fillter.value
@@ -339,12 +342,12 @@ export class Main extends LRStruct{
             }
             await this.start()
         })
-        this.checkboxes.star.addEventListener('click',async e=>{
+        this.checkboxes.star.addEventListener('click',async ()=>{
             this.inputs.page.value='1'
             this.checkboxes.star.classList.toggle('checked')
             await this.start()
         })
-        this.checkboxes.login.addEventListener('click',async e=>{
+        this.checkboxes.login.addEventListener('click',async ()=>{
             if(this.inputs.token.value.length!==32){
                 alert('Invalid token.')
                 return
@@ -355,10 +358,11 @@ export class Main extends LRStruct{
             window.localStorage.setItem('ph-password',this.password)
             await this.start()
         })
-        this.checkboxes.logout.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.logout
-            if(classList.contains('checking'))return
-            classList.add('checking')
+        this.checkboxes.logout.addEventListener('click',async ()=>{
+            if(this.checkboxes.logout.classList.contains('checking')){
+                return
+            }
+            this.checkboxes.logout.classList.add('checking')
             await this.clear()
             this.inputs.token.value=this.token
             this.inputs.password.value=this.password
@@ -374,12 +378,15 @@ export class Main extends LRStruct{
             window.localStorage.removeItem('ph-max-etimestamp')
             this.inputs.page.value='1'
             await this.start()
-            classList.remove('checking')
+            this.checkboxes.logout.classList.remove('checking')
         })
-        this.checkboxes.send.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.send
-            if(classList.contains('checking'))return
-            if(this.token.length===0)return
+        this.checkboxes.send.addEventListener('click',async ()=>{
+            if(this.checkboxes.send.classList.contains('checking')){
+                return
+            }
+            if(this.token.length===0){
+                return
+            }
             let src=''
             if(this.forms.add.classList.contains('img')){
                 const parent=this.buttons.delete.element.parentElement
@@ -398,19 +405,18 @@ export class Main extends LRStruct{
                 alert('Empty.')
                 return
             }
-            classList.add('checking')
+            this.checkboxes.send.classList.add('checking')
             const result0=await this.fetchLock.get()
             if(result0===false){
-                classList.remove('checking')
+                this.checkboxes.send.classList.remove('checking')
                 return
             }
             const result1=await get.add(text,src,this.token)
             await this.fetchLock.release(result0)
             if(result1===500||result1===503){
-                classList.remove('checking')
+                this.checkboxes.send.classList.remove('checking')
                 return
             }
-            const {id}=result1
             this.textareas.text.value=''
             if(this.forms.add.classList.contains('img')){
                 this.forms.add.classList.remove('img')
@@ -425,39 +431,37 @@ export class Main extends LRStruct{
             this.selects.order.value='id'
             this.inputs.fillter.value=''
             this.inputs.page.value='1'
-            this.stars.push(id)
+            this.stars.push(result1.id)
             window.localStorage.setItem('ph-stars',this.stars.join(','))
-            classList.remove('checking')
+            this.checkboxes.send.classList.remove('checking')
             await this.start()
         })
-        this.checkboxes.refresh.addEventListener('click',async e=>{
+        this.checkboxes.refresh.addEventListener('click',async ()=>{
             this.inputs.page.value='1'
             this.inputs.fillter.value=''
             await this.start()
         })
-        this.checkboxes.add.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.add
-            if(classList.contains('checked')){
-                this.forms.add.classList.add('hide')
-                classList.remove('checked')
-            }else{
+        this.checkboxes.add.addEventListener('click',async ()=>{
+            if(this.checkboxes.add.classList.toggle('checked')){
                 this.forms.add.classList.remove('hide')
-                classList.add('checked')
+            }else{
+                this.forms.add.classList.add('hide')
             }
         })
-        this.checkboxes.messages.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.messages
-            if(classList.contains('checked')){
+        this.checkboxes.messages.addEventListener('click',async ()=>{
+            if(this.checkboxes.messages.classList.contains('checked')){
                 this.forms.messages.classList.add('hide')
-                classList.remove('checked')
+                this.checkboxes.messages.classList.remove('checked')
             }else{
-                if(this.token.length===0)return
-                classList.add('checking')
+                if(this.token.length===0){
+                    return
+                }
+                this.checkboxes.messages.classList.add('checking')
                 this.forms.messages.element.innerHTML=''
                 this.forms.messages.classList.remove('hide')
                 const data=await get.getMsgs(this.token)
                 if(typeof data==='number'){
-                    classList.remove('checking')
+                    this.checkboxes.messages.classList.remove('checking')
                     return
                 }
                 for(let i=0;i<data.length;i++){
@@ -476,38 +480,25 @@ export class Main extends LRStruct{
                 if(data.length===0){
                     this.forms.messages.element.innerHTML='empty'
                 }
-                classList.add('checked')
-                classList.remove('checking')
+                this.checkboxes.messages.classList.add('checked')
+                this.checkboxes.messages.classList.remove('checking')
             }
         })
-        this.checkboxes.settings.addEventListener('click',async e=>{
-            const {classList}=this.checkboxes.settings
-            if(classList.contains('checked')){
-                this.forms.settings.classList.add('hide')
-                classList.remove('checked')
-            }else{
+        this.checkboxes.settings.addEventListener('click',async ()=>{
+            if(this.checkboxes.settings.classList.toggle('checked')){
                 this.forms.settings.classList.remove('hide')
-                classList.add('checked')
-            }
-        })
-        this.checkboxes.view.addEventListener('click',e=>{
-            this.checkboxes.view.classList.toggle('checked')
-            if(this.checkboxes.view.classList.contains('checked')){
-                this.textareas.view.value=this.token
-                this.forms.view.classList.remove('hide')
             }else{
-                this.textareas.view.value=''
-                this.forms.view.classList.add('hide')
+                this.forms.settings.classList.add('hide')
             }
         })
-        this.checkboxes.about.addEventListener('click',e=>{
-            this.checkboxes.about.classList.toggle('checked')
-            this.forms.about.classList.toggle('hide')
-        })
-        this.inputs.img.addEventListener('change',async e=>{
+        this.inputs.img.addEventListener('change',async ()=>{
             const files=this.inputs.img.files
-            if(files===null||files.length===0
-                ||this.checkboxes.img.classList.contains('checking'))return
+            if(
+                files===null||files.length===0
+                ||this.checkboxes.img.classList.contains('checking')
+            ){
+                return
+            }
             this.checkboxes.img.classList.add('checking')
             const src=await compress(URL.createObjectURL(files[0]))
             this.inputs.img.value=''
@@ -530,22 +521,26 @@ export class Main extends LRStruct{
             }
         })
         setInterval(async()=>{
-            if(!this.inited)return
-            if(this.auto){
-                window.scrollBy({top:this.scrollSpeed,behavior:"smooth"})
-            }
-        },1000)
-        setInterval(async()=>{
-            if(!this.inited)return
             await this.autoAppendHols()
         },500)
+
+        ;(async()=>{
+            await this.clear()
+            await this.appendHoles()
+        })()
     }
     async getAndRenderComments(hole:Hole){
         const {id,commentNum}=hole
-        if(commentNum===0)return []
-        if(isNaN(id)||id===-1)return 500
+        if(commentNum===0){
+            return []
+        }
+        if(!isFinite(id)||id===-1){
+            return 500
+        }
         const result0=await this.fetchLock.get()
-        if(result0===false)return 500
+        if(result0===false){
+            return 500
+        }
         const result1=await get.getComments(id,commentNum,this.token,this.password)
         await this.fetchLock.release(result0)
         if(result1===503||result1===500){
@@ -555,7 +550,9 @@ export class Main extends LRStruct{
         for(let i=0;i<result1.length;i++){
             const item=result1[i]
             const {text}=item
-            if(typeof text!=='string')continue
+            if(typeof text!=='string'){
+                continue
+            }
             if(text.startsWith('[Helper]')){
                 hole.renderComments([item])
                 return 423
@@ -565,10 +562,11 @@ export class Main extends LRStruct{
     }
     parseFillter(){
         this.ids=[]
-        this.keys=[]
         this.key=''
         const fillter=this.fillter.trim()
-        if(fillter.length===0)return
+        if(fillter.length===0){
+            return
+        }
         const array0=fillter.match(this.dRegExp)
         if(Array.isArray(array0)&&array0.length>0){
             let d0=array0[array0.length-1].slice(2)
@@ -598,7 +596,9 @@ export class Main extends LRStruct{
                 const item=array1[i].slice(1)
                 if(item.includes('-')){
                     const [start,end]=item.split('-').map(val=>Number(val))
-                    if(isNaN(start)||isNaN(end))continue
+                    if(isNaN(start)||isNaN(end)){
+                        continue
+                    }
                     if(start<=end) for(let i=start;i<=end;i++){
                         this.ids.push(i)
                     }
@@ -609,7 +609,9 @@ export class Main extends LRStruct{
                 }
                 if(item.endsWith('***')){
                     const main=Number(item.slice(0,-3))
-                    if(isNaN(main)||main<=0)continue
+                    if(isNaN(main)||main<=0){
+                        continue
+                    }
                     const start=main*1000
                     const end=start+999
                     for(let i=start;i<=end;i++){
@@ -619,7 +621,9 @@ export class Main extends LRStruct{
                 }
                 if(item.endsWith('**')){
                     const main=Number(item.slice(0,-2))
-                    if(isNaN(main)||main<=0)continue
+                    if(isNaN(main)||main<=0){
+                        continue
+                    }
                     const start=main*100
                     const end=start+99
                     for(let i=start;i<=end;i++){
@@ -629,7 +633,9 @@ export class Main extends LRStruct{
                 }
                 if(item.endsWith('*')){
                     const main=Number(item.slice(0,-1))
-                    if(isNaN(main)||main<=0)continue
+                    if(isNaN(main)||main<=0){
+                        continue
+                    }
                     const start=main*10
                     const end=start+9
                     for(let i=start;i<=end;i++){
@@ -638,19 +644,22 @@ export class Main extends LRStruct{
                     continue
                 }
                 const id=Number(item)
-                if(isNaN(id))continue
+                if(isNaN(id)){
+                    continue
+                }
                 this.ids.push(id)
             }
         }
         this.fillter=fillter.replace(this.dRegExp,' ').trim()
         this.key=this.fillter.replace(this.idsRegExp,' ').trim()
-        this.keys=this.key.split(/\s+/)
     }
     async basicallyAppendHoles(data0:AppendData[]){
         for(let i=0;i<data0.length;i++){
             let item=data0[i]
             const id=Number(item.data.pid)
-            if(this.appendedIds.includes(id))continue
+            if(this.appendedIds.includes(id)){
+                continue
+            }
             this.appendedIds.push(id)
             let data1:get.HoleData
             if(item.idOnly){
@@ -659,7 +668,7 @@ export class Main extends LRStruct{
                     if(comment===403){
                         this.password=''
                         window.localStorage.setItem('ph-password',this.password)
-                        this.parent.classList.add('weak')
+                        document.body.classList.add('weak')
                     }else if(comment===503){
                         await this.fetchLock.sleep(this.congestionSleep)
                         this.appendedIds.pop()
@@ -667,7 +676,9 @@ export class Main extends LRStruct{
                         continue
                     }else if(comment===500){
                         this.errCount++
-                        if(this.errCount>this.errLimit)return 500
+                        if(this.errCount>this.errLimit){
+                            return 500
+                        }
                         await this.fetchLock.sleep(this.errSleep)
                         this.appendedIds.pop()
                         i--
@@ -678,19 +689,23 @@ export class Main extends LRStruct{
                     }
                 }
                 const data=await get.getHole(id,this.token,this.password)
-                if(data===404)continue
+                if(data===404){
+                    continue
+                }
                 if(data===401){
                     return 401
                 }
                 if(data===403){
                     this.password=''
                     window.localStorage.setItem('ph-password',this.password)
-                    this.parent.classList.add('weak')
+                    document.body.classList.add('weak')
                     continue
                 }
                 if(data===500){
                     this.errCount++
-                    if(this.errCount>this.errLimit)return 500
+                    if(this.errCount>this.errLimit){
+                        return 500
+                    }
                     await this.fetchLock.sleep(this.errSleep)
                     this.appendedIds.pop()
                     i--
@@ -703,23 +718,31 @@ export class Main extends LRStruct{
                     continue
                 }
                 data1=data
+            }else{
+                data1=item.data
             }
-            else data1=item.data
             const hole=new Hole()
             hole.render(data1,this.local,item.isRef,this.stars.includes(id),this.maxId,this.maxETime)
             hole.handleStar=async ()=>{
-                if(this.token.length===0)return
-                const {classList}=hole.checkboxes.star
-                const starrd=classList.contains('checked')
+                if(this.token.length===0){
+                    return
+                }
+                const starrd=hole.checkboxes.star.classList.contains('checked')
                 const result0=await this.fetchLock.get()
-                if(result0===false)return
+                if(result0===false){
+                    return
+                }
                 const result1=await get.star(id,starrd,this.token)
                 await this.fetchLock.release(result0)
-                if(result1===503||result1===500)return
+                if(result1===503||result1===500){
+                    return
+                }
                 let likenum=Number(hole.checkboxes.star.element.textContent)
                 if(starrd){
                     for(let i=0;i<this.stars.length;i++){
-                        if(this.stars[i]===id)this.stars[i]=-1
+                        if(this.stars[i]===id){
+                            this.stars[i]=-1
+                        }
                     }
                     likenum--
                 }else{
@@ -734,20 +757,24 @@ export class Main extends LRStruct{
                     }
                 }
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
-                classList.toggle('checked')
+                hole.checkboxes.star.classList.toggle('checked')
             }
             hole.handleRefresh=async ()=>{
                 await this.refreshHole(hole)
             }
             hole.handleSend=async ()=>{
-                if(this.token.length===0)return
+                if(this.token.length===0){
+                    return
+                }
                 const text=hole.textareas.comment.value
                 if(text.trim().length===0||text.match(hole.toNameRegExp)!==null){
                     alert('Empty.')
                     return
                 }
                 const result0=await this.fetchLock.get()
-                if(result0===false)return
+                if(result0===false){
+                    return
+                }
                 const result1=await get.comment(id,text,this.token)
                 await this.fetchLock.release(result0)
                 if(result1!==200){
@@ -766,31 +793,41 @@ export class Main extends LRStruct{
             if(item.idOnly&&item.comment!==undefined){
                 result0=[item.comment]
                 hole.renderComments(result0)
-            }else while(true){
-                const result1=await this.getAndRenderComments(hole)
-                if(result1===500){
-                    this.errCount++
-                    if(this.errCount>this.errLimit)return 500
-                    await this.fetchLock.sleep(this.errSleep)
-                    continue
+            }else{
+                while(true){
+                    const result1=await this.getAndRenderComments(hole)
+                    if(result1===500){
+                        this.errCount++
+                        if(this.errCount>this.errLimit){
+                            return 500
+                        }
+                        await this.fetchLock.sleep(this.errSleep)
+                        continue
+                    }
+                    if(result1===423){
+                        await this.fetchLock.sleep(this.recaptchaSleep)
+                        continue
+                    }
+                    if(result1===503){
+                        await this.fetchLock.sleep(this.congestionSleep)
+                        continue
+                    }
+                    result0=result1
+                    break
                 }
-                if(result1===423){
-                    await this.fetchLock.sleep(this.recaptchaSleep)
-                    continue
-                }
-                if(result1===503){
-                    await this.fetchLock.sleep(this.congestionSleep)
-                    continue
-                }
-                result0=result1
-                break
             }
-            if(this.refLimit<=0)continue
+            if(this.refLimit<=0){
+                continue
+            }
             let text=data1.text
-            if(typeof text!=='string')text=''
+            if(typeof text!=='string'){
+                text=''
+            }
             const fullText=text+'\n'+result0.map(val=>{
                 let text=val.text
-                if(typeof text!=='string')text=''
+                if(typeof text!=='string'){
+                    text=''
+                }
                 return text
             }).join('\n')
             if(!item.isRef||this.refMode==='recur'){
@@ -799,7 +836,9 @@ export class Main extends LRStruct{
                     const length=Math.min(result.length,this.refLimit)
                     for(let j=0;j<length;j++){
                         let id=result[j]
-                        if(id.startsWith('%23'))id=id.slice(3)
+                        if(id.startsWith('%23')){
+                            id=id.slice(3)
+                        }
                         data0.splice(i+j+1,0,{data:{pid:id},isRef:true,idOnly:true})
                     }
                 }
@@ -808,37 +847,42 @@ export class Main extends LRStruct{
         return 200
     }
     fillterStars(data:get.HoleData[]){
+        const keys=this.key.split(/\s+/)
         const out:get.HoleData[]=[]
-        for(let i=0;i<data.length;i++){
+        first:for(let i=0;i<data.length;i++){
             const item=data[i]
             const timestamp=Number(item.timestamp)
-            if(timestamp<this.s
-                ||this.e>0&&timestamp>this.e)continue
-            let text=item.text
-            if(typeof text!=='string')text=''
-            let ok=true
-            for(let i=0;i<this.keys.length;i++){
-                if(!text.includes(this.keys[i])){
-                    ok=false
-                    break
+            if(
+                timestamp<this.s
+                ||this.e>0&&timestamp>this.e
+                ||typeof item.text!=='string'
+            ){
+                continue
+            }
+            for(let i=0;i<keys.length;i++){
+                if(!item.text.includes(keys[i])){
+                    continue first
                 }
             }
-            if(!ok)continue
             out.push(item)
         }
         return out
     }
     async appendHoles(){
-        if(this.end||!this.inited)return
+        if(this.end){
+            return
+        }
         const result=await this.appendLock.get()
-        if(result===false)return
-        if(this.token.length===0){
+        if(result===false){
+            return
+        }
+        if(this.token===''){
             this.flow.element.innerHTML=''
             this.flow.append(this.forms.login)
-            this.parent.classList.add('login')
+            document.body.classList.add('login')
             this.end=true
         }else{
-            this.parent.classList.remove('login')
+            document.body.classList.remove('login')
         }
         if(this.end){
             await this.appendLock.release(result)
@@ -869,15 +913,19 @@ export class Main extends LRStruct{
                 }
                 this.stars=data1.map(val=>Number(val.pid))
                 window.localStorage.setItem('ph-stars',this.stars.join(','))
-                data0=this.fillterStars(data1).map(data=>{return {data:data,isRef:false,idOnly:false}})
+                data0=this.fillterStars(data1).map(data=>{
+                    return {data:data,isRef:false,idOnly:false}
+                })
                 break
             }
-        }
-        else if(this.ids.length>0){
-            data0=this.ids.slice(this.page,this.page+1).map(id=>{return {data:{pid:id},isRef:false,idOnly:true}})
-            if(this.ids.length===this.page+1)this.end=true
-        }
-        else{
+        }else if(this.ids.length>0){
+            data0=this.ids.slice(this.page,this.page+1).map(id=>{
+                return {data:{pid:id},isRef:false,idOnly:true}
+            })
+            if(this.ids.length===this.page+1){
+                this.end=true
+            }
+        }else{
             while(true){
                 const data1=await get.getPage(this.key,this.page+1,this.order,this.s,this.e,this.token,this.password)
                 if(data1===401){
@@ -901,7 +949,9 @@ export class Main extends LRStruct{
                     await this.fetchLock.sleep(this.congestionSleep)
                     continue
                 }
-                data0=data1.map(data=>{return {data:data,isRef:false,idOnly:false}})
+                data0=data1.map(data=>{
+                    return {data:data,isRef:false,idOnly:false}
+                })
                 break
             }
         }
@@ -909,7 +959,7 @@ export class Main extends LRStruct{
             alert('Wrong token.')
             this.flow.element.innerHTML=''
             this.flow.append(this.forms.login)
-            this.parent.classList.add('login')
+            document.body.classList.add('login')
             this.end=true
             await this.appendLock.release(result)
             return
@@ -931,7 +981,7 @@ export class Main extends LRStruct{
                     alert('Wrong token.')
                     this.flow.element.innerHTML=''
                     this.flow.append(this.forms.login)
-                    this.parent.classList.add('login')
+                    document.body.classList.add('login')
                     this.end=true
                     await this.appendLock.release(result)
                     return
@@ -945,16 +995,20 @@ export class Main extends LRStruct{
             end.classList.add('end')
             this.flow.append(end)
         }else{
-            const hr=document.createElement('div')
-            hr.classList.add('hr')
-            this.flow.append(hr)
+            const sep=document.createElement('div')
+            sep.classList.add('sep')
+            this.flow.append(sep)
         }
         await this.appendLock.release(result)
     }
     async autoAppendHols(){
-        if(Date.now()<this.lastAppend+250
-        ||window.pageYOffset+window.innerHeight<document.body.scrollHeight-this.appendThreshod
-        ||this.appendLock.busy)return
+        if(
+            Date.now()<this.lastAppend+250
+            ||window.pageYOffset+window.innerHeight<document.body.scrollHeight-this.appendThreshod
+            ||this.appendLock.busy
+        ){
+            return
+        }
         this.lastAppend=Date.now()
         await this.appendHoles()
     }
@@ -965,23 +1019,23 @@ export class Main extends LRStruct{
         await this.appendLock.kill()
         if(this.password.length===0){
             this.order='id'
-            this.parent.classList.add('weak')
+            document.body.classList.add('weak')
         }else{
-            this.parent.classList.remove('weak')
+            document.body.classList.remove('weak')
         }
         if(this.ids.length>0){
             this.order='id'
-            this.parent.classList.add('ids')
+            document.body.classList.add('ids')
         }else{
-            this.parent.classList.remove('ids')
+            document.body.classList.remove('ids')
         }
         if(this.star){
             this.order='id'
-            this.parent.classList.add('star')
+            document.body.classList.add('star')
         }else{
-            this.parent.classList.remove('star')
+            document.body.classList.remove('star')
         }
-        this.parent.dataset.order=this.order
+        document.body.dataset.order=this.order
 
         if(this.order==='id'&&!this.star){
             this.s=0
@@ -1007,8 +1061,7 @@ export class Main extends LRStruct{
         }
         if(this.star){
             this.checkboxes.star.classList.add('checked')
-        }
-        else{
+        }else{
             this.checkboxes.star.classList.remove('checked')
         }
         this.end=false
@@ -1018,12 +1071,16 @@ export class Main extends LRStruct{
         const oldIdStr=storage.getItem('ph-max-id')
         if(oldIdStr!==null){
             const oldId=Number(oldIdStr)
-            if(!isNaN(oldId))this.maxId=oldId
+            if(!isNaN(oldId)){
+                this.maxId=oldId
+            }
         }
         const oldEStr=storage.getItem('ph-max-etimestamp')
         if(oldEStr!==null){
             const oldE=Number(oldEStr)
-            if(!isNaN(oldE))this.maxETime=oldE
+            if(!isNaN(oldE)){
+                this.maxETime=oldE
+            }
         }
         await this.fetchLock.revive()
         await this.appendLock.revive()
@@ -1054,14 +1111,11 @@ export class Main extends LRStruct{
         await this.clear()
         await this.appendHoles()
     }
-    async init(){
-        await this.clear()
-        this.inited=true
-        await this.appendHoles()
-    }
     async refreshHole(hole:Hole){
         const {id}=hole
-        if(isNaN(id)||id===-1)return 500
+        if(isNaN(id)||id===-1){
+            return 500
+        }
         let data1:get.HoleData|404|500
         while(true){
             const data=await get.getHole(id,this.token,this.password)
@@ -1076,7 +1130,7 @@ export class Main extends LRStruct{
             if(data===403){
                 this.password=''
                 window.localStorage.setItem('ph-password',this.password)
-                this.parent.classList.add('weak')
+                document.body.classList.add('weak')
                 data1=404
                 break
             }
@@ -1096,13 +1150,17 @@ export class Main extends LRStruct{
             data1=data
             break
         }
-        if(typeof data1==='number')return data1
+        if(typeof data1==='number'){
+            return data1
+        }
         hole.render(data1,this.local,hole.isRef,this.stars.includes(id),this.maxId,this.maxETime)
         while(true){
             const result1=await this.getAndRenderComments(hole)
             if(result1===500){
                 this.errCount++
-                if(this.errCount>this.errLimit)return 500
+                if(this.errCount>this.errLimit){
+                    return 500
+                }
                 await this.fetchLock.sleep(this.errSleep)
                 continue
             }
@@ -1117,21 +1175,5 @@ export class Main extends LRStruct{
             break
         }
         return 200
-    }
-    softPause(){
-        if(!this.auto)return
-        this.auto=false
-    }
-    softContinue(){
-        if(this.auto)return
-        this.auto=true
-    }
-    async wake(){
-        if(this.fetchLock.sleepTime===0)return
-        await this.fetchLock.wake()
-    }
-    async hardContinue(){
-        this.softContinue()
-        await this.start()
     }
 }

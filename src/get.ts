@@ -97,14 +97,24 @@ async function getResult(params:Record<string,string>={},form:Record<string,stri
         jsapiver:`201027113050-${2*Math.floor(Date.now()/72e5)}`
     })
     const result=await basicallyGet('https://pkuhelper.pku.edu.cn/services/pkuhole/api.php',params,form)
-    if(typeof result==='number')return result
+    if(typeof result==='number'){
+        return result
+    }
     const {status,body}=result
-    if(status!==200)return status
+    if(status!==200){
+        return status
+    }
     try{
         const {code,data,msg}=JSON.parse(body)
-        if(code===0)return {data:data}
-        if(msg==='没有这条树洞')return 404
-        if(msg==='已经关注过了')return 409
+        if(code===0){
+            return {data:data}
+        }
+        if(msg==='没有这条树洞'){
+            return 404
+        }
+        if(msg==='已经关注过了'){
+            return 409
+        }
         if(typeof msg==='string'&&msg.length>0){
             if(msg.startsWith('你已被禁言')){
                 alert(msg)
@@ -123,14 +133,24 @@ export async function getMsgs(token:string){
         PKUHelperAPI:'3.0',
         jsapiver:`201027113050-${2*Math.floor(Date.now()/72e5)}`
     })
-    if(result===503)return 503
-    if(typeof result==='number')return 500
+    if(result===503){
+        return 503
+    }
+    if(typeof result==='number'){
+        return 500
+    }
     const {status,body}=result
-    if(status===503)return 503
-    if(status!==200)return 500
+    if(status===503){
+        return 503
+    }
+    if(status!==200){
+        return 500
+    }
     try{
         const {result}=JSON.parse(body)
-        if(!Array.isArray(result))return 500
+        if(!Array.isArray(result)){
+            return 500
+        }
         const data:MsgData[]=result
         return data
     }catch(err){
@@ -141,7 +161,9 @@ export async function getMsgs(token:string){
 async function remotelyGetResult(path:string,params:Record<string,string>={}){
     const result=await new Promise(async(resolve:(val:{data:any}|number)=>void)=>{
         let paramsStr=new URLSearchParams(params).toString()
-        if(paramsStr.length>0)paramsStr='?'+paramsStr
+        if(paramsStr.length>0){
+            paramsStr='?'+paramsStr
+        }
         setTimeout(()=>{
             resolve(503)
         },timeout*1000)
@@ -256,7 +278,9 @@ async function locallyGetPage(key:string,page:number|string,token:string){
     return await getSearch(key,page,token)
 }
 export async function getComment(cid:number|string,token:string,password:string){
-    if(password.length===0)return 403
+    if(password.length===0){
+        return 403
+    }
     cid=Number(cid)
     const result:number|{
         data: CommentData
@@ -264,14 +288,24 @@ export async function getComment(cid:number|string,token:string,password:string)
         token:token,
         password:password
     })
-    if(result===403)return 403
-    if(result===404)return 404
-    if(result===503)return 503
-    if(typeof result==='number')return 500
+    if(result===403){
+        return 403
+    }
+    if(result===404){
+        return 404
+    }
+    if(result===503){
+        return 503
+    }
+    if(typeof result==='number'){
+        return 500
+    }
     return result.data
 }
 export async function getComments(id:number|string,commentNum:number,token:string,password:string){
-    if(commentNum===0)return []
+    if(commentNum===0){
+        return []
+    }
     let result:number|{
         data: CommentData[]
     }=404
@@ -280,7 +314,9 @@ export async function getComments(id:number|string,commentNum:number,token:strin
         result=await locallyGetComments(id,token)
     }
     if(result===404){
-        if(password.length===0)return []
+        if(password.length===0){
+            return []
+        }
         result=await remotelyGetLocalComments(id,token,password)
     }else if(typeof result!=='number'&&password.length>0){
         const data=result.data
@@ -298,16 +334,24 @@ export async function getComments(id:number|string,commentNum:number,token:strin
                 for(let i=0;i<localData.length;i++){
                     const item=localData[i]
                     const id=Number(item.cid)
-                    if(ids.includes(id))continue
+                    if(ids.includes(id)){
+                        continue
+                    }
                     data.push(item)
                 }
                 data.sort((a,b)=>Number(a.cid)-Number(b.cid))
             }
         }
     }
-    if(result===404)return []
-    if(result===503)return 503
-    if(typeof result==='number')return 500
+    if(result===404){
+        return []
+    }
+    if(result===503){
+        return 503
+    }
+    if(typeof result==='number'){
+        return 500
+    }
     return result.data
 }
 export async function getHole(id:number|string,token:string,password:string){
@@ -322,19 +366,33 @@ export async function getHole(id:number|string,token:string,password:string){
         }
     }
     if(result===404){
-        if(password.length===0)return 404
+        if(password.length===0){
+            return 404
+        }
         result=await remotelyGetLocalHole(id,token,password)
         if(typeof result!=='number'){
             result.data.hidden=1
         }
-        if(result===403)return 403
+        if(result===403){
+            return 403
+        }
     }
-    if(result===401)return 401
-    if(result===503)return 503
-    if(result===404)return 404
-    if(typeof result==='number')return 500
+    if(result===401){
+        return 401
+    }
+    if(result===503){
+        return 503
+    }
+    if(result===404){
+        return 404
+    }
+    if(typeof result==='number'){
+        return 500
+    }
     const data=result.data
-    if(Number(data.timestamp)===0)return 404
+    if(Number(data.timestamp)===0){
+        return 404
+    }
     if(!weakPasswords.includes(password)&&Number(data.hidden)!==1){
         const result=await remotelyGetHole(id,token,password)
         if(result===403){
@@ -348,30 +406,48 @@ export async function getStars(token:string){
         action:'getattention',
         user_token:token
     })
-    if(result===401)return 401
-    if(result===503)return 503
-    if(result===404)return []
-    if(typeof result==='number')return 500
+    if(result===401){
+        return 401
+    }
+    if(result===503){
+        return 503
+    }
+    if(result===404){
+        return []
+    }
+    if(typeof result==='number'){
+        return 500
+    }
     const data=result.data
     return data
 }
 export async function star(id:number|string,starred:boolean,token:string){
     id=Number(id)
-    if(id<=oldCommentsThreshold||hiddenIds.includes(id))return 500
+    if(id<=oldCommentsThreshold||hiddenIds.includes(id)){
+        return 500
+    }
     const result=await getResult({
         action:'attention',
         pid:id.toString(),
         switch:starred?'0':'1',
         user_token:token
     })
-    if(typeof result!=='number')return 200
-    if(result===503)return 503
-    if(result===409)return 409
+    if(typeof result!=='number'){
+        return 200
+    }
+    if(result===503){
+        return 503
+    }
+    if(result===409){
+        return 409
+    }
     return 500
 }
 export async function comment(id:number|string,text:string,token:string){
     id=Number(id)
-    if(id<=oldCommentsThreshold||hiddenIds.includes(id))return 500
+    if(id<=oldCommentsThreshold||hiddenIds.includes(id)){
+        return 500
+    }
     const result=await getResult({
         action:'docomment',
         user_token:token
@@ -380,8 +456,12 @@ export async function comment(id:number|string,text:string,token:string){
         text:text,
         user_token:token
     })
-    if(typeof result!=='number')return 200
-    if(result===503)return 503
+    if(typeof result!=='number'){
+        return 200
+    }
+    if(result===503){
+        return 503
+    }
     return 500
 }
 export async function add(text:string,src:string,token:string){
@@ -399,27 +479,47 @@ export async function add(text:string,src:string,token:string){
             type:'text',
             user_token:token
         }
-    }else return 500
+    }else{
+        return 500
+    }
     const result=await getResult({
         action:'dopost',
         user_token:token
     },form)
-    if(result===503)return 503
-    if(typeof result==='number')return 500
+    if(result===503){
+        return 503
+    }
+    if(typeof result==='number'){
+        return 500
+    }
     const {data}=result
-    if(typeof data!=='string'&&typeof data!=='number')return 500
+    if(typeof data!=='string'&&typeof data!=='number'){
+        return 500
+    }
     const id=Number(data)
-    if(isNaN(id))return 500
+    if(isNaN(id)){
+        return 500
+    }
     return {id:id}
 }
 export async function getPage(key:string,page:number|string,order:Order,s:number,e:number,token:string,password:string){
     if(order!=='id'){
-        if(password.length===0)return 403
+        if(password.length===0){
+            return 403
+        }
         const result=await remotelyGetLocalPage(key,page,order,s,e,token,password)
-        if(result===401)return 401
-        if(result===403)return 403
-        if(result===503)return 503
-        if(typeof result==='number')return 500
+        if(result===401){
+            return 401
+        }
+        if(result===403){
+            return 403
+        }
+        if(result===503){
+            return 503
+        }
+        if(typeof result==='number'){
+            return 500
+        }
         const data=result.data
         if(order==='liveness'&&data.length>0){
             let {etimestamp}=data[0]
@@ -443,10 +543,18 @@ export async function getPage(key:string,page:number|string,order:Order,s:number
         return data
     }
     const result=await locallyGetPage(key,page,token)
-    if(result===401)return 401
-    if(result===404)return []
-    if(result===503)return 503
-    if(typeof result==='number')return 500
+    if(result===401){
+        return 401
+    }
+    if(result===404){
+        return []
+    }
+    if(result===503){
+        return 503
+    }
+    if(typeof result==='number'){
+        return 500
+    }
     const data=result.data
     if(data.length>0){
         if(!weakPasswords.includes(password)){

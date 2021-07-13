@@ -1,0 +1,51 @@
+.panel {
+    padding: var(--length-padding);
+    padding-bottom: var(--length-tab);
+}
+
+.form.add>textarea {
+    height: calc(var(--number-ratio-line) * 10em);
+}
+
+.checkbox.img {
+    position: relative;
+}
+
+.checkbox.img>input {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    width: 100%;
+    cursor: pointer;
+}
+
+.panel .attachment {
+    max-height: calc(var(--number-ratio-line) * 10em);
+    overflow-y: auto;
+    position: relative;
+}
+
+.button.delete {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+body.star .form-line.order,
+body.ids .form-line.order,
+body.weak .form-line.order,
+
+body.login .messages,
+body.login .logout,
+
+body[data-order=id]:not(.star) .start-date,
+body[data-order=id]:not(.star) .end-date,
+
+.form.add.img>.checkbox.img,
+.form.add:not(.img)>.attachment {
+    display: none !important;
+}

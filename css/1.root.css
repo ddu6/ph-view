@@ -1,0 +1,17 @@
+body[data-fold-text=true] .hole>.text,
+body[data-fold-img=true] .hole .attachment,
+body[data-fold-comments=true] .comments,
+.form.messages {
+    max-height: calc(var(--number-ratio-line) * 20em);
+    overflow-y: auto;
+}
+
+.hide {
+    display: none !important;
+}
+
+.tools {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}

@@ -1,5 +1,9 @@
 class Lock{
-    private queue:({symbol:symbol,listen:()=>void,failed:boolean})[]=[]
+    private queue:({
+        symbol:symbol
+        listen:()=>void
+        failed:boolean
+    })[]=[]
     async get(wait:-1):Promise<symbol>
     async get(wait?:number):Promise<symbol|false>
     async get(wait:number=10000){
@@ -12,11 +16,12 @@ class Lock{
                 },
                 failed:false
             }
-            if(wait>0)
-            setTimeout(()=>{
-                resolve(false)
-                profile.failed=true
-            },wait)
+            if(wait>0){
+                setTimeout(()=>{
+                    resolve(false)
+                    profile.failed=true
+                },wait)
+            }
             this.queue.push(profile)
             if(this.queue[0].symbol===symbol){
                 resolve(symbol)
@@ -25,12 +30,16 @@ class Lock{
         return result
     }
     release(symbol:symbol){
-        if(this.queue.length===0||this.queue[0].symbol!==symbol)return
+        if(this.queue.length===0||this.queue[0].symbol!==symbol){
+            return
+        }
         this.queue.shift()
         while(this.queue.length>0&&this.queue[0].failed){
             this.queue.shift()
         }
-        if(this.queue.length>0)this.queue[0].listen()
+        if(this.queue.length>0){
+            this.queue[0].listen()
+        }
     }
 }
 export class KillableLock{
@@ -42,7 +51,11 @@ export class KillableLock{
     private killed=false
     private killedListen=()=>{}
     private killingListen=async(symbol:symbol)=>{}
-    private queue:({symbol:symbol,listen:(killing:boolean)=>void,failed:boolean})[]=[]
+    private queue:({
+        symbol:symbol
+        listen:(killing:boolean)=>void
+        failed:boolean
+    })[]=[]
     async get(wait:number=10000){
         const result=await new Promise(async(resolve:(val:symbol|false)=>void)=>{
             const symbol=Symbol()
@@ -58,11 +71,12 @@ export class KillableLock{
                 },
                 failed:false
             }
-            if(wait>0)
-            setTimeout(()=>{
-                resolve(false)
-                profile.failed=true
-            },wait)
+            if(wait>0){
+                setTimeout(()=>{
+                    resolve(false)
+                    profile.failed=true
+                },wait)
+            }
             const result=await this.lock.get(-1)
             if(this.killing||this.killed){
                 resolve(false)
@@ -95,9 +109,10 @@ export class KillableLock{
             }
             this.queue=[]
             this.killedListen()
-        }
-        else{
-            if(this.queue.length>0)this.queue[0].listen(false)
+        }else{
+            if(this.queue.length>0){
+                this.queue[0].listen(false)
+            }
         }
         this.lock.release(result)
     }
@@ -160,7 +175,9 @@ export class KillableLock{
             return
         }
         this.killingListen=async(symbol0:symbol)=>{
-            if(symbol!==symbol0)return
+            if(symbol!==symbol0){
+                return
+            }
             await killingListen()
         }
         this.lock.release(result)

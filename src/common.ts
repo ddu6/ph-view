@@ -1,5 +1,6 @@
 export function prettyText(text:string){
-    text=text.replace(/&/g,"&amp;")
+    text=text
+    .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
     .replace(/\'/g,"&#39;")
@@ -15,14 +16,18 @@ export function prettyDate(stamp:string|number){
     const now=new Date()
     const year=date.getFullYear()
     const nowYear=now.getFullYear()
-    const md=(date.getMonth()+1)+'/'+
-    date.getDate()
-    const nowMD=(now.getMonth()+1)+'/'+
-    now.getDate()
-    const hms=date.getHours()+':'+
-    date.getMinutes()+':'+
-    date.getSeconds()
-    if(year!==nowYear)return hms+' '+year+'/'+md
-    if(nowMD!==md)return hms+' '+md
+    const md=(date.getMonth()+1)
+    +'/'+date.getDate()
+    const nowMD=(now.getMonth()+1)
+    +'/'+now.getDate()
+    const hms=date.getHours()
+    +':'+date.getMinutes()
+    +':'+date.getSeconds()
+    if(year!==nowYear){
+        return hms+' '+year+'/'+md
+    }
+    if(nowMD!==md){
+        return hms+' '+md
+    }
     return hms
 }

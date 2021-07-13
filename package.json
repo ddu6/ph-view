@@ -1,12 +1,16 @@
 {
   "version": "0.22.6",
   "scripts": {
-    "build": "node scripts/pkg-fonts.js & node scripts/pkg-css.js && webpack"
+    "pkg": "node scripts/pkg-css.js",
+    "build": "node scripts/pkg-css.js && webpack"
   },
   "devDependencies": {
     "ts-loader": "^9.2.3",
     "typescript": "^4.3.2",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2"
+  },
+  "dependencies": {
+    "@ddu6/stui": "^0.0.12"
   }
 }

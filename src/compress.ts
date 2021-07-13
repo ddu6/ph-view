@@ -5,10 +5,12 @@ export async function compress(src:string){
     const img=document.createElement('img')
     img.src=src
     return await new Promise((resolve:(val:string)=>void)=>{
-        img.addEventListener('load',e=>{
+        img.addEventListener('load',()=>{
             const canvas=document.createElement('canvas')
             const ctx=canvas.getContext('2d')
-            if(ctx===null)return
+            if(ctx===null){
+                return
+            }
             let w=img.width
             let h=img.height
             if(w>maxWidth){
